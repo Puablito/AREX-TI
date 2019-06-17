@@ -1,3 +1,0 @@
-# AREX-TI
-
-Pablo Pycham
