@@ -1,0 +1,46 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Proyectos</title>
+    <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+</head>
+<body>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">IPP</td>
+                <th scope="col">Descripcion</td>
+                <th scope="col">Fiscalia</td>
+                <th scope="col">Responsable</td>
+                <th scope="col">Defensoria</td>
+                <th scope="col">Juzgado</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% if object_list %}
+            {% for proyecto in object_list %}
+            <tr class="table-info">
+                <td>{{proyecto.id}}</td>
+                <td>{{proyecto.IPP}}</td>
+                <td>{{proyecto.descripcion}}</td>
+                <td>{{proyecto.fiscalia}}</td>
+                <td>{{proyecto.responsable}}</td>
+                <td>{{proyecto.defensoria}}</td>
+                <td>{{proyecto.juzgado}}</td>
+                <td>
+                    <a class="btn btn-primary" href="{% url 'ProyectoEditar' proyecto.id %}">Editar</a>
+                    <a class="btn btn-danger" href="{% url 'ProyectoEliminar' proyecto.id %}">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+
+            {% else %}
+            <h1>No hay registros</h1>
+            {% endif %}
+        </tbody>
+    </table>
+</body>
+</html>
