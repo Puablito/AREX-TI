@@ -1,6 +1,8 @@
 from django.db import models
 
 # Create your models here.
+
+
 class Proyecto(models.Model):
     IPP = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=200)
@@ -8,37 +10,46 @@ class Proyecto(models.Model):
     responsable = models.CharField(max_length=100)
     defensoria = models.CharField(max_length=100)
     juzgado = models.CharField(max_length=100)
-    activo = models.BinaryField
+    activo = models.IntegerField(default=1)
 
     def __str__(self):
         return self.descripcion
+
 
 class Pericia(models.Model):
+    tiposPericia = (
+        ('Movil', 'Movil'),
+        ('Investigacion', 'Investigacion'),
+        ('Otro', 'Otro'),
+    )
     descripcion = models.CharField(max_length=200)
     nombrePerito = models.CharField(max_length=100)
-    fecha = models.DateTimeField
-    tipoPericia = models.CharField(max_length=100)
-    proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE)
-    activo = models.BinaryField
+    fecha = models.DateField()
+    tipoPericia = models.CharField(max_length=30, choices=tiposPericia, default='Movil')
+    proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, limit_choices_to={'activo': 1})
+    activo = models.IntegerField(default=1)
 
     def __str__(self):
         return self.descripcion
+
 
 class TipoImagen(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=200)
-    activo = models.BinaryField
+    activo = models.IntegerField(default=1)
 
     def __str__(self):
         return self.descripcion
 
+
 class TipoHash(models.Model):
     nombre = models.CharField(max_length=100)
     funcion = models.CharField(max_length=200)
-    activo = models.BinaryField
+    activo = models.IntegerField(default=1)
 
     def __str__(self):
         return self.nombre
+
 
 class Imagen(models.Model):
     pericia = models.ForeignKey(Pericia, on_delete=models.CASCADE)
@@ -49,10 +60,11 @@ class Imagen(models.Model):
     referencia = models.CharField(max_length=200)
     extension = models.CharField(max_length=10)
     clasificada = models.BinaryField
-    activo = models.BinaryField
+    activo = models.IntegerField(default=1)
 
     def __str__(self):
         return self.nombre
+
 
 class ImagenDetalle(models.Model):
     imagen = models.ForeignKey(Imagen, on_delete=models.CASCADE)

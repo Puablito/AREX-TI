@@ -1,5 +1,11 @@
 from django import forms
-from AREXTI_APP.models import Proyecto
+from AREXTI_APP.models import Proyecto, Pericia
+
+
+class DateInput(forms.DateInput):
+    input_type = 'date'
+
+
 class ProyectoForm(forms.ModelForm):
 
     class Meta:
@@ -8,7 +14,6 @@ class ProyectoForm(forms.ModelForm):
         fields = [
             'IPP',
             'descripcion',
-            # 'fecha',
             'fiscalia',
             'responsable',
             'defensoria',
@@ -18,7 +23,6 @@ class ProyectoForm(forms.ModelForm):
         labels = {
             'IPP':'IPP',
             'descripcion':'Descripcion',
-            # 'fecha':'Fecha',
             'fiscalia':'Fiscalia',
             'responsable':'Responsable',
             'defensoria': 'Defensoria',
@@ -26,11 +30,40 @@ class ProyectoForm(forms.ModelForm):
         }
 
         widgets = {
-            'IPP': forms.TextInput(attrs={'class': 'form-control', 'id':'IPP'}),
+            'IPP': forms.TextInput(attrs={'class': 'form-control', 'id': 'IPP'}),
             'descripcion': forms.TextInput(attrs={'class': 'form-control'}),
-            # 'fecha': forms.DateField(),
-            'fiscalia': forms.TextInput(attrs={'class': 'form-control', 'id':'fiscalia'}),
-            'responsable': forms.TextInput(attrs={'class':'form-control'}),
+            'fiscalia': forms.TextInput(attrs={'class': 'form-control', 'id': 'fiscalia'}),
+            'responsable': forms.TextInput(attrs={'class': 'form-control'}),
             'defensoria': forms.TextInput(attrs={'class': 'form-control'}),
             'juzgado': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+
+class PericiaForm(forms.ModelForm):
+
+    class Meta:
+        model = Pericia
+
+        fields = [
+            'descripcion',
+            'nombrePerito',
+            'fecha',
+            'tipoPericia',
+            'proyecto',
+        ]
+
+        labels = {
+            'descripcion': 'Descripcion',
+            'nombrePerito': 'Nombre perito',
+            'fecha': 'Fecha',
+            'tipoPericia': 'Tipo Pericia',
+            'proyecto': 'Proyecto',
+        }
+
+        widgets = {
+            'descripcion': forms.TextInput(attrs={'class': 'form-control', 'id': 'descripcion'}),
+            'nombrePerito': forms.TextInput(attrs={'class': 'form-control'}),
+            'fecha': DateInput(attrs={'class': 'form-control'}),
+            'tipoPericia': forms.Select(attrs={'class': 'form-control'}),
+            'proyecto': forms.Select(attrs={'class': 'form-control'}),
         }
