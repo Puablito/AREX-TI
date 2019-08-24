@@ -6,4 +6,5 @@ venv/
 # IntelliJ project files
 .idea/
 *.iml
+
 /AREXTI_DJANGO/AREXTI_DJANGO/settings.py
