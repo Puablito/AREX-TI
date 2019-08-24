@@ -1,5 +1,10 @@
 # Created by .ignore support plugin (hsz.mobi)
 
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
 # Environments
 venv/
 
@@ -7,5 +12,8 @@ venv/
 .idea/
 *.iml
 
+# Django files
 /AREXTI_DJANGO/AREXTI_DJANGO/settings.py
+migrations/
+
 /Pablo.md
