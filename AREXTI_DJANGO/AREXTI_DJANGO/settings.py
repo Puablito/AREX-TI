@@ -78,9 +78,9 @@ WSGI_APPLICATION = 'AREXTI_DJANGO.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'AREX-TI',
+        'NAME': 'postgres',
         'USER': 'postgres',
-        'PASSWORD': '1234',
+        'PASSWORD': 'arexti',
         'HOST': 'localhost',
         'PORT': '5432',
     }
