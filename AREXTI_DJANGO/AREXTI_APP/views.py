@@ -9,7 +9,7 @@ from AREXTI_APP.forms import ProyectoForm, PericiaForm
 
 
 def home(request):
-    return render(request, 'AREXTI_APP/home.html')
+    return render(request, 'home/index.html')
 
 
 class ProyectoListar(ListView):

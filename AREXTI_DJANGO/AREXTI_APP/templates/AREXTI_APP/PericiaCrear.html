@@ -1,47 +1,14 @@
-{% load staticfiles %}
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base/AbmBase.html' %}
+{% block titulo %}
+   Pericia
+{% endblock %}
+{% block linkVolver %}
+  <a type="" href="{% url 'PericiaListar' %}" style="color:black"> Volver a Pericias</a>
+{% endblock %}
 
-<head>
-
-  <meta charset="utf-8">
-  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.10/jquery.mask.js"></script>
-  <script src="js/jquery.mask.min.js"></script>
-  <title>AREX-TI</title>
-
-  {% load bootstrap4 %}
-  <!-- Bootstrap core CSS -->
-  <!-- Custom fonts for this template -->
-
-  <!-- Custom styles for this template -->
-  <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
-
-</head>
-
-<body>
-  <div class="jumbotron text-center" style="margin-bottom:0">
-    <h1>AREX-TI</h1>
-    <p>Resize this responsive page to see the effect!</p>
-  </div>
-  <!-- Main Content -->
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-8 col-md-10 mx-auto">
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-
-            <button type="submit">Guardar</button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <hr>
-
-  <!-- Footer -->
-  <!-- Bootstrap core JavaScript -->
-</body>
-
-</html>
+{% block btnCancelar %}
+  <button class="btn btn-default" onclick="location.href={% url 'PericiaListar' %}">Cancelar</button>
+{% endblock %}
+{% block btnListar %}
+  <button type="button" onclick="location.href={% url 'PericiaListar' %}" class="btn btn-success pull-right">Ver Imagenes</button>
+{% endblock %}

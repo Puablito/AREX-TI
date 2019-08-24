@@ -1,0 +1,75 @@
+{% extends 'home/index.html' %}
+{% load staticfiles %}
+
+
+
+{% block scripts %}
+    <script>
+
+    </script>
+    {% block AbmBaseScripts %}
+    {% endblock %}
+{% endblock %}
+  <!-- Bootstrap core CSS -->
+  <!-- Custom fonts for this template -->
+
+  <!-- Custom styles for this template -->
+
+{% block error %}
+
+{% endblock %}
+
+{% block principal %}
+<!--<body>-->
+
+  <!-- Main Content -->
+  <!--<div class="content-wrapper">-->
+
+    <section class="content-header">
+        <!--<div class="jumbotron" style="margin-bottom:0">-->
+            <h1>
+                {% if not object %}
+                Crear
+                {% endif %}
+                {% block titulo %}
+                {% endblock %}
+                {% if object %}
+                 - {{ object.descripcion }}
+                {% endif %}
+            </h1>
+            <h6>
+                {% block linkVolver %}
+                {% endblock %}
+            </h6>
+        <!--</div>-->
+    </section>
+    <section class="content">
+    <div class="row">
+
+      <div class="col-lg-10 col-md-12 mx-auto">
+        <div class="box">
+             <div class="box-body">
+                <form class="form" method="post">
+
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <div class="box-footer">
+                            <button type="submit" class="btn btn-info">Aceptar</button>
+                            {% block btnCancelar %}
+                            {% endblock %}
+
+                            {% block btnListar %}
+                            {% endblock %}
+                        </div>
+                </form>
+              </div>
+        </div>
+      </div>
+    </div>
+    </section>
+  <!--</div>-->
+
+  <!-- Footer -->
+  <!-- Bootstrap core JavaScript -->
+<!--</body>-->
+{% endblock %}
