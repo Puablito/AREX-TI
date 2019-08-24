@@ -71,7 +71,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'AREXTI_DJANGO.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
