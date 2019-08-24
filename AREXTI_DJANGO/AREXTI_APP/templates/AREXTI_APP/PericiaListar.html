@@ -1,44 +1,139 @@
-{% load staticfiles %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Pericias</title>
-    <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
-</head>
-<body>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Descripcion</td>
-                <th scope="col">Perito</td>
-                <th scope="col">Fecha</td>
-                <th scope="col">Tipo Pericia</td>
-                <th scope="col">Proyecto</td>
-            </tr>
-        </thead>
-        <tbody>
-            {% if object_list %}
-            {% for pericia in object_list %}
-            <tr class="table-info">
-                <td>{{pericia.id}}</td>
-                <td>{{pericia.descripcion}}</td>
-                <td>{{pericia.nombrePerito}}</td>
-                <td>{{pericia.fecha}}</td>
-                <td>{{pericia.tipoPericia}}</td>
-                <td>{{pericia.proyecto.descripcion}}</td>
-                <td>
-                    <a class="btn btn-primary" href="{% url 'PericiaEditar' pericia.id %}">Editar</a>
-                    <a class="btn btn-danger" href="{% url 'PericiaEliminar' pericia.id %}">Eliminar</a>
-                </td>
-            </tr>
-            {% endfor %}
+{% extends 'base/ListadoBase.html' %}
 
-            {% else %}
-            <h1>No hay registros</h1>
-            {% endif %}
-        </tbody>
-    </table>
-</body>
-</html>
+{% block titulo %}
+<h1> Pericias </h1>
+{% endblock %}
+
+{% block filtros %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="form-group">
+            <label class="col-md-3 control-label">Causa</label>
+            <div class="col-md-9">
+                <select class="form-control">
+                    <option>Causa 1</option>
+                    <option>Causa 2</option>
+                    <option>Causa 3</option>
+                    <option>Causa 4</option>
+                    <option>Causa 5</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="form-group">
+            <label class="col-md-3 control-label" for="filtrodescripcion">Descripción</label>
+            <div class="col-md-9">
+                <input type="text" id="filtrodescripcion" class="form-control" placeholder="Descripción" name="descripcion">
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            <label class="col-md-5 control-label">Tipo Pericia</label>
+            <div class="col-md-7">
+                <select class="form-control">
+                    <option>Investigación</option>
+                    <option>Tipo 2</option>
+                    <option>Tipo 3</option>
+                    <option>Tipo 4</option>
+                    <option>Tipo 5</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            <label class="col-md-2 control-label" for="filtrodescripcion">Fechas</label>
+            <div class="input-group">
+                <input type="text" class="form-control pull-right" id="reservation">
+                <div class="input-group-addon">
+                    <i class="fa fa-calendar"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block tabla_contenido %}
+<thead class="thead-dark" >
+    <tr>
+        <th style="width: 10px">UPD</th>
+        <th style="width: 10px">DEL</th>
+        <th style="width: 10px">IMG</th>
+        <th>Causa</th>
+        <th>Descripción</th>
+        <th>Perito</th>
+        <th>Fecha</th>
+        <th>Tipo Pericia</th>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td>IMG UPD</td>
+        <td>IMG DEL</td>
+        <td>IMG IMG</td>
+        <td>Causa coima 1</td>
+        <td>Celular sospechoso 1</td>
+        <td>Santiago</td>
+        <td>16/07/2019</td>
+        <td>Investigación</td>
+    </tr>
+    <tr>
+        <td>IMG UPD</td>
+        <td>IMG DEL</td>
+        <td>IMG IMG</td>
+        <td>Causa coima 1</td>
+        <td>Celular sospechoso 2</td>
+        <td>Santiago</td>
+        <td>16/07/2019</td>
+        <td>Investigación</td>
+    </tr>
+    <tr>
+        <td>IMG UPD</td>
+        <td>IMG DEL</td>
+        <td>IMG IMG</td>
+        <td>Causa coima 1</td>
+        <td>Celular sospechoso 3</td>
+        <td>Santiago</td>
+        <td>16/07/2019</td>
+        <td>Investigación</td>
+    </tr>
+    <tr>
+        <td>IMG UPD</td>
+        <td>IMG DEL</td>
+        <td>IMG IMG</td>
+        <td>Causa coima 2</td>
+        <td>Celular sospechoso 1</td>
+        <td>Santiago</td>
+        <td>16/07/2019</td>
+        <td>Investigación</td>
+    </tr>
+    <tr>
+        <td>IMG UPD</td>
+        <td>IMG DEL</td>
+        <td>IMG IMG</td>
+        <td>Causa coima 2</td>
+        <td>Celular sospechoso 2</td>
+        <td>Santiago</td>
+        <td>16/07/2019</td>
+        <td>Investigación</td>
+    </tr>
+</tbody>
+{% endblock %}
+
+{% block tabla_paginacion %}
+<li class="page-item disabled">
+    <span class="page-link">Previous</span>
+</li>
+<li class="page-item"><a class="page-link" href="#">1</a></li>
+<li class="page-item active" aria-current="page">
+    <span class="page-link">2<span class="sr-only">(current)</span></span></li>
+<li class="page-item"><a class="page-link" href="#">3</a></li>
+<li class="page-item">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+{% endblock %}

@@ -12,6 +12,13 @@ def home(request):
     return render(request, 'home/index.html')
 
 
+class ProyectoListarMarian(ListView):
+    # model = Proyecto
+    context_object_name = 'proyecto_lista'
+    queryset = Proyecto.objects.filter(activo=1)
+    template_name = 'AREXTI_APP/ProyectoListarMarian.html'
+
+
 class ProyectoListar(ListView):
     # model = Proyecto
     context_object_name = 'proyecto_lista'
@@ -35,7 +42,7 @@ class ProyectoEditar(UpdateView):
 
 # class ProyectoEliminar():
 #     model = Proyecto
-#     template_name = 'AREXTI_APP/ProyectoListar.html'
+#     template_name = 'AREXTI_APP/ProyectoListarMarian.html'
 #     success_url = reverse_lazy('ProyectoListar')
 
 
@@ -53,6 +60,7 @@ def ProyectoEliminar(request, Proyectoid):
     #     self.object.save(update_fields=('activo', ))
     #     return HttpResponseRedirect('PericiaListar/')
 
+
 class PericiaListar(ListView):
     # model = Pericia
     context_object_name = 'pericia_lista'
@@ -60,11 +68,19 @@ class PericiaListar(ListView):
     template_name = 'AREXTI_APP/PericiaListar.html'
 
 
+class PericiaListarMarian(ListView):
+    # model = Pericia
+    context_object_name = 'pericia_lista'
+    queryset = Pericia.objects.filter(activo=1)
+    template_name = 'AREXTI_APP/PericiaListarMarian.html'
+
+
 class PericiaCrear(CreateView):
     model = Pericia
     form_class = PericiaForm
     template_name = 'AREXTI_APP/PericiaCrear.html'
     success_url = reverse_lazy('PericiaListar')
+
 
 class PericiaEditar(UpdateView):
     model = Pericia
