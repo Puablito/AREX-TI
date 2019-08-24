@@ -1,0 +1,14 @@
+{% extends 'base/AbmBase.html' %}
+{% block titulo %}
+   Pericia
+{% endblock %}
+{% block linkVolver %}
+  <a type="" href="{% url 'PericiaListar' %}" style="color:black"> Volver a Pericias</a>
+{% endblock %}
+
+{% block btnCancelar %}
+  <button class="btn btn-default" onclick="location.href={% url 'PericiaListar' %}">Cancelar</button>
+{% endblock %}
+{% block btnListar %}
+  <button type="button" onclick="location.href={% url 'PericiaListar' %}" class="btn btn-success pull-right">Ver Imagenes</button>
+{% endblock %}

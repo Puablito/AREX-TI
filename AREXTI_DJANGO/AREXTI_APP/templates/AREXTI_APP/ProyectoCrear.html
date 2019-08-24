@@ -1,0 +1,34 @@
+{% extends 'base/AbmBase.html' %}
+
+{% block AbmBaseScripts %}
+  <script>
+    $(document).ready(function(){
+      $("#IPP").mask("00-000000-00")
+    })
+  </script>
+{% endblock %}
+
+{% block error %}
+  <div class="alert alert-danger alert-dismissible">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <h4><i class="icon fa fa-ban"></i> Alert!</h4>
+    Mensaje de error
+  </div>
+{% endblock %}
+
+
+{% block titulo %}
+  Proyecto
+{% endblock %}
+
+{% block linkVolver %}
+  <a type="" href="{% url 'ProyectoListar' %}" style="color:black"> Volver a Proyectos</a>
+{% endblock %}
+
+{% block btnCancelar %}
+  <button class="btn btn-default" onclick="location.href={% url 'ProyectoListar' %}">Cancelar</button>
+{% endblock %}
+
+{% block btnListar %}
+  <button type="button" onclick="location.href={% url 'PericiaListar' %}" class="btn btn-success pull-right">Ver Pericias</button>
+{% endblock %}

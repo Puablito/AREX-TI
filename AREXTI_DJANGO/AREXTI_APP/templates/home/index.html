@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load staticfiles %}
+
+<head>
+	<meta charset="UTF-8">
+
+  <title>AREX-TI</title>
+
+
+  <link rel="stylesheet" href="{% static '/css/bootstrap.min.css'%}">
+  <link rel="stylesheet" href="{% static '/fontawesome/css/font-awesome.min.css'%}">
+  <link rel="stylesheet" href="{% static '/css/AdminLTE.min.css'%}">
+  <link rel="stylesheet" href="{% static '/css/arexti/AREXTI.css'%}">
+  {% block styles %}
+  {% endblock %}
+
+  <script src="{% static '/js/jquery-3.4.1.js'%}"></script>
+  <script src="{% static '/js/arexti/arexti.js'%}"></script>
+  <script src="{% static '/js/bootstrap.min.js'%}"></script>
+  <script src="{% static '/js/adminlte.min.js'%}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.10/jquery.mask.js"></script>
+  {% block scripts %}
+  {% endblock %}
+
+</head>
+<body>
+
+<div class="wrapper" style="height: auto; min-height: 100%;">
+
+  <header class="main-header bg-black">
+    <!-- Logo -->
+    <a href="/Home" class="logo">
+      <!-- mini logo for sidebar mini 50x50 pixels -->
+      <span class="logo-mini">A-TI</span>
+      <!-- logo for regular state and mobile devices -->
+      <span class="logo-lg">AREXTI</span>
+    </a>
+    <!-- Header Navbar: style can be found in header.less -->
+    <nav class="navbar navbar-static-top">
+      <!-- Sidebar toggle button-->
+      <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+
+      <div class="navbar-custom-menu">
+        <ul class="nav navbar-nav">
+          <!-- Messages: style can be found in dropdown.less-->
+          <li class="dropdown messages-menu">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              <i class="fa fa-envelope-o"></i>
+            </a>
+          </li>
+          <!-- Notifications: style can be found in dropdown.less -->
+          <li class="dropdown notifications-menu">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              <i class="fa fa-bell-o"></i>
+            </a>
+          </li>
+          <!-- User Account: style can be found in dropdown.less -->
+          <li class="dropdown user user-menu">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              <img src="{% static '/image/Logo.jpg'%}" class="user-image" alt="User Image">
+              <span class="hidden-xs">Admin</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <!-- Left side column. contains the logo and sidebar -->
+  <aside class="main-sidebar bg-black">
+    <!-- sidebar: style can be found in sidebar.less -->
+    <section class="sidebar">
+      <!-- sidebar menu: : style can be found in sidebar.less -->
+      <ul class="sidebar-menu tree" data-widget="tree">
+        <li class="header"></li>
+        <li class="treeview">
+          <a href="#">
+            <i class="fa fa-book"></i>
+              <span>Causas</span>
+          </a>
+        </li>
+        <li class="treeview">
+          <a href="#">
+            <i class="fa fa-search"></i>
+            <span>Pericias</span>
+          </a>
+        </li>
+        <li class="treeview">
+          <a href="#">
+            <i class="fa fa-bar-chart-o"></i>
+            <span>Reportes</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            <li>
+              <a href="#">
+                <i class="fa fa-circle-o"></i> Reporte 1
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <i class="fa fa-circle-o"></i> Reporte 2
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </section>
+    <!-- /.sidebar -->
+  </aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper" style="height: auto;">
+    <!-- Content Header (Page header) -->
+    <!--<div class="box-body">-->
+      {% block error %}
+      {% endblock %}
+    <!--</div>-->
+
+    {% block principal %}
+    {% endblock %}
+    <!-- Main content -->
+
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <footer class="main-footer">
+    <div class="pull-right hidden-xs">
+      FOOTER
+    </div>
+  </footer>
+
+</div>
+<!-- ./wrapper -->
+
+
+
+
+</body>
+</html>
