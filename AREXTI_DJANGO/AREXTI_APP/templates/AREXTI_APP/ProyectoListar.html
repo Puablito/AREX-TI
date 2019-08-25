@@ -1,7 +1,7 @@
 {% extends 'base/ListadoBase.html' %}
 
 {% block titulo %}
-<h1> Causas </h1>
+<h1> Proyectos </h1>
 {% endblock %}
 
 {% block filtros %}
@@ -38,11 +38,15 @@
 </div>
 {% endblock %}
 
+{% block acciones %}
+<a class="btn btn-success" href="{% url 'ProyectoCrear' %}">Agregar</a>
+{% endblock %}
+
 {% block tabla_contenido %}
 <thead class="thead-dark">
     <tr>
         <th style="width: 10px"></th>
-        <th style="width: 10px">DEL</th>
+        <th style="width: 10px"></th>
         <th style="width: 10px">PER</th>
         <th>IPP</th>
         <th>Descripción</th>
@@ -53,61 +57,50 @@
     </tr>
 </thead>
 <tbody>
+    {% for proyecto in object_list %}
     <tr>
-        <td><a href="#"><img src="../../static/image/editar.png" id="Modificar_0001" alt="Modificar" title="Modificar" style=";width: 20px"></a></td>
-        <td>IMG DEL</td>
+        <td>
+            <a href="{% url 'ProyectoEditar' proyecto.id %}">
+                <img src="../../static/image/editar.png" alt="Modificar" title="Modificar" style=";width: 20px">
+            </a>
+        </td>
+        <td>
+            <a href="#Eliminar{{ proyecto.id }}" data-toggle="modal">
+                <img src="../../static/image/eliminar.png" alt="Eliminar" title="Eliminar" style=";width: 20px">
+            </a>
+        </td>
         <td>IMG PER</td>
-        <td>12-123456-19</td>
-        <td>Causa coima 1</td>
-        <td>Mar del Plata</td>
-        <td>Juan Carpet</td>
-        <td>23 MDQ</td>
-        <td>Nro 16</td>
+        <td style="display:none;">{{proyecto.id}}</td>
+        <td>{{proyecto.IPP}}</td>
+        <td>{{proyecto.descripcion}}</td>
+        <td>{{proyecto.fiscalia}}</td>
+        <td>{{proyecto.responsable}}</td>
+        <td>{{proyecto.defensoria}}</td>
+        <td>{{proyecto.juzgado}}</td>
     </tr>
-    <tr>
-        <td><a href="#"><img src="../../static/image/editar.png" id="Modificar_0002" alt="Modificar" title="Modificar" style=";width: 20px"></a></td>
-        <td>IMG DEL</td>
-        <td>IMG PER</td>
-        <td>12-123456-19</td>
-        <td>Causa coima 2</td>
-        <td>Mar del Plata</td>
-        <td>Juan Carpet</td>
-        <td>23 MDQ</td>
-        <td>Nro 16</td>
-    </tr>
-    <tr>
-        <td><a href="#"><img src="../../static/image/editar.png" id="Modificar_0003" alt="Modificar" title="Modificar" style=";width: 20px"></a></td>
-        <td>IMG DEL</td>
-        <td>IMG PER</td>
-        <td>12-123456-19</td>
-        <td>Causa coima 3</td>
-        <td>Mar del Plata</td>
-        <td>Juan Carpet</td>
-        <td>23 MDQ</td>
-        <td>Nro 16</td>
-    </tr>
-    <tr>
-        <td><a href="#"><img src="../../static/image/editar.png" id="Modificar_0004" alt="Modificar" title="Modificar" style=";width: 20px"></a></td>
-        <td>IMG DEL</td>
-        <td>IMG PER</td>
-        <td>12-123456-19</td>
-        <td>Causa coima 4</td>
-        <td>Mar del Plata</td>
-        <td>Juan Carpet</td>
-        <td>23 MDQ</td>
-        <td>Nro 16</td>
-    </tr>
-    <tr>
-        <td><a href="#"><img src="../../static/image/editar.png" id="Modificar_0005" alt="Modificar" title="Modificar" style=";width: 20px"></a></td>
-        <td>IMG DEL</td>
-        <td>IMG PER</td>
-        <td>12-123456-19</td>
-        <td>Causa coima 5</td>
-        <td>Mar del Plata</td>
-        <td>Juan Carpet</td>
-        <td>23 MDQ</td>
-        <td>Nro 16</td>
-    </tr>
+    <div id="Eliminar{{ proyecto.id }}" class="modal fade">
+        <div class="modal-dialog modal-confirm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="icon-box">
+                        <i class="material-icons">&#xE5CD;</i>
+                    </div>
+                    <h4 class="modal-title">Atención!</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Seguro que desea eliminar el proyecto {{ proyecto.descripcion }}?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-info" data-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-danger" href="{% url 'ProyectoEliminar' proyecto.id %}">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+        <h1>No hay proyectos</h1>
+    {% endfor %}
 </tbody>
 {% endblock %}
 

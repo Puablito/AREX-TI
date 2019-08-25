@@ -58,12 +58,16 @@
 </div>
 {% endblock %}
 
+{% block acciones %}
+<a class="btn btn-success" href="{% url 'PericiaCrear' %}">Agregar</a>
+{% endblock %}
+
 {% block tabla_contenido %}
 <thead class="thead-dark" >
     <tr>
         <th style="width: 10px"></th>
-        <th style="width: 10px">DEL</th>
-        <th style="width: 10px">IMG</th>
+        <th style="width: 10px"></th>
+        <th style="width: 10px"></th>
         <th>Causa</th>
         <th>Descripción</th>
         <th>Perito</th>
@@ -72,56 +76,33 @@
     </tr>
 </thead>
 <tbody>
+    {% for pericia in object_list %}
     <tr>
-        <td><a href="#"><img src="../../static/image/editar.png" id="Modificar_0001" alt="Modificar" title="Modificar" style=";width: 20px"></a></td>
-        <td>IMG DEL</td>
-        <td>IMG IMG</td>
-        <td>Causa coima 1</td>
-        <td>Celular sospechoso 1</td>
-        <td>Santiago</td>
-        <td>16/07/2019</td>
-        <td>Investigación</td>
+        <td>
+            <a href="{% url 'PericiaEditar' pericia.id %}">
+                <img src="../../static/image/editar.png" alt="Modificar" title="Modificar" style=";width: 20px">
+            </a>
+        </td>
+        <td>
+            <a href="#Eliminar{{ pericia.id }}" data-toggle="modal">
+                <img src="../../static/image/eliminar.png" alt="Eliminar" title="Eliminar" style=";width: 20px">
+            </a>
+        </td>
+        <td>
+            <a href="{% url 'ImagenListar' %}">
+                <img src="../../static/image/imagen.png" alt="Imagenes" title="Imagenes" style=";width: 25px">
+            </a>
+        </td>
+        <td style="display:none;">{{pericia.id}}</td>
+        <td>{{pericia.proyecto.descripcion}}</td>
+        <td>{{pericia.descripcion}}</td>
+        <td>{{pericia.nombrePerito}}</td>
+        <td>{{pericia.fecha}}</td>
+        <td>{{pericia.tipoPericia}}</td>
     </tr>
-    <tr>
-        <td><a href="#"><img src="../../static/image/editar.png" id="Modificar_0002" alt="Modificar" title="Modificar" style=";width: 20px"></a></td>
-        <td>IMG DEL</td>
-        <td>IMG IMG</td>
-        <td>Causa coima 1</td>
-        <td>Celular sospechoso 2</td>
-        <td>Santiago</td>
-        <td>16/07/2019</td>
-        <td>Investigación</td>
-    </tr>
-    <tr>
-        <td><a href="#"><img src="../../static/image/editar.png" id="Modificar_0003" alt="Modificar" title="Modificar" style=";width: 20px"></a></td>
-        <td>IMG DEL</td>
-        <td>IMG IMG</td>
-        <td>Causa coima 1</td>
-        <td>Celular sospechoso 3</td>
-        <td>Santiago</td>
-        <td>16/07/2019</td>
-        <td>Investigación</td>
-    </tr>
-    <tr>
-        <td><a href="#"><img src="../../static/image/editar.png" id="Modificar_0004" alt="Modificar" title="Modificar" style=";width: 20px"></a></td>
-        <td>IMG DEL</td>
-        <td>IMG IMG</td>
-        <td>Causa coima 2</td>
-        <td>Celular sospechoso 1</td>
-        <td>Santiago</td>
-        <td>16/07/2019</td>
-        <td>Investigación</td>
-    </tr>
-    <tr>
-        <td><a href="#"><img src="../../static/image/editar.png" id="Modificar_0005" alt="Modificar" title="Modificar" style=";width: 20px"></a></td>
-        <td>IMG DEL</td>
-        <td>IMG IMG</td>
-        <td>Causa coima 2</td>
-        <td>Celular sospechoso 2</td>
-        <td>Santiago</td>
-        <td>16/07/2019</td>
-        <td>Investigación</td>
-    </tr>
+    {% empty %}
+        <h1>No hay pericias</h1>
+    {% endfor %}
 </tbody>
 {% endblock %}
 

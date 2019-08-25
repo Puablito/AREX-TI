@@ -3,9 +3,8 @@
 
 {% block scripts %}
     <script>
-
     </script>
-    {% block AbmBaseScripts %}
+    {% block ListadoBaseScripts %}
     {% endblock %}
 {% endblock %}
 
@@ -45,7 +44,8 @@
         </div>
         <!-- Boton Agregar -->
         <div class="row">
-            <button type="button" class="btn btn-success">Agregar</button>
+            {% block acciones %}
+            {% endblock %}
         </div>
         <!-- Contenedor Grilla -->
         <div class="row">
