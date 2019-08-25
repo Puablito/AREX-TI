@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 from django.views.generic import View
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from AREXTI_APP.models import Proyecto, Pericia
+from AREXTI_APP.models import Proyecto, Pericia, Imagen
 from AREXTI_APP.forms import ProyectoForm, PericiaForm
 
 
@@ -33,12 +33,6 @@ class ProyectoEditar(UpdateView):
     success_url = reverse_lazy('ProyectoListar')
 
 
-# class ProyectoEliminar():
-#     model = Proyecto
-#     template_name = 'AREXTI_APP/ProyectoListar.html'
-#     success_url = reverse_lazy('ProyectoListar')
-
-
 def ProyectoEliminar(request, Proyectoid):
     # model = Proyecto
     if Proyectoid:
@@ -53,6 +47,7 @@ def ProyectoEliminar(request, Proyectoid):
     #     self.object.save(update_fields=('activo', ))
     #     return HttpResponseRedirect('PericiaListar/')
 
+
 class PericiaListar(ListView):
     # model = Pericia
     context_object_name = 'pericia_lista'
@@ -66,11 +61,13 @@ class PericiaCrear(CreateView):
     template_name = 'AREXTI_APP/PericiaCrear.html'
     success_url = reverse_lazy('PericiaListar')
 
+
 class PericiaEditar(UpdateView):
     model = Pericia
     form_class = PericiaForm
     template_name = 'AREXTI_APP/PericiaCrear.html'
     success_url = reverse_lazy('PericiaListar')
+
 
 def PericiaEliminar(request, Periciaid):
     # model = Proyecto
@@ -79,3 +76,10 @@ def PericiaEliminar(request, Periciaid):
         pro.activo = 0
         pro.save()
     return redirect('PericiaListar')
+
+
+class ImagenListar(ListView):
+    # model = Pericia
+    context_object_name = 'imagen_lista'
+    queryset = Imagen.objects.filter(activo=1)
+    template_name = 'AREXTI_APP/ImagenListar.html'

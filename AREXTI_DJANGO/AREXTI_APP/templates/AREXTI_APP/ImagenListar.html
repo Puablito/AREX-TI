@@ -1,0 +1,201 @@
+{% extends 'base/ListadoBase.html' %}
+
+{% block ListadoBaseScripts %}
+<script>
+    $(function () {
+        $('[data-toggle="tooltipHash"]').tooltip()
+    })
+</script>
+{% endblock %}
+
+{% block titulo %}
+<h1> Imagenes </h1>
+{% endblock %}
+
+{% block filtros %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            <label class="col-md-3 control-label" for="filtronombre">Nombre</label>
+            <div class="col-md-9">
+                <input type="text" id="filtronombre" class="form-control" placeholder="Nombre" name="nombre">
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            <label class="col-md-3 control-label" for="filtroextension">Extensión</label>
+            <div class="col-md-9">
+                <input type="text" id="filtroextension" class="form-control" placeholder="Extension" name="extension">
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            <label class="col-md-5 control-label">Tipo Imagen</label>
+            <div class="col-md-7">
+                <select class="form-control">
+                    <option>Chat</option>
+                    <option>E-Mail</option>
+                    <option>Otro</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-8">
+        <div class="form-group">
+            <label class="col-md-2 control-label" for="filtrohash">Hash</label>
+            <div class="col-md-10">
+                <input type="text" id="filtrohash" class="form-control" placeholder="Hash" name="hash">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block acciones %}
+<a class="btn btn-success" href="#">Agregar</a>
+{% endblock %}
+
+{% block tabla_contenido %}
+<thead class="thead-dark" >
+    <tr>
+        <th style="width: 10px"></th>
+        <th style="width: 10px"></th>
+        <th style="width: 10px">IMG</th>
+        <th>Nombre</th>
+        <th style="width: 100px">Extensión</th>
+        <th style="width: 120px">Tipo Imagen</th>
+        <th>Hash</th>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td>
+            <a href="#">
+                <img src="../../static/image/editar.png" alt="Modificar" title="Modificar" style=";width: 20px">
+            </a>
+        </td>
+        <td>
+            <a href="#" data-toggle="modal">
+                <img src="../../static/image/eliminar.png" alt="Eliminar" title="Eliminar" style=";width: 20px">
+            </a>
+        </td>
+        <td><img src="img.jpg" alt="..." class="img-grid"></td>
+        <td>ScreenShot 1</td>
+        <td>JPG</td>
+        <td>Chat</td>
+        <td>
+            <button type="button" class="btn btn-xs btn-info" data-toggle="tooltipHash" data-original-title="Hash SHA-1"
+                data-trigger="click">
+                SHA-1
+            </button>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <a href="#">
+                <img src="../../static/image/editar.png" alt="Modificar" title="Modificar" style=";width: 20px">
+            </a>
+        </td>
+        <td>
+            <a href="#" data-toggle="modal">
+                <img src="../../static/image/eliminar.png" alt="Eliminar" title="Eliminar" style=";width: 20px">
+            </a>
+        </td>
+        <td><img src="img.jpg" alt="..." class="img-grid"></td>
+        <td>ScreenShot 2</td>
+        <td>JPG</td>
+        <td>Chat</td>
+        <td>
+            <button type="button" class="btn btn-xs btn-success" data-toggle="tooltipHash" data-original-title="Hash MD5"
+                data-trigger="click">
+                MD5
+            </button>
+            <button type="button" class="btn btn-xs btn-info" data-toggle="tooltipHash" data-original-title="Hash SHA-1"
+                data-trigger="click">
+                SHA-1
+            </button>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <a href="#">
+                <img src="../../static/image/editar.png" alt="Modificar" title="Modificar" style=";width: 20px">
+            </a>
+        </td>
+        <td>
+            <a href="#" data-toggle="modal">
+                <img src="../../static/image/eliminar.png" alt="Eliminar" title="Eliminar" style=";width: 20px">
+            </a>
+        </td>
+        <td><img src="img.jpg" alt="..." class="img-grid"></td>
+        <td>ScreenShot 3</td>
+        <td>JPG</td>
+        <td>Chat</td>
+        <td>
+            <button type="button" class="btn btn-xs btn-success" data-toggle="tooltipHash" data-original-title="Hash MD5"
+                data-trigger="click">
+                MD5
+            </button>
+            <button type="button" class="btn btn-xs btn-info" data-toggle="tooltipHash" data-original-title="Hash SHA-1"
+                data-trigger="click">
+                SHA-1
+            </button>
+            <button type="button" class="btn btn-xs btn-warning" data-toggle="tooltipHash" data-original-title="Hash SHA-2"
+                data-trigger="click">
+                SHA-2
+            </button>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <a href="#">
+                <img src="../../static/image/editar.png" alt="Modificar" title="Modificar" style=";width: 20px">
+            </a>
+        </td>
+        <td>
+            <a href="#" data-toggle="modal">
+                <img src="../../static/image/eliminar.png" alt="Eliminar" title="Eliminar" style=";width: 20px">
+            </a>
+        </td>
+        <td><img src="img.jpg" alt="..." class="img-grid"></td>
+        <td>ScreenShot 4</td>
+        <td>JPG</td>
+        <td>Chat</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>
+            <a href="#">
+                <img src="../../static/image/editar.png" alt="Modificar" title="Modificar" style=";width: 20px">
+            </a>
+        </td>
+        <td>
+            <a href="#" data-toggle="modal">
+                <img src="../../static/image/eliminar.png" alt="Eliminar" title="Eliminar" style=";width: 20px">
+            </a>
+        </td>
+        <td><img src="img.jpg" alt="..." class="img-grid"></td>
+        <td>ScreenShot 5</td>
+        <td>JPG</td>
+        <td>Chat</td>
+        <td></td>
+    </tr>
+</tbody>
+{% endblock %}
+
+{% block tabla_paginacion %}
+<li class="page-item disabled">
+    <span class="page-link">Previous</span>
+</li>
+<li class="page-item"><a class="page-link" href="#">1</a></li>
+<li class="page-item active" aria-current="page">
+    <span class="page-link">2<span class="sr-only">(current)</span></span></li>
+<li class="page-item"><a class="page-link" href="#">3</a></li>
+<li class="page-item">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+{% endblock %}

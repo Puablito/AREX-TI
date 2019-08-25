@@ -1,0 +1,71 @@
+{% extends 'home/index.html' %}
+{% load staticfiles %}
+
+{% block scripts %}
+    <script>
+    </script>
+    {% block ListadoBaseScripts %}
+    {% endblock %}
+{% endblock %}
+
+
+{% block error %}
+{% endblock %}
+
+{% block principal %}
+<!--<Main Content>-->
+<section class="content-header">
+{% block titulo %}
+{% endblock %}
+</section>
+
+<section class="content">
+    <div class="col-xs-12">
+        <!-- Filtros -->
+        <div class="row">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Filtros</h3>
+                    <div class="box-tools">
+                        <button class="btn btn-box-tool" type="button" data-toggle="collapse"
+                            data-target="#collapseFiltros" aria-expanded="true" aria-controls="collapseFiltros">
+                            <i class="fa fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="collapse in" id="collapseFiltros">
+                    <div class="box-body">
+                        {% block filtros %}
+                        {% endblock %}
+                        <button type="button" class="btn btn-primary pull-right">Buscar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Boton Agregar -->
+        <div class="row">
+            {% block acciones %}
+            {% endblock %}
+        </div>
+        <!-- Contenedor Grilla -->
+        <div class="row">
+            <div class="box">
+                <div class="box-body">
+                    <!-- Grilla -->
+                    <table class="table table-bordered">
+                        {% block tabla_contenido %}
+                        {% endblock %}
+                    </table>
+                    <!-- Contenedor de paginación -->
+                    <ul class="pagination pull-right">
+                        {% block tabla_paginacion %}
+                        {% endblock %}
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+<!--</Main Content>-->
+{% endblock %}
