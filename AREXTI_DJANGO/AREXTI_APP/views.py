@@ -40,12 +40,6 @@ class ProyectoEditar(UpdateView):
     success_url = reverse_lazy('ProyectoListar')
 
 
-# class ProyectoEliminar():
-#     model = Proyecto
-#     template_name = 'AREXTI_APP/ProyectoListarMarian.html'
-#     success_url = reverse_lazy('ProyectoListar')
-
-
 def ProyectoEliminar(request, Proyectoid):
     # model = Proyecto
     if Proyectoid:

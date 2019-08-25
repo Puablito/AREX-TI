@@ -1,4 +1,16 @@
 {% extends 'base/AbmBase.html' %}
+
+{% block error %}
+    <section class="alert-container">
+        <div class="alert alert-error"><a class="close" data-dismiss="alert" href="#">&times;</a>
+                        <h4><i class="icon fa fa-ban"></i> Error!</h4>
+        </div>
+        <div class="alert alert-success"><a class="close" data-dismiss="alert" href="#">&times;</a>
+                        <h4><i class="icon fa fa-ban"></i> Succes!</h4>
+        </div>
+    </section>
+{% endblock %}
+
 {% block titulo %}
    Pericia
 {% endblock %}

@@ -31,11 +31,11 @@
 
   <header class="main-header bg-black">
     <!-- Logo -->
-    <a href="/Home" class="logo">
+    <a href="/" class="logo">
       <!-- mini logo for sidebar mini 50x50 pixels -->
       <span class="logo-mini">A-TI</span>
       <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg">AREXTI</span>
+      <span class="logo-lg">AREX-TI</span>
     </a>
     <!-- Header Navbar: style can be found in header.less -->
     <nav class="navbar navbar-static-top">
@@ -79,14 +79,14 @@
       <!-- sidebar menu: : style can be found in sidebar.less -->
       <ul class="sidebar-menu tree" data-widget="tree">
         <li class="header"></li>
-        <li class="treeview">
-          <a href="/ProyectoListar">
+        <li class="active">
+          <a href="{% url 'ProyectoListar' %}">
             <i class="fa fa-book"></i>
               <span>Proyectos</span>
           </a>
         </li>
-        <li class="treeview">
-          <a href="/PericiaListar">
+        <li class="active">
+          <a href="{% url 'PericiaListar' %}">
             <i class="fa fa-search"></i>
             <span>Pericias</span>
           </a>
@@ -126,6 +126,9 @@
     <!--</div>-->
 
     {% block principal %}
+      <section class="content-header">
+        Bloque principal INDEX
+      </section>
     {% endblock %}
     <!-- Main content -->
 
