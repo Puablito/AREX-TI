@@ -8,3 +8,6 @@ https://www.flaticon.com/free-icon/rubbish-bin_64022#term=delete&page=1&position
 
 Icono de imagenes
 https://www.flaticon.es/icono-gratis/paisaje-marco_71619#term=imagen&page=1&position=42
+
+Icono de lupa
+https://www.flaticon.es/icono-gratis/lupa_49116#term=lupa&page=1&position=18
