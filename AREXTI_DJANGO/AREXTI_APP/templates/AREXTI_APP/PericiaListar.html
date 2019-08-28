@@ -5,11 +5,11 @@
 {% endblock %}
 
 {% block filtros %}
-<div class="row">
-    <div class="col-md-3">
-        <div class="form-group">
+<div class="form-row">
+    <!--<div class="col-md-3">-->
+        <div class="form-group col-md-4">
             <label class="col-md-3 control-label">Causa</label>
-            <div class="col-md-9">
+            <div class="col-md-7">
                 <select class="form-control">
                     <option>Causa 1</option>
                     <option>Causa 2</option>
@@ -19,18 +19,18 @@
                 </select>
             </div>
         </div>
-    </div>
-    <div class="col-md-5">
-        <div class="form-group">
+    <!--</div>-->
+    <!--<div class="col-md-5">-->
+        <div class="form-group col-md-4">
             <label class="col-md-3 control-label" for="filtrodescripcion">Descripción</label>
-            <div class="col-md-9">
+            <div class="col-md-7">
                 <input type="text" id="filtrodescripcion" class="form-control" placeholder="Descripción" name="descripcion">
             </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="form-group">
-            <label class="col-md-5 control-label">Tipo Pericia</label>
+    <!--</div>-->
+    <!--<div class="col-md-4">-->
+        <div class="form-group col-md-4">
+            <label class="col-md-3 control-label">Tipo Pericia</label>
             <div class="col-md-7">
                 <select class="form-control">
                     <option>Investigación</option>
@@ -41,12 +41,12 @@
                 </select>
             </div>
         </div>
-    </div>
+    <!--</div>-->
 </div>
-<div class="row">
-    <div class="col-md-6">
-        <div class="form-group">
-            <label class="col-md-2 control-label" for="filtrodescripcion">Fechas</label>
+<div class="form-row ">
+    <!--<div class="col-md-6">-->
+        <div class="form-group col-md-5">
+            <label class="col-md-3 control-label" for="filtrodescripcion">Fecha Desde</label>
             <div class="input-group">
                 <input type="text" class="form-control pull-right" id="reservation">
                 <div class="input-group-addon">
@@ -54,7 +54,16 @@
                 </div>
             </div>
         </div>
-    </div>
+        <div class="form-group col-md-5">
+            <label class="col-md-3 control-label" for="filtrodescripcion">Fecha Hasta</label>
+            <div class="input-group">
+                <input type="text" class="form-control pull-right" id="reservation2">
+                <div class="input-group-addon">
+                    <i class="fa fa-calendar"></i>
+                </div>
+            </div>
+        </div>
+    <!--</div>-->
 </div>
 {% endblock %}
 
@@ -104,17 +113,4 @@
         <h1>No hay pericias</h1>
     {% endfor %}
 </tbody>
-{% endblock %}
-
-{% block tabla_paginacion %}
-<li class="page-item disabled">
-    <span class="page-link">Previous</span>
-</li>
-<li class="page-item"><a class="page-link" href="#">1</a></li>
-<li class="page-item active" aria-current="page">
-    <span class="page-link">2<span class="sr-only">(current)</span></span></li>
-<li class="page-item"><a class="page-link" href="#">3</a></li>
-<li class="page-item">
-                            <a class="page-link" href="#">Next</a>
-                        </li>
 {% endblock %}

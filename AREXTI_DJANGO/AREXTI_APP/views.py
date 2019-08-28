@@ -15,6 +15,7 @@ def home(request):
 class ProyectoListar(ListView):
     # model = Proyecto
     context_object_name = 'proyecto_lista'
+    paginate_by = 10
     queryset = Proyecto.objects.filter(activo=1)
     template_name = 'AREXTI_APP/ProyectoListar.html'
 
@@ -51,6 +52,7 @@ def ProyectoEliminar(request, Proyectoid):
 class PericiaListar(ListView):
     # model = Pericia
     context_object_name = 'pericia_lista'
+    paginate_by = 10
     queryset = Pericia.objects.filter(activo=1)
     template_name = 'AREXTI_APP/PericiaListar.html'
 
