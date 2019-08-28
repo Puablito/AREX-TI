@@ -46,6 +46,7 @@ class TipoHash(models.Model):
     nombre = models.CharField(max_length=100)
     funcion = models.CharField(max_length=200)
     activo = models.IntegerField(default=1)
+    color = models.CharField(max_length=10)
 
     def __str__(self):
         return self.nombre
@@ -54,7 +55,7 @@ class TipoHash(models.Model):
 class Imagen(models.Model):
     pericia = models.ForeignKey(Pericia, on_delete=models.CASCADE)
     tipoImagen = models.ForeignKey(TipoImagen, on_delete=models.CASCADE)
-    hash = models.ManyToManyField(TipoHash, help_text="Seleccione un hash")
+    hash = models.ManyToManyField(TipoHash, help_text="Seleccione un hash", through='ImagenHash')
     nombre = models.CharField(max_length=100)
     miniatura = models.CharField(max_length=100)
     referencia = models.CharField(max_length=200)
@@ -64,6 +65,12 @@ class Imagen(models.Model):
 
     def __str__(self):
         return self.nombre
+
+
+class ImagenHash(models.Model):
+    imagen = models.ForeignKey(Imagen, on_delete=models.CASCADE)
+    tipoHash = models.ForeignKey(TipoHash, on_delete=models.CASCADE)
+    valor = models.CharField(max_length=1000)
 
 
 class ImagenDetalle(models.Model):

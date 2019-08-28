@@ -12,4 +12,7 @@ urlpatterns = [
     path('PericiaEditar/<int:pk>/', views.PericiaEditar.as_view(), name='PericiaEditar'),
     path('PericiaEliminar/<int:Periciaid>/', views.PericiaEliminar, name='PericiaEliminar'),
     path('ImagenListar/', views.ImagenListar.as_view(), name='ImagenListar'),
+    path('ImagenCrear/', views.ImagenCrear.as_view(), name='ImagenCrear'),
+    path('ImagenEditar/<int:pk>/', views.ImagenEditar.as_view(), name='ImagenEditar'),
+    path('ImagenEliminar/<int:Imagenid>/', views.ImagenEliminar, name='ImagenEliminar'),
 ]
