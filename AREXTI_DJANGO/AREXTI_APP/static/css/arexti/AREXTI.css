@@ -938,6 +938,16 @@ form .form-group {
  */
 .box {
   position: relative;
+  border-radius: 3px;
+  background: #ffffff;
+  border-top: 2px solid #d2d6de;
+  margin-bottom: 10px;
+  width: 100%;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.box-filter {
+  position: relative;
   border-radius: 25px;
   background: #ffffff;
   border-top: 2px solid #d2d6de;
@@ -947,25 +957,32 @@ form .form-group {
 }
 
 .box.collapsed-box .box-body,
-.box.collapsed-box .box-footer {
+.box-filter.collapsed-box .box-body,
+.box.collapsed-box .box-footer,
+ box-filter.collapsed-box .box-footer{
   display: none;
 }
 
-.box.height-control .box-body {
+.box.height-control .box-body,
+.box-filter.height-control .box-body {
   max-height: 300px;
   overflow: auto;
 }
-.box .border-right {
+.box .border-right,
+.box-filter .border-right{
   border-right: 1px solid #f4f4f4;
 }
-.box .border-left {
+.box .border-left,
+.box-filter .border-left{
   border-left: 1px solid #f4f4f4;
 }
 
-.box .box-group > .box {
+.box .box-group > .box,
+.box-filter .box-group > .box-filter{
   margin-bottom: 5px;
 }
-.box .knob-label {
+.box .knob-label,
+.box-filter .knob-label{
   text-align: center;
   color: #333;
   font-weight: 100;
@@ -975,7 +992,9 @@ form .form-group {
 .box > .overlay,
 .overlay-wrapper > .overlay,
 .box > .loading-img,
-.overlay-wrapper > .loading-img {
+.overlay-wrapper > .loading-img,
+.box-filter > .overlay,
+.box-filter > .loading-img{
   position: absolute;
   top: 0;
   left: 0;
@@ -983,12 +1002,14 @@ form .form-group {
   height: 100%;
 }
 .box .overlay,
+.box-filter .overlay,
 .overlay-wrapper .overlay {
   z-index: 50;
   background: rgba(255, 255, 255, 0.7);
   border-radius: 3px;
 }
 .box .overlay > .fa,
+.box-filter .overlay > .fa,
 .overlay-wrapper .overlay > .fa {
   position: absolute;
   top: 50%;
@@ -999,6 +1020,7 @@ form .form-group {
   font-size: 30px;
 }
 .box .overlay.dark,
+.box-filter .overlay.dark,
 .overlay-wrapper .overlay.dark {
   background: rgba(0, 0, 0, 0.5);
 }
@@ -1227,4 +1249,25 @@ form .form-group {
 .trigger-btn {
     display: inline-block;
     margin: 100px auto;
+}
+
+.btn-link{
+    cursor: pointer;
+}
+
+.btn-hash{
+  color: #fff;
+  border-radius: 20px;
+  cursor:pointer;
+}
+
+.btn-hash:focus,
+.btn-hash.focus {
+  color: #fff;
+}
+
+.btn-hash:hover{
+  color: #fff;
+  background-color: #transparent;
+  border-color: #transparent;
 }

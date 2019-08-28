@@ -1,5 +1,5 @@
 from django import forms
-from AREXTI_APP.models import Proyecto, Pericia
+from AREXTI_APP.models import Proyecto, Pericia, Imagen
 
 
 class DateInput(forms.DateInput):
@@ -66,4 +66,22 @@ class PericiaForm(forms.ModelForm):
             'fecha': DateInput(attrs={'class': 'form-control'}),
             'tipoPericia': forms.Select(attrs={'class': 'form-control'}),
             'proyecto': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+
+class ImagenForm(forms.ModelForm):
+
+    class Meta:
+        model = Imagen
+
+        fields = [
+            'tipoImagen',
+        ]
+
+        labels = {
+            'tipoImagen':'Tipo de imagen',
+        }
+
+        widgets = {
+            'tipoImagen': forms.Select(attrs={'class': 'form-control'}),
         }

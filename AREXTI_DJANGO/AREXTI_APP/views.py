@@ -3,9 +3,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import View
 from django.views.generic.detail import SingleObjectMixin
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from AREXTI_APP.models import Proyecto, Pericia, Imagen
-from AREXTI_APP.forms import ProyectoForm, PericiaForm
+from django.views.generic import ListView, CreateView, UpdateView
+from AREXTI_APP.models import Proyecto, Pericia, Imagen, TipoHash, ImagenHash
+from AREXTI_APP.forms import ProyectoForm, PericiaForm, ImagenForm
 
 
 def home(request):
@@ -81,7 +81,30 @@ def PericiaEliminar(request, Periciaid):
 
 
 class ImagenListar(ListView):
-    # model = Pericia
+    # model = Imagen
     context_object_name = 'imagen_lista'
     queryset = Imagen.objects.filter(activo=1)
     template_name = 'AREXTI_APP/ImagenListar.html'
+
+
+class ImagenCrear(CreateView):
+    model = Imagen
+    form_class = ImagenForm
+    template_name = 'AREXTI_APP/ImagenCrear.html'
+    success_url = reverse_lazy('ImagenListar')
+
+
+class ImagenEditar(UpdateView):
+    model = Imagen
+    form_class = ImagenForm
+    template_name = 'AREXTI_APP/ImagenCrear.html'
+    success_url = reverse_lazy('ImagenListar')
+
+def ImagenEliminar(request, Imagenid):
+    if Imagenid:
+        img = Imagen.objects.get(id=Imagenid)
+        img.activo = 0
+        img.save()
+    return redirect('ImagenListar')
+
+
