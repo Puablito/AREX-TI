@@ -1,0 +1,144 @@
+{% extends 'base/AbmBase.html' %}
+
+{% block titulo %}
+   Imagen
+{% endblock %}
+
+
+{% block linkVolver %}
+  <a type="" href="{% url 'ImagenListar' %}" style="color:black"> Volver a imagen</a>
+{% endblock %}
+
+{% block body%}
+
+      <div class="row">
+        <div class="col-md-4 col-sm-6 col-xs-12">
+          <div class="info-box">
+            <img src="#" style="margin:15px; height:250px;">
+          </div>
+        </div>
+        <div class="col-md-8 col-sm-6 col-xs-12">
+          <div class="info-box">
+            <label style="margin:15px; height:250px;">
+              Este es el texto de la imagen en cuestion. Soy una imagen de chat asi que tene cuidado
+            </label>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <div class="box-filter">
+            <div class="box-header with-border bg-primary">
+              <h3 class="box-title" style="color:#fff !important;"><i class="fa fa-address-card"></i>&nbsp;Información básica</h3>
+              <div class="box-tool pull-right">
+                <button type="button" class="btn btn-box-tool" data-toggle="collapse" data-target="#collapseInformacionBasica" aria-expanded="true" aria-controls="collapseInformacionBasica">
+                  <i class="fa fa-chevron-down" style="color:#fff !important;"></i>
+                </button>
+              </div>
+            </div>
+            <div class="collapse in" id="collapseInformacionBasica">
+                <div class="box-body">
+              <div class="row">
+                <div class="col-md-4">
+                  <label>Nombre</label>
+                  <br/>
+                  Screenshot1
+                </div>
+                <div class="col-md-4">
+                  <label>Extension</label>
+                  <br/>
+                  JPG
+                </div>
+                <div class="col-md-4">
+                  <label>Tipo imagen</label>
+                  <br/>
+                  Chat
+                </div>
+              </div>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <div class="box-filter">
+            <div class="box-header with-border bg-success">
+              <h3 class="box-title" style="color:#fff !important;"><i class="fa fa-key"></i>&nbsp;Hashes</h3>
+              <div class="box-tool pull-right">
+                <button type="button" class="btn btn-box-tool" data-toggle="collapse" data-target="#collapseHash" aria-expanded="true" aria-controls="collapseHash">
+                  <i class="fa fa-chevron-down" style="color:#fff !important;"></i>
+                </button>
+              </div>
+            </div>
+            <div class="collapse in" id="collapseHash">
+                <div class="box-body table-responsive">
+              <table class="table table-hover">
+                <tbody>
+                  <tr>
+                    <th>Tipo</th>
+                    <th>Hash</th>
+                  </tr>
+                  <tr>
+                    <td>MD5</td>
+                    <td>2f559f951c7b56f9a63fa70522df586d</td>
+                  </tr>
+                  <tr>
+                    <td>SHA1</td>
+                    <td>da39a3ee5e6b4b0d3255bfef95601890afd80709</td>
+                  </tr>
+                  <tr>
+                    <td>SHA256</td>
+                    <td>bd4526534df7b33772c2f1ee26d97c39ff11379c8848e4e19d74ad849ef66423</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <div class="box-filter">
+            <div class="box-header with-border bg-warning">
+              <h3 class="box-title" style="color:#fff !important;"><i class="fa fa-search"></i>&nbsp;Metadatos</h3>
+              <div class="box-tool pull-right">
+                <button type="button" class="btn btn-box-tool" data-toggle="collapse" data-target="#collapseMetadato" aria-expanded="true" aria-controls="collapseMetadato">
+                  <i class="fa fa-chevron-down" style="color:#fff !important;"></i>
+                </button>
+              </div>
+            </div>
+            <div class="collapse in" id="collapseMetadato">
+                <div class="box-body table-responsive">
+              <table class="table table-hover">
+                <tbody>
+                  <tr>
+                    <th>Atributo</th>
+                    <th>Valor</th>
+                  </tr>
+                  <tr>
+                    <td>Model</td>
+                    <td>SM-G930F</td>
+                  </tr>
+                  <tr>
+                    <td>Software</td>
+                    <td>G930FXXS1BPJB</td>
+                  </tr>
+                  <tr>
+                    <td>DateTime</td>
+                    <td>2019:11:18 09:26:16</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+{% endblock %}

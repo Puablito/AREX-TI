@@ -89,14 +89,20 @@
         </td>
         <td style="display:none;">{{imagen.id}}</td>
         <td>{{imagen.miniatura}}</td>
-        <td>{{imagen.nombre}}</td>
+        <td>
+            <div class="cl-effect-1">
+                <a class="link" href="{% url 'ImagenEditar' imagen.id %}">
+                    {{imagen.nombre}}
+                </a>
+            </div>
+        </td>
         <td>{{imagen.extension}}</td>
         <td>{{imagen.tipoImagen.nombre}}</td>
         <td>
             {% for obj_hash in imagen.imagenhash_set.all %}
-                <button type="button" class="btn btn-hash" style="background-color:{{obj_hash.tipoHash.color}}; border-color:{{obj_hash.tipoHash.color}};" data-toggle="tooltipHash" data-original-title="{{obj_hash.valor}}" data-trigger="click">
+                <a type="button" class="btn btn-hash" style="background-color:{{obj_hash.tipoHash.color}}; border-color:{{obj_hash.tipoHash.color}};" data-toggle="tooltipHash" data-original-title="{{obj_hash.valor}}" data-trigger="click">
                 {{obj_hash.tipoHash.nombre}}
-                </button>
+                </a>
 
             {% endfor %}
 

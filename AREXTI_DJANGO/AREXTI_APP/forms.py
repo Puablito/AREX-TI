@@ -85,3 +85,21 @@ class ImagenForm(forms.ModelForm):
         widgets = {
             'tipoImagen': forms.Select(attrs={'class': 'form-control'}),
         }
+
+
+class ImagenEditForm(forms.ModelForm):
+
+    class Meta:
+        model = Imagen
+
+        fields = [
+            'tipoImagen',
+        ]
+
+        labels = {
+            'tipoImagen':'Tipo de imagen',
+        }
+
+        widgets = {
+            'tipoImagen': forms.Select(attrs={'class': 'form-control'}),
+        }

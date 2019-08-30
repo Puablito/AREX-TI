@@ -95,8 +95,9 @@ class ImagenCrear(CreateView):
 class ImagenEditar(UpdateView):
     model = Imagen
     form_class = ImagenForm
-    template_name = 'AREXTI_APP/ImagenCrear.html'
+    template_name = 'AREXTI_APP/ImagenEditar.html'
     success_url = reverse_lazy('ImagenListar')
+
 
 def ImagenEliminar(request, Imagenid):
     if Imagenid:

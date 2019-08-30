@@ -18,6 +18,10 @@
   <a type="" href="{% url 'PericiaListar' %}" style="color:black"> Volver a Pericias</a>
 {% endblock %}
 
+{% block body %}
+    {{ form.as_p }}
+{% endblock %}
+
 {% block btnCancelar %}
   <button class="btn btn-default" onclick="location.href={% url 'PericiaListar' %}">Cancelar</button>
 {% endblock %}

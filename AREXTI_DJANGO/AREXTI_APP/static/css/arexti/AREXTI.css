@@ -1271,3 +1271,15 @@ form .form-group {
   background-color: #transparent;
   border-color: #transparent;
 }
+
+.link{
+    color:#3c8dbc !important;
+}
+
+.link::hover{
+    color:#3c8dbc !important;
+}
+
+.box{
+    border-top:0 px !important;
+}
