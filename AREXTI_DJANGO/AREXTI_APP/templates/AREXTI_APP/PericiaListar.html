@@ -1,15 +1,20 @@
 {% extends 'base/ListadoBase.html' %}
 
+{% block ListadoBaseScripts %}
+        <script>
+        </script>
+    {% endblock %}
+
 {% block titulo %}
 <h1> Pericias </h1>
 {% endblock %}
 
 {% block filtros %}
-<div class="form-row">
-    <!--<div class="col-md-3">-->
-        <div class="form-group col-md-4">
-            <label class="col-md-3 control-label">Causa</label>
-            <div class="col-md-7">
+<div class="row">
+    <div class="col-md-3">
+        <div class="form-group">
+            <label>Causa</label>
+            <!--<div class="col-md-7">-->
                 <select class="form-control">
                     <option>Causa 1</option>
                     <option>Causa 2</option>
@@ -17,21 +22,30 @@
                     <option>Causa 4</option>
                     <option>Causa 5</option>
                 </select>
-            </div>
+            <!--</div>-->
         </div>
-    <!--</div>-->
-    <!--<div class="col-md-5">-->
-        <div class="form-group col-md-4">
-            <label class="col-md-3 control-label" for="filtrodescripcion">Descripción</label>
-            <div class="col-md-7">
+        <!--<div class="form-group">-->
+            <!--<label>Date:</label>-->
+            <!--<div class="input-group date">-->
+              <!--<div class="input-group-addon">-->
+                <!--<i class="fa fa-calendar"></i>-->
+              <!--</div>-->
+              <!--<input type="text" class="form-control pull-right" id="datepicker">-->
+            <!--</div>-->
+        <!--</div>-->
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label>Descripción</label>
+            <!--<div class="col-md-7">-->
                 <input type="text" id="filtrodescripcion" class="form-control" placeholder="Descripción" name="descripcion">
-            </div>
+            <!--</div>-->
         </div>
-    <!--</div>-->
-    <!--<div class="col-md-4">-->
-        <div class="form-group col-md-4">
-            <label class="col-md-3 control-label">Tipo Pericia</label>
-            <div class="col-md-7">
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label>Tipo Pericia</label>
+            <!--<div class="col-md-7">-->
                 <select class="form-control">
                     <option>Investigación</option>
                     <option>Tipo 2</option>
@@ -39,32 +53,22 @@
                     <option>Tipo 4</option>
                     <option>Tipo 5</option>
                 </select>
-            </div>
+            <!--</div>-->
         </div>
-    <!--</div>-->
-</div>
-<div class="form-row ">
-    <!--<div class="col-md-6">-->
-        <div class="form-group col-md-5">
-            <label class="col-md-3 control-label" for="filtrodescripcion">Fecha Desde</label>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            <label>Fecha desde/hasta</label>
             <div class="input-group">
-                <input type="text" class="form-control pull-right" id="reservation">
-                <div class="input-group-addon">
-                    <i class="fa fa-calendar"></i>
-                </div>
+              <div class="input-group-addon">
+                <i class="fa fa-calendar"></i>
+              </div>
+              <input type="text" class="form-control pull-right" id="reservation">
             </div>
         </div>
-        <div class="form-group col-md-5">
-            <label class="col-md-3 control-label" for="filtrodescripcion">Fecha Hasta</label>
-            <div class="input-group">
-                <input type="text" class="form-control pull-right" id="reservation2">
-                <div class="input-group-addon">
-                    <i class="fa fa-calendar"></i>
-                </div>
-            </div>
-        </div>
-    <!--</div>-->
+    </div>
 </div>
+
 {% endblock %}
 
 {% block acciones %}
@@ -109,6 +113,27 @@
         <td>{{pericia.fecha}}</td>
         <td>{{pericia.tipoPericia}}</td>
     </tr>
+    <div id="Eliminar{{ pericia.id }}" class="modal fade">
+        <div class="modal-dialog modal-confirm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="icon-box">
+                        <i class="material-icons">&#xE5CD;</i>
+                    </div>
+                    <h4 class="modal-title">Atención!</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Seguro que desea eliminar la pericia {{ pericia.descripcion }}?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-info" data-dismiss="modal">Cancelar</button>
+                    <!--<a class="btn btn-danger" href="{% url 'PericiaEliminar' pericia.id %}">Eliminar</a>-->
+                    <button class="btn btn-danger" onclick="window.location.href='{% url 'PericiaEliminar' pericia.id %}'">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
     {% empty %}
         <h1>No hay pericias</h1>
     {% endfor %}

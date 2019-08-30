@@ -1,6 +1,9 @@
 {% extends 'home/index.html' %}
 {% load staticfiles %}
 
+{% block styles %}
+{% endblock %}
+
 {% block scripts %}
     <script>
     </script>
@@ -37,7 +40,7 @@
                     <div class="box-body">
                         {% block filtros %}
                         {% endblock %}
-                        <button type="button" class="btn btn-primary pull-right">Buscar</button>
+                        <!--<button type="button" class="btn btn-primary pull-right">Buscar</button>-->
                     </div>
                 </div>
             </div>
@@ -57,8 +60,7 @@
                         {% endblock %}
                     </table>
                     <!-- Contenedor de paginación -->
-
-                </div>
+                <!--</div>-->
                 <div class="text-center">
                     <ul class="pagination text-center">
                         <!--{% block tabla_paginacion %}-->
@@ -83,6 +85,7 @@
                             {% endif %}
                         {% endif %}
                     </ul>
+                </div>
                 </div>
             </div>
         </div>

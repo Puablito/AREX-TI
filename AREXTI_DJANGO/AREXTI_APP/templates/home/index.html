@@ -12,6 +12,11 @@
   <link rel="stylesheet" href="{% static '/fontawesome/css/font-awesome.min.css'%}">
   <link rel="stylesheet" href="{% static '/css/AdminLTE.min.css'%}">
   <link rel="stylesheet" href="{% static '/css/arexti/AREXTI.css'%}">
+
+  <link rel="stylesheet" href="{% static '/css/daterangepicker.css'%}">
+  <link rel="stylesheet" href="{% static '/css/bootstrap-datepicker.min.css'%}">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
   <link rel="shortcut icon" href="{% static 'favicon.ico' %}">
   {% block styles %}
   {% endblock %}
@@ -20,6 +25,10 @@
   <script src="{% static '/js/arexti/arexti.js'%}"></script>
   <script src="{% static '/js/bootstrap.min.js'%}"></script>
   <script src="{% static '/js/adminlte.min.js'%}"></script>
+
+  <script src="{% static '/js/moment.min.js'%}"></script>
+  <script src="{% static '/js/daterangepicker.js'%}"></script>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.10/jquery.mask.js"></script>
   {% block scripts %}
   {% endblock %}
@@ -144,9 +153,6 @@
 
 </div>
 <!-- ./wrapper -->
-
-
-
 
 </body>
 </html>
