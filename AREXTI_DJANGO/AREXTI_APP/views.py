@@ -6,7 +6,8 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic import ListView, CreateView, UpdateView
 from AREXTI_APP.models import Proyecto, Pericia, Imagen, TipoHash, ImagenHash
 from AREXTI_APP.forms import ProyectoForm, PericiaForm, ImagenForm
-
+from .filters import ProyectoFilter
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 def home(request):
     return render(request, 'home/index.html')
@@ -15,9 +16,29 @@ def home(request):
 class ProyectoListar(ListView):
     # model = Proyecto
     context_object_name = 'proyecto_lista'
+    paginate_by = 10
     queryset = Proyecto.objects.filter(activo=1)
     template_name = 'AREXTI_APP/ProyectoListar.html'
 
+def search(request):
+    user_list = Proyecto.objects.filter(activo=1)
+    user_filter = ProyectoFilter(request.GET, queryset=user_list)\
+        # .qs
+    # paginator = Paginator(user_filter, 5)
+
+    # page = request.GET.get('page')
+    # try:
+    #     response = paginator.page(page)
+    # except PageNotAnInteger:
+    #     response = paginator.page(1)
+    # except EmptyPage:
+    #     response = paginator.page(paginator.num_pages)
+    #
+    # return render(
+    #     request,
+    #     'AREXTI_APP/ProyectoListarNuevo.html',
+    #     {'response': response})
+    return render(request, 'AREXTI_APP/ProyectoListarNuevo.html', {'filter': user_filter})
 
 class ProyectoCrear(CreateView):
     model = Proyecto
@@ -51,6 +72,7 @@ def ProyectoEliminar(request, Proyectoid):
 class PericiaListar(ListView):
     # model = Pericia
     context_object_name = 'pericia_lista'
+    paginate_by = 10
     queryset = Pericia.objects.filter(activo=1)
     template_name = 'AREXTI_APP/PericiaListar.html'
 
