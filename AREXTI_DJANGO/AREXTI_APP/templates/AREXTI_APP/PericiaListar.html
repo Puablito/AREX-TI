@@ -1,4 +1,5 @@
 {% extends 'base/ListadoBase.html' %}
+{% load widget_tweaks %}
 
 {% block ListadoBaseScripts %}
         <script>
@@ -10,64 +11,89 @@
 {% endblock %}
 
 {% block filtros %}
-<div class="row">
-    <div class="col-md-3">
-        <div class="form-group">
-            <label>Causa</label>
-            <!--<div class="col-md-7">-->
-                <select class="form-control">
-                    <option>Causa 1</option>
-                    <option>Causa 2</option>
-                    <option>Causa 3</option>
-                    <option>Causa 4</option>
-                    <option>Causa 5</option>
-                </select>
-            <!--</div>-->
+<form>
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                <!--<div class="form-group">-->
+                {{ filterset.form.proyecto.label_tag }}
+                {% render_field filterset.form.proyecto class="form-control" %}
+                    <!--</div>-->
+                <!--</div>-->
+            </div>
+            <div class="form-group col-md-3">
+                <!--<div class="form-group">-->
+                    {{ filterset.form.descripcion.label_tag }}
+                    {% render_field filterset.form.descripcion class="form-control" %}
+                    <!--</div>-->
+                <!--</div>-->
+            </div>
+            <div class="form-group col-md-3">
+                    {{ filterset.form.tipoPericia.label_tag }}
+                    {% render_field filterset.form.tipoPericia class="form-control" %}
+            </div>
+            <div class="form-group col-md-3">
+                    {{ filterset.form.fecha.label_tag }}
+                    <div class="input-group">
+                        <div class="input-group-addon">
+                            <i class="fa fa-calendar"></i>
+                        </div>
+                    {% render_field filterset.form.fecha class="form-control" id="reservation" %}
+                    </div>
+            </div>
         </div>
+        <div class="form-group col-md-4">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </div>
+    </form>
+<!--<div class="row">-->
+    <!--<div class="col-md-3">-->
         <!--<div class="form-group">-->
-            <!--<label>Date:</label>-->
-            <!--<div class="input-group date">-->
+            <!--<label>Causa</label>-->
+            <!--&lt;!&ndash;<div class="col-md-7">&ndash;&gt;-->
+                <!--<select class="form-control">-->
+                    <!--<option>Causa 1</option>-->
+                    <!--<option>Causa 2</option>-->
+                    <!--<option>Causa 3</option>-->
+                    <!--<option>Causa 4</option>-->
+                    <!--<option>Causa 5</option>-->
+                <!--</select>-->
+            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+        <!--</div>-->
+    <!--</div>-->
+    <!--<div class="col-md-3">-->
+        <!--<div class="form-group">-->
+            <!--<label>Descripción</label>-->
+            <!--&lt;!&ndash;<div class="col-md-7">&ndash;&gt;-->
+                <!--<input type="text" id="filtrodescripcion" class="form-control" placeholder="Descripción" name="descripcion">-->
+            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+        <!--</div>-->
+    <!--</div>-->
+    <!--<div class="col-md-3">-->
+        <!--<div class="form-group">-->
+            <!--<label>Tipo Pericia</label>-->
+            <!--&lt;!&ndash;<div class="col-md-7">&ndash;&gt;-->
+                <!--<select class="form-control">-->
+                    <!--<option>Investigación</option>-->
+                    <!--<option>Tipo 2</option>-->
+                    <!--<option>Tipo 3</option>-->
+                    <!--<option>Tipo 4</option>-->
+                    <!--<option>Tipo 5</option>-->
+                <!--</select>-->
+            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+        <!--</div>-->
+    <!--</div>-->
+    <!--<div class="col-md-3">-->
+        <!--<div class="form-group">-->
+            <!--<label>Fecha desde/hasta</label>-->
+            <!--<div class="input-group">-->
               <!--<div class="input-group-addon">-->
                 <!--<i class="fa fa-calendar"></i>-->
               <!--</div>-->
-              <!--<input type="text" class="form-control pull-right" id="datepicker">-->
+              <!--<input type="text" class="form-control pull-right" id="reservation">-->
             <!--</div>-->
         <!--</div>-->
-    </div>
-    <div class="col-md-3">
-        <div class="form-group">
-            <label>Descripción</label>
-            <!--<div class="col-md-7">-->
-                <input type="text" id="filtrodescripcion" class="form-control" placeholder="Descripción" name="descripcion">
-            <!--</div>-->
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="form-group">
-            <label>Tipo Pericia</label>
-            <!--<div class="col-md-7">-->
-                <select class="form-control">
-                    <option>Investigación</option>
-                    <option>Tipo 2</option>
-                    <option>Tipo 3</option>
-                    <option>Tipo 4</option>
-                    <option>Tipo 5</option>
-                </select>
-            <!--</div>-->
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="form-group">
-            <label>Fecha desde/hasta</label>
-            <div class="input-group">
-              <div class="input-group-addon">
-                <i class="fa fa-calendar"></i>
-              </div>
-              <input type="text" class="form-control pull-right" id="reservation">
-            </div>
-        </div>
-    </div>
-</div>
+    <!--</div>-->
+<!--</div>-->
 
 {% endblock %}
 

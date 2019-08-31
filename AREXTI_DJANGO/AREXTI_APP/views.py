@@ -6,39 +6,48 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic import ListView, CreateView, UpdateView
 from AREXTI_APP.models import Proyecto, Pericia, Imagen, TipoHash, ImagenHash
 from AREXTI_APP.forms import ProyectoForm, PericiaForm, ImagenForm
-from .filters import ProyectoFilter
+from .filters import ProyectoFilter, PericiaFilter
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+# from django_filters import FilterView
+
+
+class FilteredListView(ListView):
+    filterset_class = None
+
+    def get_queryset(self):
+        # Get the queryset however you usually would.  For example:
+        queryset = super().get_queryset()
+        # Then use the query parameters and the queryset to
+        # instantiate a filterset and save it as an attribute
+        # on the view instance for later.
+        self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
+        # Return the filtered queryset
+        return self.filterset.qs.distinct()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Pass the filterset to the template - it provides the form.
+        context['filterset'] = self.filterset
+        return context
+
 
 def home(request):
     return render(request, 'home/index.html')
 
 
-class ProyectoListar(ListView):
-    # model = Proyecto
-    context_object_name = 'proyecto_lista'
-    paginate_by = 10
-    queryset = Proyecto.objects.filter(activo=1)
+# class ProyectoListarOld(ListView):
+#     # model = Proyecto
+#     context_object_name = 'proyecto_lista'
+#     paginate_by = 5
+#     queryset = Proyecto.objects.filter(activo=1)
+#     template_name = 'AREXTI_APP/ProyectoListar.html'
+
+class ProyectoListar(FilteredListView):
+    filterset_class = ProyectoFilter
+    queryset = Proyecto.objects.filter(activo=1).order_by('-id')
+    paginate_by = 5
     template_name = 'AREXTI_APP/ProyectoListar.html'
 
-def search(request):
-    user_list = Proyecto.objects.filter(activo=1)
-    user_filter = ProyectoFilter(request.GET, queryset=user_list)\
-        # .qs
-    # paginator = Paginator(user_filter, 5)
-
-    # page = request.GET.get('page')
-    # try:
-    #     response = paginator.page(page)
-    # except PageNotAnInteger:
-    #     response = paginator.page(1)
-    # except EmptyPage:
-    #     response = paginator.page(paginator.num_pages)
-    #
-    # return render(
-    #     request,
-    #     'AREXTI_APP/ProyectoListarNuevo.html',
-    #     {'response': response})
-    return render(request, 'AREXTI_APP/ProyectoListarNuevo.html', {'filter': user_filter})
 
 class ProyectoCrear(CreateView):
     model = Proyecto
@@ -69,11 +78,18 @@ def ProyectoEliminar(request, Proyectoid):
     #     return HttpResponseRedirect('PericiaListar/')
 
 
-class PericiaListar(ListView):
+class PericiaListarOld(ListView):
     # model = Pericia
     context_object_name = 'pericia_lista'
     paginate_by = 10
     queryset = Pericia.objects.filter(activo=1)
+    template_name = 'AREXTI_APP/PericiaListar.html'
+
+
+class PericiaListar(FilteredListView):
+    filterset_class = PericiaFilter
+    queryset = Pericia.objects.filter(activo=1).order_by('-id')
+    paginate_by = 5
     template_name = 'AREXTI_APP/PericiaListar.html'
 
 
