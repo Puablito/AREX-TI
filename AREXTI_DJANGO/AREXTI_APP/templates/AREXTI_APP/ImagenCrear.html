@@ -6,5 +6,9 @@
 
 
 {% block linkVolver %}
-  <a type="" href="{% url 'PericiaListar' %}" style="color:black"> Volver a Pericias</a>
+  <a type="" href="{% url 'ImagenListar' %}" style="color:black"> Volver a imagen</a>
+{% endblock %}
+
+{% block body %}
+    {{ form.as_p }}
 {% endblock %}

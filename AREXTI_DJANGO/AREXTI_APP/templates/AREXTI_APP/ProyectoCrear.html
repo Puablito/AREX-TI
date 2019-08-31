@@ -32,6 +32,10 @@
   <a type="" href="{% url 'ProyectoListar' %}" style="color:black"> &laquo; Volver a Proyectos</a>
 {% endblock %}
 
+{% block body %}
+    {{ form.as_p }}
+{% endblock %}
+
 {% block btnCancelar %}
   <button class="btn btn-default" onclick="location.href={% url 'ProyectoListar' %}">Cancelar</button>
 {% endblock %}
