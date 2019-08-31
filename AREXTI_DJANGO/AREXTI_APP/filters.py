@@ -17,7 +17,7 @@ class ProyectoFilter(django_filters.FilterSet):
 
 
 class PericiaFilter(django_filters.FilterSet):
-    fechas = django_filters.DateFromToRangeFilter(field_name='')
+    fechas = django_filters.DateFromToRangeFilter(field_name='fecha')
 
     def __init__(self, data, *args, **kwargs):
         data = data.copy()
@@ -28,4 +28,4 @@ class PericiaFilter(django_filters.FilterSet):
 
     class Meta:
         model = Pericia
-        fields = ['tipoPericia', 'descripcion', 'proyecto', 'fecha', ]
+        fields = ['tipoPericia', 'descripcion', 'proyecto', 'fechas', ]
