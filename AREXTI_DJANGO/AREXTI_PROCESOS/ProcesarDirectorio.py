@@ -114,7 +114,8 @@ if __name__ == '__main__':
     TiempoInicial = datetime.datetime.now()
     print("Inicio la RN")
 
-    piscina = []
+    procesos_paralelos = os.cpu_count()  # cantidad de procesos maximos a utilizar
+    procesos_ejecucion = []              # cantidad de procesos en ejecución
     imagen = ListaImagenes.pop(0)
 
     # se agrega el proceso a la lista de procesos activos
@@ -122,20 +123,20 @@ if __name__ == '__main__':
                 target=procesar_imagen,
                 args=(imagen[0], imagen[1],))
     p.start()
-    piscina.append(p)
+    procesos_ejecucion.append(p)
 
     # Mientras la piscina tenga procesos
-    while piscina:
-        for proceso in piscina:
+    while procesos_ejecucion:
+        for proceso in procesos_ejecucion:
             # Para cada proceso de la piscina revisamos si el proceso ha muerto
             if not proceso.is_alive():
                 print("Elimina: "+proceso.name)
                 # Recuperamos el proceso y lo sacamos de la piscina
                 proceso.join()
-                piscina.remove(proceso)
+                procesos_ejecucion.remove(proceso)
                 del proceso
 
-        while len(piscina) < 4 and len(ListaImagenes) > 0:
+        while len(procesos_ejecucion) < procesos_paralelos and len(ListaImagenes) > 0:
             # Mientras la piscina no esté llena y el listado de imagenes no esté vacio, creo, inicio y 
             # agrego a la piscina yun nuevo proceso
             if len(ListaImagenes) > 0:
@@ -144,7 +145,7 @@ if __name__ == '__main__':
                             target=procesar_imagen,
                             args=(imagen[0], imagen[1],))
                 p.start()
-                piscina.append(p)
+                procesos_ejecucion.append(p)
                 print("Agrega: " + p.name+" lista con " + str(len(ListaImagenes)) + " elementos")
 
         # Para no saturar, dormimos al padre durante 1 segundo
