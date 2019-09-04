@@ -3,8 +3,7 @@ import imghdr
 import datetime
 import time
 from multiprocessing import Process
-import RedesNeuronales
-import Hashes
+import RedesNeuronales, Hashes, Metadatos
 
 # Se leen los parametros
 '''
@@ -41,7 +40,7 @@ ListaImagenes = []
 for dirName, subdirList, fileList in os.walk(rootDir):
     for fname in fileList:
         archivo = dirName + os.sep + fname
-        # Identifico si un archivo es imagen o no por el contenido y NO por la extensión
+        # Identifico si "archivo" es imagen por el contenido y NO por la extensión
         if imghdr.what(archivo) is not None:
             ext = imghdr.what(archivo)
             if ext.upper() in ListadoExtensiones:
@@ -63,13 +62,18 @@ def procesar_imagen(imagen_path, imagen_nombre):
         pass  # guardar en log
     else:  # Si la imagen posee texto
 
-        # Calcula Hashes
         imagen_with_path = imagen_path + imagen_nombre
+
+        # Calcula Hashes
         listado_hashes = {"md5": "", "sha1": "", "sha256": ""}
         listado_hashes = Hashes.calcular_hashes(listado_hashes, imagen_with_path)
+        print("Imagen:" + str(imagen_nombre))
         print("Hashes: " + str(listado_hashes))
 
         # Extrae metadatos
+        listado_metadatos = Metadatos.metadata_extraer(imagen_with_path)
+        print("Imagen:" + str(imagen_nombre))
+        print("Metadatos: " + str(listado_metadatos))
 
         # Verifica si es de chat o no con la RN
         rn_chat = RedesNeuronales.RedNeuronalChat()  # ver de usar singleton para no crear muchas instancias de la misma clase
