@@ -45,27 +45,27 @@ class PericiaForm(forms.ModelForm):
         model = Pericia
 
         fields = [
+            'proyecto',
             'descripcion',
             'nombrePerito',
             'fecha',
             'tipoPericia',
-            'proyecto',
         ]
 
         labels = {
+            'proyecto': 'Proyecto',
             'descripcion': 'Descripcion',
             'nombrePerito': 'Nombre perito',
             'fecha': 'Fecha',
             'tipoPericia': 'Tipo Pericia',
-            'proyecto': 'Proyecto',
         }
 
         widgets = {
+            'proyecto': forms.Select(attrs={'class': 'form-control'}),
             'descripcion': forms.TextInput(attrs={'class': 'form-control', 'id': 'descripcion'}),
             'nombrePerito': forms.TextInput(attrs={'class': 'form-control'}),
             'fecha': DateInput(attrs={'class': 'form-control'}),
             'tipoPericia': forms.Select(attrs={'class': 'form-control'}),
-            'proyecto': forms.Select(attrs={'class': 'form-control'}),
         }
 
 

@@ -2,6 +2,11 @@
 {% load widget_tweaks %}
 
 {% block ListadoBaseScripts %}
+    <script>
+        $(document).ready(function(){
+          $("#id_IPP").mask("00-000000-00")
+        })
+    </script>
 {% endblock %}
 
 {% block titulo %}
@@ -39,10 +44,11 @@
 {% endblock %}
 
 {% block acciones %}
-<a class="btn btn-success" href="{% url 'ProyectoCrear' %}">Agregar</a>
+<!--<a class="btn btn-success" href="{% url 'ProyectoCrear' %}">Agregar</a>-->
 {% endblock %}
 
 {% block tabla_contenido %}
+<a class="btn btn-success" href="{% url 'ProyectoCrear' %}">Agregar</a>
 <thead class="thead-dark">
     <tr>
         <th style="width: 10px"></th>

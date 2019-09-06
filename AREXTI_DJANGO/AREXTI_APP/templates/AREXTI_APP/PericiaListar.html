@@ -3,8 +3,9 @@
 
 {% block ListadoBaseScripts %}
         <script>
+
         </script>
-    {% endblock %}
+{% endblock %}
 
 {% block titulo %}
 <h1> Pericias </h1>
@@ -32,12 +33,12 @@
                     {% render_field filterset.form.tipoPericia class="form-control" %}
             </div>
             <div class="form-group col-md-3">
-                    {{ filterset.form.fechas.label_tag }}
+                    {{ filterset.form.fecha.label_tag }}
                     <div class="input-group">
                         <div class="input-group-addon">
                             <i class="fa fa-calendar"></i>
                         </div>
-                    {% render_field filterset.form.fechas class="form-control" id="reservation" %}
+                    {% render_field filterset.form.fecha class="form-control" id="rangofechas" %}
                     </div>
             </div>
         </div>
@@ -98,10 +99,11 @@
 {% endblock %}
 
 {% block acciones %}
-<a class="btn btn-success" href="{% url 'PericiaCrear' %}">Agregar</a>
+<!--<a class="btn btn-success" href="{% url 'PericiaCrear' %}">Agregar</a>-->
 {% endblock %}
 
 {% block tabla_contenido %}
+<a class="btn btn-success" href="{% url 'PericiaCrear' %}">Agregar</a>
 <thead class="thead-dark" >
     <tr>
         <th style="width: 10px"></th>
@@ -161,7 +163,9 @@
         </div>
     </div>
     {% empty %}
-        <h1>No hay pericias</h1>
+        <tr>
+          <td colspan="5"><h1>No hay proyectos</h1></td>
+        </tr>
     {% endfor %}
 </tbody>
 {% endblock %}

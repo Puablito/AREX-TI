@@ -17,82 +17,88 @@
 
 {% block principal %}
 <!--<Main Content>-->
-<section class="content-header">
+<div class="content-header">
 {% block titulo %}
 {% endblock %}
-</section>
+</div>
 
-<section class="content">
-    <div class="col-xs-12">
+<div class="content">
+    <!--<div class="col-md-12">-->
         <!-- Filtros -->
         <div class="row">
-            <div class="box-filter">
-                <div class="box-header with-border">
-                    <h3 class="box-title">Filtros</h3>
-                    <div class="box-tools">
-                        <button class="btn btn-box-tool" type="button" data-toggle="collapse"
-                            data-target="#collapseFiltros" aria-expanded="true" aria-controls="collapseFiltros">
-                            <i class="fa fa-minus"></i>
-                        </button>
+            <div class="col-md-12">
+                <div class="box-filter">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Filtros</h3>
+                        <div class="box-tools">
+                            <button class="btn btn-box-tool" type="button" data-toggle="collapse"
+                                data-target="#collapseFiltros" aria-expanded="true" aria-controls="collapseFiltros">
+                                <i class="fa fa-minus"></i>
+                            </button>
+                        </div>
                     </div>
-                </div>
-                <div class="collapse in" id="collapseFiltros">
-                    <div class="box-body">
-                        {% block filtros %}
-                        {% endblock %}
-                        <!--<button type="button" class="btn btn-primary pull-right">Buscar</button>-->
+                    <div class="collapse in" id="collapseFiltros">
+                        <div class="box-body">
+                            {% block filtros %}
+                            {% endblock %}
+                            <!--<button type="button" class="btn btn-primary pull-right">Buscar</button>-->
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         <!-- Boton Agregar -->
         <div class="row">
-            {% block acciones %}
-            {% endblock %}
+            <div class="col-md-12">
+                {% block acciones %}
+                {% endblock %}
+            </div>
         </div>
         <!-- Contenedor Grilla -->
         <div class="row">
-            <div class="box">
-                <div class="box-body">
-                    <!-- Grilla -->
-                    <table class="table table-bordered">
-                        {% block tabla_contenido %}
-                        {% endblock %}
-                    </table>
-                    <!-- Contenedor de paginación -->
-                <!--</div>-->
-                <div class="text-center">
-                    <ul class="pagination text-center">
-                        <!--{% block tabla_paginacion %}-->
-                        <!--{% endblock %}-->
-                        {% if is_paginated %}
-                            {% if page_obj.has_previous %}
-                                <!--<li><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>-->
-                                <li><a href="?{% param_replace page=page_obj.previous_page_number %}">&laquo;</a></li>
-                            {% else %}
-                                <li class="disabled"><span>&laquo;</span></li>
-                            {% endif %}
-                            {% for i in paginator.page_range %}
-                                {% if page_obj.number == i %}
-                                    <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
-                                {% else %}
-                                    <!--<li><a href="?page={{i}}">{{ i }}</a></li>-->
-                                    <li><a href="?{% param_replace page=i  %}">{{ i }}</a></li>
+            <div class="col-md-12">
+                <div class="box">
+                    <div class="box-body table-responsive">
+                        <!-- Grilla -->
+                        <table class="table table-bordered">
+                            {% block tabla_contenido %}
+                            {% endblock %}
+                        </table>
+                        <!-- Contenedor de paginación -->
+                    <!--</div>-->
+                        <div class="text-center">
+                            <ul class="pagination text-center">
+                                <!--{% block tabla_paginacion %}-->
+                                <!--{% endblock %}-->
+                                {% if is_paginated %}
+                                    {% if page_obj.has_previous %}
+                                        <!--<li><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>-->
+                                        <li><a href="?{% param_replace page=page_obj.previous_page_number %}">&laquo;</a></li>
+                                    {% else %}
+                                        <li class="disabled"><span>&laquo;</span></li>
+                                    {% endif %}
+                                    {% for i in paginator.page_range %}
+                                        {% if page_obj.number == i %}
+                                            <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                                        {% else %}
+                                            <!--<li><a href="?page={{i}}">{{ i }}</a></li>-->
+                                            <li><a href="?{% param_replace page=i  %}">{{ i }}</a></li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if page_obj.has_next %}
+                                        <!--<li><a href="?page={{page_obj.next_page_number}}">&raquo;</a></li>-->
+                                        <li><a href="?{% param_replace page=page_obj.next_page_number %}">&raquo;</a></li>
+                                    {% else %}
+                                        <li class="disabled"><span>&raquo;</span></li>
+                                    {% endif %}
                                 {% endif %}
-                            {% endfor %}
-                            {% if page_obj.has_next %}
-                                <!--<li><a href="?page={{page_obj.next_page_number}}">&raquo;</a></li>-->
-                                <li><a href="?{% param_replace page=page_obj.next_page_number %}">&raquo;</a></li>
-                            {% else %}
-                                <li class="disabled"><span>&raquo;</span></li>
-                            {% endif %}
-                        {% endif %}
-                    </ul>
-                </div>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    <!--</div>-->
+</div>
 <!--</Main Content>-->
 {% endblock %}

@@ -6,7 +6,7 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic import ListView, CreateView, UpdateView
 from AREXTI_APP.models import Proyecto, Pericia, Imagen, TipoHash, ImagenHash
 from AREXTI_APP.forms import ProyectoForm, PericiaForm, ImagenForm
-from .filters import ProyectoFilter, PericiaFilter
+from .filters import ProyectoFilter, PericiaFilter, ImagenFilter
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 # from django_filters import FilterView
 
@@ -45,7 +45,7 @@ def home(request):
 class ProyectoListar(FilteredListView):
     filterset_class = ProyectoFilter
     queryset = Proyecto.objects.filter(activo=1).order_by('-id')
-    paginate_by = 5
+    paginate_by = 10
     template_name = 'AREXTI_APP/ProyectoListar.html'
 
 
@@ -116,11 +116,17 @@ def PericiaEliminar(request, Periciaid):
     return redirect('PericiaListar')
 
 
-class ImagenListar(ListView):
-    # model = Imagen
-    context_object_name = 'imagen_lista'
-    queryset = Imagen.objects.filter(activo=1)
+class ImagenListar(FilteredListView):
+    filterset_class = ImagenFilter
+    queryset = Imagen.objects.filter(activo=1).order_by('-id')
+    paginate_by = 5
     template_name = 'AREXTI_APP/ImagenListar.html'
+
+# class ImagenListar(ListView):
+#     # model = Imagen
+#     context_object_name = 'imagen_lista'
+#     queryset = Imagen.objects.filter(activo=1)
+#     template_name = 'AREXTI_APP/ImagenListar.html'
 
 
 class ImagenCrear(CreateView):
