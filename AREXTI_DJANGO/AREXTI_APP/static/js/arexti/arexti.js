@@ -11,9 +11,10 @@ $(function() {
                'Este mes': [moment().startOf('month'), moment().endOf('month')],
                'Mes anterior': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
             },
-            autoUpdateInput: true,
+            autoUpdateInput: false,
+            opens: 'left',
             applyClass: 'btn-sm btn-primary',
-            autoApply: true,
+//            autoApply: true,
             cancelClass: 'btn-sm btn-default',
             locale: {
                 format: 'DD/MM/YYYY',
@@ -29,7 +30,13 @@ $(function() {
                 firstDay: 1
             }
         });
+        $('#fechaa').on('apply.daterangepicker', function(ev, picker) {
+      $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
+          });
 
+          $('#fechaa').on('cancel.daterangepicker', function(ev, picker) {
+              $(this).val('');
+          });
 
         });
 
