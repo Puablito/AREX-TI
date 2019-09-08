@@ -40,7 +40,6 @@ class ProyectoForm(forms.ModelForm):
 
 
 class PericiaForm(forms.ModelForm):
-
     class Meta:
         model = Pericia
 
@@ -64,7 +63,7 @@ class PericiaForm(forms.ModelForm):
             'proyecto': forms.Select(attrs={'class': 'form-control'}),
             'descripcion': forms.TextInput(attrs={'class': 'form-control', 'id': 'descripcion'}),
             'nombrePerito': forms.TextInput(attrs={'class': 'form-control'}),
-            'fecha': DateInput(attrs={'class': 'form-control'}),
+            'fecha': forms.TextInput(attrs={'class': 'form-control'}),
             'tipoPericia': forms.Select(attrs={'class': 'form-control'}),
         }
 

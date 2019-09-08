@@ -89,7 +89,7 @@ class PericiaListarOld(ListView):
 class PericiaListar(FilteredListView):
     filterset_class = PericiaFilter
     queryset = Pericia.objects.filter(activo=1).order_by('-id')
-    paginate_by = 5
+    paginate_by = 10
     template_name = 'AREXTI_APP/PericiaListar.html'
 
 
@@ -119,7 +119,7 @@ def PericiaEliminar(request, Periciaid):
 class ImagenListar(FilteredListView):
     filterset_class = ImagenFilter
     queryset = Imagen.objects.filter(activo=1).order_by('-id')
-    paginate_by = 5
+    paginate_by = 10
     template_name = 'AREXTI_APP/ImagenListar.html'
 
 # class ImagenListar(ListView):

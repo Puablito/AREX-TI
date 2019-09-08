@@ -71,12 +71,12 @@ class FechaRangoFilter(filters.Filter):
                 fechaFin = value.split('-')[1]
 
                 fechaIni = fechaIni.split('/')
-                fechaIni = fechaIni[2].strip() + '-' + fechaIni[0].strip() + '-' \
-                               + fechaIni[1].strip()
+                fechaIni = fechaIni[2].strip() + '-' + fechaIni[1].strip() + '-' \
+                               + fechaIni[0].strip()
 
                 fechaFin = fechaFin.split('/')
-                fechaFin = fechaFin[2].strip() + '-' + fechaFin[0].strip() + '-' \
-                               + fechaFin[1].strip()
+                fechaFin = fechaFin[2].strip() + '-' + fechaFin[1].strip() + '-' \
+                               + fechaFin[0].strip()
 
                 value = (fechaIni, fechaFin)
         return super().filter(qs, value)
@@ -84,7 +84,7 @@ class FechaRangoFilter(filters.Filter):
 
 class PericiaFilter(django_filters.FilterSet):
     # fecha = django_filters.DateFromToRangeFilter()
-    fecha = filters.FechaRangoFilter(label='Fecha desde/hasta')
+    fecha = FechaRangoFilter(label='Fecha')
     descripcion = django_filters.CharFilter(lookup_expr='icontains', label='Descripción')
     tipoPericia = django_filters.ChoiceFilter(choices=Pericia.tiposPericia, label='Tipo Pericia')
 

@@ -1,40 +1,56 @@
 
-//Date Range Picker
-$(function () {
-                $('#rangofechas').daterangepicker({
-                "locale": {
-//                    "format": "YYYY-MM-DD",
-                    "separator": " - ",
-                    "applyLabel": "Aplicar",
-                    "cancelLabel": "Cancelar",
-                    "fromLabel": "Desde",
-                    "toLabel": "Hasta",
-                    "customRangeLabel": "Personalizado",
-                    "weekLabel": "S",
-                    "daysOfWeek": [
-                        "Do",
-                        "Lu",
-                        "Ma",
-                        "Mi",
-                        "Ju",
-                        "Vi",
-                        "Sa"
-                    ],
-                    "monthNames": [
-                        "Enero",
-                        "Febrero",
-                        "Marzo",
-                        "Abril",
-                        "Mayo",
-                        "Junio",
-                        "Julio",
-                        "Agosto",
-                        "Septiembre",
-                        "Octubre",
-                        "Noviembre",
-                        "Diciembre"
-                    ],
-                    "firstDay": 1
+//Rango de fechas
+$(function() {
+            $('#fechaa').daterangepicker({
+            showDropdowns: true,
+            ranges: {
+               'Hoy': [moment(), moment()],
+               'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+               'Última Semana': [moment().subtract(6, 'days'), moment()],
+               'Últimos 30 días': [moment().subtract(29, 'days'), moment()],
+               'Este mes': [moment().startOf('month'), moment().endOf('month')],
+               'Mes anterior': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            },
+            autoUpdateInput: true,
+            applyClass: 'btn-sm btn-primary',
+            autoApply: true,
+            cancelClass: 'btn-sm btn-default',
+            locale: {
+                format: 'DD/MM/YYYY',
+                applyLabel: 'Aplicar',
+                cancelLabel: 'Limpiar',
+                fromLabel: 'Desde',
+                toLabel: 'Hasta',
+                customRangeLabel: 'Seleccionar rango',
+                daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+                monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre',
+                    'Diciembre'],
+                firstDay: 1
+            }
+        });
+
+
+        });
+
+// Fecha simple
+$(function() {
+            $('#id_fecha').daterangepicker({
+            showDropdowns: true,
+            locale: {
+                format: 'YYYY-MM-DD',
+                daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+                monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre',
+                    'Diciembre'],
+                firstDay: 1
                 },
-            })
-              })
+            singleDatePicker: true,
+            autoUpdateInput: true,
+            applyClass: 'btn-sm btn-primary',
+            autoApply: true,
+            cancelClass: 'btn-sm btn-default',
+
+        });
+        });
+
