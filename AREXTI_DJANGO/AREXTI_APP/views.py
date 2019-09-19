@@ -13,13 +13,15 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 class FilteredListView(ListView):
     filterset_class = None
-
+    idfil = 0
     def get_queryset(self):
         # Get the queryset however you usually would.  For example:
         queryset = super().get_queryset()
         # Then use the query parameters and the queryset to
         # instantiate a filterset and save it as an attribute
         # on the view instance for later.
+
+        # self.idfil = self.extra_context['id']
         self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
         # Return the filtered queryset
         return self.filterset.qs.distinct()
@@ -66,6 +68,15 @@ class ProyectoEditar(UpdateView):
 def ProyectoEliminar(request, Proyectoid):
     # model = Proyecto
     if Proyectoid:
+        # PRIMERO ELIMINACION LOGICA DE PERICIAS E IMAGENES CORRESPONDIENTES AL PROYECTO
+        pericias = Pericia.objects.filter(proyecto=Proyectoid)
+        for per in pericias:
+            imagenes = Imagen.objects.filter(pericia=per.id)
+            for ima in imagenes:
+                ima.activo = 0
+                ima.save()
+            per.activo = 0
+            per.save()
         pro = Proyecto.objects.get(id=Proyectoid)
         pro.activo = 0
         pro.save()
@@ -88,7 +99,20 @@ class PericiaListarOld(ListView):
 
 class PericiaListar(FilteredListView):
     filterset_class = PericiaFilter
-    queryset = Pericia.objects.filter(activo=1).order_by('-id')
+
+    def get_queryset(self):
+        proid = self.kwargs.get("id")
+        if proid is None:
+            proid = 0
+        # queryset = super().get_queryset()
+        if proid != 0:
+            queryset = Pericia.objects.filter(activo=1, proyecto=proid).order_by('-id')
+        else:
+            queryset = Pericia.objects.filter(activo=1).order_by('-id')
+        self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
+
+        return self.filterset.qs.distinct()
+    # queryset = Pericia.objects.filter(activo=1).order_by('-id')
     paginate_by = 10
     template_name = 'AREXTI_APP/PericiaListar.html'
 
@@ -110,6 +134,11 @@ class PericiaEditar(UpdateView):
 def PericiaEliminar(request, Periciaid):
     # model = Proyecto
     if Periciaid:
+        # PRIMERO ELIMINACION LOGICA DE IMAGENES CORRESPONDIENTES A LA PERICIA
+        imagenes = Imagen.objects.filter(pericia=Periciaid)
+        for ima in imagenes:
+            ima.activo = 0
+            ima.save()
         pro = Pericia.objects.get(id=Periciaid)
         pro.activo = 0
         pro.save()
@@ -118,7 +147,17 @@ def PericiaEliminar(request, Periciaid):
 
 class ImagenListar(FilteredListView):
     filterset_class = ImagenFilter
-    queryset = Imagen.objects.filter(activo=1).order_by('-id')
+    def get_queryset(self):
+        perid = self.kwargs.get("id")
+        # queryset = super().get_queryset()
+        if perid != 0:
+            queryset = Imagen.objects.filter(activo=1, pericia=perid).order_by('-id')
+        else:
+            queryset = Imagen.objects.filter(activo=1).order_by('-id')
+        self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
+
+        return self.filterset.qs.distinct()
+    # queryset = Imagen.objects.filter(activo=1).order_by('-id')
     paginate_by = 10
     template_name = 'AREXTI_APP/ImagenListar.html'
 

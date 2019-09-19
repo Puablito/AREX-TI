@@ -110,12 +110,12 @@ class PericiaFilter(django_filters.FilterSet):
 class ImagenFilter(django_filters.FilterSet):
     nombre = django_filters.CharFilter(lookup_expr='icontains', label='Nombre')
     extension = django_filters.CharFilter(lookup_expr='icontains', label='Extensión')
-    hash = django_filters.CharFilter(lookup_expr='icontains', label='Hash')
+    hash = django_filters.CharFilter(lookup_expr='contains', label='Hash')
     tipoImagen = django_filters.ModelChoiceFilter(queryset=TipoImagen.objects.filter(activo=1), label='Tipo Imagen')
 
     class Meta:
         model = Imagen
-        fields = []
+        fields = ['hash',]
 
     def __init__(self, *args, **kwargs):
         super(ImagenFilter, self).__init__(*args, **kwargs)

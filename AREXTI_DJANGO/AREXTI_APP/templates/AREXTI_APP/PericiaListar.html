@@ -47,56 +47,6 @@
             <button type="submit" class="btn btn-primary">Buscar</button>
         </div>
     </form>
-<!--<div class="row">-->
-    <!--<div class="col-md-3">-->
-        <!--<div class="form-group">-->
-            <!--<label>Causa</label>-->
-            <!--&lt;!&ndash;<div class="col-md-7">&ndash;&gt;-->
-                <!--<select class="form-control">-->
-                    <!--<option>Causa 1</option>-->
-                    <!--<option>Causa 2</option>-->
-                    <!--<option>Causa 3</option>-->
-                    <!--<option>Causa 4</option>-->
-                    <!--<option>Causa 5</option>-->
-                <!--</select>-->
-            <!--&lt;!&ndash;</div>&ndash;&gt;-->
-        <!--</div>-->
-    <!--</div>-->
-    <!--<div class="col-md-3">-->
-        <!--<div class="form-group">-->
-            <!--<label>Descripción</label>-->
-            <!--&lt;!&ndash;<div class="col-md-7">&ndash;&gt;-->
-                <!--<input type="text" id="filtrodescripcion" class="form-control" placeholder="Descripción" name="descripcion">-->
-            <!--&lt;!&ndash;</div>&ndash;&gt;-->
-        <!--</div>-->
-    <!--</div>-->
-    <!--<div class="col-md-3">-->
-        <!--<div class="form-group">-->
-            <!--<label>Tipo Pericia</label>-->
-            <!--&lt;!&ndash;<div class="col-md-7">&ndash;&gt;-->
-                <!--<select class="form-control">-->
-                    <!--<option>Investigación</option>-->
-                    <!--<option>Tipo 2</option>-->
-                    <!--<option>Tipo 3</option>-->
-                    <!--<option>Tipo 4</option>-->
-                    <!--<option>Tipo 5</option>-->
-                <!--</select>-->
-            <!--&lt;!&ndash;</div>&ndash;&gt;-->
-        <!--</div>-->
-    <!--</div>-->
-    <!--<div class="col-md-3">-->
-        <!--<div class="form-group">-->
-            <!--<label>Fecha desde/hasta</label>-->
-            <!--<div class="input-group">-->
-              <!--<div class="input-group-addon">-->
-                <!--<i class="fa fa-calendar"></i>-->
-              <!--</div>-->
-              <!--<input type="text" class="form-control pull-right" id="reservation">-->
-            <!--</div>-->
-        <!--</div>-->
-    <!--</div>-->
-<!--</div>-->
-
 {% endblock %}
 
 {% block acciones %}
@@ -131,7 +81,7 @@
             </a>
         </td>
         <td>
-            <a href="{% url 'ImagenListar' %}">
+            <a href="{% url 'ImagenListar' pericia.id %}">
                 <img src="../../static/image/imagen.png" alt="Imagenes" title="Imagenes" style=";width: 25px">
             </a>
         </td>
@@ -165,7 +115,7 @@
     </div>
     {% empty %}
         <tr>
-          <td colspan="5"><h1>No hay proyectos</h1></td>
+          <td colspan="5"><h1>No hay pericias</h1></td>
         </tr>
     {% endfor %}
 </tbody>

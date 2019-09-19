@@ -41,5 +41,6 @@
 {% endblock %}
 
 {% block btnListar %}
-  <button type="button" onclick="location.href={% url 'PericiaListar' %}" class="btn btn-success pull-right">Ver Pericias</button>
+  <!--<button type="button" onclick="location.href={% url 'PericiaListar' 0 %}" class="btn btn-success pull-right">Ver Pericias</button>-->
+  <a href="{% url 'PericiaListar' proyecto.id %}" class="btn btn-success pull-right">Ver Pericias</a>
 {% endblock %}
