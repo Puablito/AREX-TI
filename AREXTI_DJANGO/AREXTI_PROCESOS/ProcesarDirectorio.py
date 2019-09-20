@@ -2,7 +2,7 @@ import os
 import imghdr
 import datetime
 import time
-from multiprocessing import Process
+from multiprocessing import Process, Queue
 import RedesNeuronales, Hashes, Metadatos
 
 # Se leen los parametros
@@ -24,8 +24,7 @@ rootDir = 'F:\PythonProyects\SegmentacionIMG\Imagenes'
 
 # Listado de extensiones que se van a procesar
 ListadoExtensiones = ["JPG", "JPEG", "PNG", "GIF", "TIFF"]
-ListaImagenes = []
-
+ImagenesCola = Queue()
 '''
  Se recorre el directorio que viene por parametro con sus subdirectorios en busqueda de archivos de imagenes, el
  listado de tipo de imagenes soportados está guardado en una varialbe "ListadoExtensiones".
@@ -44,7 +43,7 @@ for dirName, subdirList, fileList in os.walk(rootDir):
         if imghdr.what(archivo) is not None:
             ext = imghdr.what(archivo)
             if ext.upper() in ListadoExtensiones:
-                ListaImagenes.append([dirName, fname, ext])
+                ImagenesCola.put([dirName, fname, ext])
 
 
 ''' 
@@ -52,51 +51,58 @@ Funcion que realiza todo el proceso
 '''
 
 
-def procesar_imagen(imagen_path, imagen_nombre):
-    # Verifica si posee texto o no con la RN
+def procesar_imagen(procesoid, ColaImagenes):
+    # instancio las RN
     rn_txt = RedesNeuronales.RedNeuronalTexto()  # ver de usar singleton para no crear muchas instancias de la misma clase
-    imagen_path = imagen_path + os.sep
-    tiene_texto = rn_txt.imagen_tiene_texto(imagen_path, imagen_nombre)
+    rn_chat = RedesNeuronales.RedNeuronalChat()  # ver de usar singleton para no crear muchas instancias de la misma clase
 
-    if not tiene_texto:  # Si la imagen NO posee texto
-        pass  # guardar en log
-    else:  # Si la imagen posee texto
-
-        imagen_with_path = imagen_path + imagen_nombre
-
-        # Calcula Hashes
-        listado_hashes = {"md5": "", "sha1": "", "sha256": ""}
-        listado_hashes = Hashes.calcular_hashes(listado_hashes, imagen_with_path)
-        print("Imagen:" + str(imagen_nombre))
-        print("Hashes: " + str(listado_hashes))
-
-        # Extrae metadatos
-        listado_metadatos = Metadatos.metadata_extraer(imagen_with_path)
-        print("Imagen:" + str(imagen_nombre))
-        print("Metadatos: " + str(listado_metadatos))
-
-        # Verifica si es de chat o no con la RN
-        rn_chat = RedesNeuronales.RedNeuronalChat()  # ver de usar singleton para no crear muchas instancias de la misma clase
+    while not ColaImagenes.empty():
+        imagen = ColaImagenes.get()
+        imagen_path = imagen[0]
+        imagen_nombre = imagen[1]
+        print("--- Proceso {0} - imagen {1} ---".format(procesoid, imagen_nombre))
+        # Verifica si posee texto o no con la RN
         imagen_path = imagen_path + os.sep
-        es_chat = rn_chat.imagen_es_chat(imagen_path, imagen_nombre)
+        tiene_texto = rn_txt.imagen_tiene_texto(imagen_path, imagen_nombre)
 
-        if es_chat:
-            pass  # Segmenta la imagen y extraer texto DE CHAT
-            print("ES CHAT :)")
-        else:
-            print("NO ES CHAT :(")
-            '''
-            # Verifica si es de mail o no con la RN
-            rn_mail = RedesNeuronales.RedNeuronalEmail()  # ver de usar singleton para no crear muchas instancias de la misma clase
+        if not tiene_texto:  # Si la imagen NO posee texto
+            pass  # guardar en log
+        else:  # Si la imagen posee texto
+
+            imagen_with_path = imagen_path + imagen_nombre
+
+            # Calcula Hashes
+            listado_hashes = {"md5": "", "sha1": "", "sha256": ""}
+            listado_hashes = Hashes.calcular_hashes(listado_hashes, imagen_with_path)
+            print("Imagen:" + str(imagen_nombre))
+            print("Hashes: " + str(listado_hashes))
+
+            # Extrae metadatos
+            listado_metadatos = Metadatos.metadata_extraer(imagen_with_path)
+            print("Imagen:" + str(imagen_nombre))
+            print("Metadatos: " + str(listado_metadatos))
+
+            # Verifica si es de chat o no con la RN
             imagen_path = imagen_path + os.sep
-            es_mail = rn_mail.imagen_es_email(imagen_path, imagen_nombre)
+            es_chat = rn_chat.imagen_es_chat(imagen_path, imagen_nombre)
 
-            if es_mail:
-                pass  # Segmenta la imagen y extraer texto DE MAIL
+            if es_chat:
+                pass  # Segmenta la imagen y extraer texto DE CHAT
+                print("ES CHAT :)")
             else:
-                pass  # Segmenta la imagen y extraer texto DE OTROS
-            '''
-        # Guarda en BD
+                print("NO ES CHAT :(")
+                '''
+                # Verifica si es de mail o no con la RN
+                rn_mail = RedesNeuronales.RedNeuronalEmail()  # ver de usar singleton para no crear muchas instancias de la misma clase
+                imagen_path = imagen_path + os.sep
+                es_mail = rn_mail.imagen_es_email(imagen_path, imagen_nombre)
+    
+                if es_mail:
+                    pass  # Segmenta la imagen y extraer texto DE MAIL
+                else:
+                    pass  # Segmenta la imagen y extraer texto DE OTROS
+                '''
+            # Guarda en BD
 
 
 '''
@@ -114,43 +120,35 @@ def procesar_imagen(imagen_path, imagen_nombre):
 '''
 
 if __name__ == '__main__':
-    print(str(len(ListaImagenes))+" Imagenes a procesar")
+    print(str(ImagenesCola.qsize())+" Imagenes a procesar")
     TiempoInicial = datetime.datetime.now()
     print("Inicio la RN")
 
     procesos_paralelos = os.cpu_count()  # cantidad de procesos maximos a utilizar
     procesos_ejecucion = []              # cantidad de procesos en ejecución
-    imagen = ListaImagenes.pop(0)
+    indiceProceso = 1
 
-    # se agrega el proceso a la lista de procesos activos
-    p = Process(name="Proceso {0}".format(imagen[1]),
-                target=procesar_imagen,
-                args=(imagen[0], imagen[1],))
-    p.start()
-    procesos_ejecucion.append(p)
+    # se crean los procesos que procesaran las imagenes leidas
+    while len(procesos_ejecucion) < procesos_paralelos and not ImagenesCola.empty():
+        p = Process(name="Proceso {0}".format(indiceProceso),
+                    target=procesar_imagen,
+                    args=(indiceProceso, ImagenesCola,)
+                    )
+        p.start()
+        procesos_ejecucion.append(p)
+        print("Agrega: " + p.name)
+        indiceProceso += 1
 
     # Mientras la piscina tenga procesos
     while procesos_ejecucion:
         for proceso in procesos_ejecucion:
             # Para cada proceso de la piscina revisamos si el proceso ha muerto
             if not proceso.is_alive():
-                print("Elimina: "+proceso.name)
+                print("Elimina: " + proceso.name)
                 # Recuperamos el proceso y lo sacamos de la piscina
                 proceso.join()
                 procesos_ejecucion.remove(proceso)
                 del proceso
-
-        while len(procesos_ejecucion) < procesos_paralelos and len(ListaImagenes) > 0:
-            # Mientras la piscina no esté llena y el listado de imagenes no esté vacio, creo, inicio y 
-            # agrego a la piscina yun nuevo proceso
-            if len(ListaImagenes) > 0:
-                imagen = ListaImagenes.pop(0)
-                p = Process(name="Proceso {0}".format(imagen[1]),
-                            target=procesar_imagen,
-                            args=(imagen[0], imagen[1],))
-                p.start()
-                procesos_ejecucion.append(p)
-                print("Agrega: " + p.name+" lista con " + str(len(ListaImagenes)) + " elementos")
 
         # Para no saturar, dormimos al padre durante 1 segundo
         time.sleep(1)

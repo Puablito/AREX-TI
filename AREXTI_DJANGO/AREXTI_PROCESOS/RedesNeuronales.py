@@ -6,13 +6,13 @@ from tensorflow.python.keras.models import load_model
 
 
 class RedNeuronalTexto:
-    __instance = None
+    __instancetexto = None
 
     def __new__(cls):
-        if RedNeuronalTexto.__instance is None:
-            RedNeuronalTexto.__instance = object.__new__(cls)
+        if RedNeuronalTexto.__instancetexto is None:
+            RedNeuronalTexto.__instancetexto = object.__new__(cls)
             print("CREO instancia Texto")
-        return RedNeuronalTexto.__instance
+        return RedNeuronalTexto.__instancetexto
 
     def __init__(self):
         modelo = 'F:/PythonProyects/RNs/Texto/pruebaCV(300x300)/modelo/best_texto.h5'
@@ -49,13 +49,13 @@ class RedNeuronalTexto:
 
 
 class RedNeuronalChat:
-    __instance = None
+    __instancechat = None
 
     def __new__(cls):
-        if RedNeuronalChat.__instance is None:
-            RedNeuronalChat.__instance = object.__new__(cls)
+        if RedNeuronalChat.__instancechat is None:
+            RedNeuronalChat.__instancechat = object.__new__(cls)
             print("CREO instancia CHAT")
-        return RedNeuronalChat.__instance
+        return RedNeuronalChat.__instancechat
 
     def __init__(self):
         modelo = "F:/PythonProyects/RNs/Chats/Pruebas/OpenCV300x200/modelo/best_chat.h5"
@@ -91,13 +91,13 @@ class RedNeuronalChat:
 
 
 class RedNeuronalEmail:
-    __instance = None
+    __instancemail = None
 
     def __new__(cls):
-        if RedNeuronalEmail.__instance is None:
-            RedNeuronalEmail.__instance = object.__new__(cls)
+        if RedNeuronalEmail.__instancemail is None:
+            RedNeuronalEmail.__instancemail = object.__new__(cls)
             print("CREO nueva instancia")
-        return RedNeuronalEmail.__instance
+        return RedNeuronalEmail.__instancemail
 
     def __init__(self):
         #modelo = 'F:/PythonProyects/RNs/Texto/pruebaCV(300x300)/modelo/best_texto.h5'
