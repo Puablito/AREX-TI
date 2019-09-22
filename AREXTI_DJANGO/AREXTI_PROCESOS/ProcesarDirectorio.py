@@ -2,6 +2,7 @@ import os
 import imghdr
 import datetime
 import time
+import logging
 from multiprocessing import Process, Queue
 import RedesNeuronales
 import Hashes
@@ -28,6 +29,11 @@ rootDir = 'F:\PythonProyects\SegmentacionIMG\Imagenes'
 # Listado de extensiones que se van a procesar
 ListadoExtensiones = ["JPG", "JPEG", "PNG", "GIF", "TIFF"]
 
+# Colas de trabajo multiproceso
+ImagenesCola = Queue()
+ImagenesGuardar_Cola = Queue()      # cola de las imagenes procesadas para guardar BD
+imagenesNoTexto = Queue()          # cola con las imagenes no procesadas por no detectar texto en ellas
+
 '''
  Se recorre el directorio que viene por parametro con sus subdirectorios en busqueda de archivos de imagenes, el
  listado de tipo de imagenes soportados está guardado en una varialbe "ListadoExtensiones".
@@ -38,8 +44,6 @@ ListadoExtensiones = ["JPG", "JPEG", "PNG", "GIF", "TIFF"]
     elemento 1 = Nombre del archivo, Ej: Twitter.jpg
     elemento 2 = Extensión del archivo, Ej: jpeg
 '''
-ImagenesCola = Queue()
-ImagenesGuardar_Cola = Queue()       # cola de las imagenes procesadas para guardar BD
 for dirName, subdirList, fileList in os.walk(rootDir):
     for fname in fileList:
         archivo = dirName + os.sep + fname
@@ -55,18 +59,19 @@ Funcion que realiza todo el proceso
 '''
 
 
-def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar):
+def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto):
     # instancio las RN
     rn_txt = RedesNeuronales.RedNeuronalTexto()
     rn_chat = RedesNeuronales.RedNeuronalChat()
     #rn_mail = RedesNeuronales.RedNeuronalEmail()
 
     while not imagenes_cola.empty():
-        imagen_procesada = ImagenProcesar.Imagen()
         img_procesar = imagenes_cola.get()
         img_path = img_procesar[0]
         img_nombre = img_procesar[1]
+
         #print("--- Proceso {0} - imagen {1} ---".format(procesoid, img_nombre))
+        imagen_procesada = ImagenProcesar.Imagen()
         imagen_procesada.set_nombre(img_procesar[1])
         imagen_procesada.set_extension(img_procesar[2])
         imagen_procesada.set_path(img_procesar[0])
@@ -76,7 +81,7 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar):
         tiene_texto = rn_txt.imagen_tiene_texto(img_path, img_nombre)
 
         if not tiene_texto:  # Si la imagen NO posee texto
-            print("------------------ Imagen {0} NO posee texto".format(img_nombre))   # guardar en log
+            imagenes_notexto.put(img_path+img_nombre)
         else:  # Si la imagen posee texto
 
             imagen_with_path = img_path + img_nombre
@@ -85,26 +90,20 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar):
             listado_hashes = {"md5": "", "sha1": "", "sha256": ""}
             listado_hashes = Hashes.calcular_hashes(listado_hashes, imagen_with_path)
             imagen_procesada.set_hashes(listado_hashes)
-            #print("Imagen:" + str(img_nombre))
-            #print("Hashes: " + str(listado_hashes))
 
             # Extrae metadatos
             listado_metadatos = Metadatos.metadata_extraer(imagen_with_path)
             imagen_procesada.set_metadatos(listado_metadatos)
-            #print("Imagen:" + str(img_nombre))
-            #print("Metadatos: " + str(listado_metadatos))
 
             # Verifica si es de chat o no con la RN
             img_path = img_path + os.sep
             es_chat = rn_chat.imagen_es_chat(img_path, img_nombre)
 
             if es_chat:
-                pass  # Segmenta la imagen y extraer texto DE CHAT
                 imagen_procesada.set_imagentipo("CHAT")
-                #print("ES CHAT :)")
+                # Segmenta la imagen y extraer texto DE CHAT
             else:
                 imagen_procesada.set_imagentipo("NO CHAT")
-                #print("NO ES CHAT :(")
                 '''
                 # Verifica si es de mail o no con la RN
                 
@@ -118,7 +117,7 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar):
                 '''
             # Guarda en BD
             imagenes_guardar.put(imagen_procesada)
-            # imagen_procesada.imprimir()
+
 
 
 '''
@@ -144,11 +143,11 @@ if __name__ == '__main__':
     procesos_ejecucion = []              # cantidad de procesos en ejecución
     indiceProceso = 1
 
-    # creación de los procesos que procesaran las imagenes leidas
+    # Creación de los procesos que procesaran las imagenes leidas
     while len(procesos_ejecucion) < procesos_paralelos and not ImagenesCola.empty():
         p = Process(name="Proceso {0}".format(indiceProceso),
                     target=procesar_imagen,
-                    args=(indiceProceso, ImagenesCola, ImagenesGuardar_Cola,)
+                    args=(indiceProceso, ImagenesCola, ImagenesGuardar_Cola,imagenesNoTexto,)
                     )
         p.start()
         procesos_ejecucion.append(p)
@@ -157,9 +156,9 @@ if __name__ == '__main__':
 
     # Mientras haya procesos en ejecución
     while procesos_ejecucion:
-        print("Elementos en cola {0}".format(ImagenesCola.qsize()))
+
+        # Revisa si los procesos han muerto
         for proceso in procesos_ejecucion:
-            # Revisamos si el proceso ha muerto
             if not proceso.is_alive():
                 print("Elimina: " + proceso.name)
                 # Recuperamos el proceso y lo sacamos de la lista
@@ -167,11 +166,17 @@ if __name__ == '__main__':
                 procesos_ejecucion.remove(proceso)
                 del proceso
 
+        # Guardado en archivo las imagenes que no se reconocieron con texto
+        if not imagenesNoTexto.empty():
+            with open("Imagenes_Sin_Texto.txt", "a") as archivo_notexto:
+                while not imagenesNoTexto.empty():
+                    archivo_notexto.write(imagenesNoTexto.get()+"\n")
+
         # Si hay imagenes ya procesadas para guardar las guarda
         # Realizar mas pruebas (si la cola "ImagenesGuardar_Cola" se llena los procesos no terminan)
         while not ImagenesGuardar_Cola.empty():
             img_guardar = ImagenesGuardar_Cola.get()
-            print("Imagen: {0}".format(img_guardar.get_nombre()))
+            print("Imagen: {0} - {1}".format(img_guardar.get_nombre(),img_guardar.get_imagentipo()))
 
         # Para no saturar el cpu, dormimos el ciclo durante 1 segundo
         time.sleep(1)

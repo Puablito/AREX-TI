@@ -1,6 +1,7 @@
 # Modulo de Redes Neuronales
 import cv2
 import numpy as np
+import os
 from tensorflow.python.keras.preprocessing.image import img_to_array
 from tensorflow.python.keras.models import load_model
 
@@ -11,14 +12,13 @@ class RedNeuronalTexto:
     def __new__(cls):
         if RedNeuronalTexto.__instancetexto is None:
             RedNeuronalTexto.__instancetexto = object.__new__(cls)
-            print("CREO instancia Texto")
         return RedNeuronalTexto.__instancetexto
 
     def __init__(self):
-        modelo = 'F:/PythonProyects/RNs/Texto/pruebaCV(300x300)/modelo/best_texto.h5'
+        path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'RN_MODELOS')
+        modelo = path + os.sep + "RNTexto.h5"
         self.cnnTexto = load_model(modelo)
         self.targetSize = (300, 300)
-        print("INICIO instancia Texto")
 
     # Indica si una imagen posee texto o no
     def imagen_tiene_texto(self, imagen_path, imagen_nombre):
@@ -32,7 +32,7 @@ class RedNeuronalTexto:
             imagen = cv2.resize(imagen, self.targetSize, interpolation=cv2.INTER_AREA)
             imagen = img_to_array(imagen)
             imagen = np.expand_dims(imagen, axis=0)  # agrega una dimensión al array
-            imagen = np.array(imagen)  # Transforma la imagen en un arreglo de numpy
+            imagen = np.array(imagen)                # Transforma la imagen en un arreglo de numpy
             imagen = imagen.astype('float32') / 255  # se pasan a valores entre 0 y 1
 
             # Se realizo la predicción
@@ -54,14 +54,13 @@ class RedNeuronalChat:
     def __new__(cls):
         if RedNeuronalChat.__instancechat is None:
             RedNeuronalChat.__instancechat = object.__new__(cls)
-            print("CREO instancia CHAT")
         return RedNeuronalChat.__instancechat
 
     def __init__(self):
-        modelo = "F:/PythonProyects/RNs/Chats/Pruebas/OpenCV300x200/modelo/best_chat.h5"
+        path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'RN_MODELOS')
+        modelo = path + os.sep + "RNChat.h5"
         self.cnnChat = load_model(modelo)
-        self.targetSize = (300, 200)
-        print("INICIO instancia CHAT")
+        self.targetSize = (350, 260)
 
     def imagen_es_chat(self, imagen_path, imagen_nombre):
         resultado = False
@@ -74,7 +73,7 @@ class RedNeuronalChat:
             imagen = cv2.resize(imagen, self.targetSize, interpolation=cv2.INTER_AREA)
             imagen = img_to_array(imagen)
             imagen = np.expand_dims(imagen, axis=0)  # agrega una dimensión al array
-            imagen = np.array(imagen)  # Transforma la imagen en un arreglo de numpy
+            imagen = np.array(imagen)                # Transforma la imagen en un arreglo de numpy
             imagen = imagen.astype('float32') / 255  # se pasan a valores entre 0 y 1
 
             # Se realizo la predicción
@@ -116,7 +115,7 @@ class RedNeuronalEmail:
             imagen = cv2.resize(imagen, self.targetSize, interpolation=cv2.INTER_AREA)
             imagen = img_to_array(imagen)
             imagen = np.expand_dims(imagen, axis=0)  # agrega una dimensión al array
-            imagen = np.array(imagen)  # Transforma la imagen en un arreglo de numpy
+            imagen = np.array(imagen)                # Transforma la imagen en un arreglo de numpy
             imagen = imagen.astype('float32') / 255  # se pasan a valores entre 0 y 1
 
             # Se realizo la predicción
