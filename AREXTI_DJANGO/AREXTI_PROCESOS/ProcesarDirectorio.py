@@ -116,6 +116,8 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar):
                 else:
                     pass  # Segmenta la imagen y extraer texto DE OTROS
                 '''
+
+            imagen_procesada.procesarImagen()  # LA CLASE IMAGEN PROCESADA INICIA EL PROCESO DE SEGMENTACION SEGUN EL TIPO DE IMAGEN SETEADO ARRIBA
             # Guarda en BD
             imagenes_guardar.put(imagen_procesada)
             # imagen_procesada.imprimir()
