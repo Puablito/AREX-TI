@@ -1,5 +1,5 @@
 from django import forms
-from AREXTI_APP.models import Proyecto, Pericia, Imagen
+from AREXTI_APP.models import Proyecto, Pericia, Imagen, TipoImagen
 
 
 class DateInput(forms.DateInput):
@@ -91,15 +91,27 @@ class ImagenEditForm(forms.ModelForm):
 
     class Meta:
         model = Imagen
+        model2 = Imagen.tipoImagen
 
         fields = [
+            'nombre',
+            'extension',
             'tipoImagen',
+            'hash'
         ]
 
         labels = {
+            'nombre': 'Nombre',
+            'extension': 'Extensión',
             'tipoImagen':'Tipo de imagen',
         }
 
         widgets = {
-            'tipoImagen': forms.Select(attrs={'class': 'form-control'}),
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'id': 'nombre', 'readonly':'readonly'}),
+            'extension': forms.TextInput(attrs={'class': 'form-control', 'id': 'extension', 'readonly':'readonly'}),
+            'tipoImagen': forms.Select(attrs={'class': 'form-control', 'id': 'tipoImagen'}),
         }
+
+        pepe = forms.ModelChoiceField(queryset=TipoImagen.objects.all())
+        # hashes = forms.ModelChoiceField(queryset=TipoDocumento.objects.all(),
+        #                                         empty_label=None)

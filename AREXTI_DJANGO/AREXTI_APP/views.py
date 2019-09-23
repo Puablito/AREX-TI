@@ -3,9 +3,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import View
 from django.views.generic.detail import SingleObjectMixin
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import ListView, CreateView, UpdateView, DetailView
 from AREXTI_APP.models import Proyecto, Pericia, Imagen, TipoHash, ImagenHash
-from AREXTI_APP.forms import ProyectoForm, PericiaForm, ImagenForm
+from AREXTI_APP.forms import ProyectoForm, PericiaForm, ImagenForm, ImagenEditForm
 from .filters import ProyectoFilter, PericiaFilter
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 # from django_filters import FilterView
@@ -130,11 +130,16 @@ class ImagenCrear(CreateView):
     success_url = reverse_lazy('ImagenListar')
 
 
-class ImagenEditar(UpdateView):
+class ImagenEditar(DetailView):
     model = Imagen
-    form_class = ImagenForm
+    # form_class = ImagenEditForm
     template_name = 'AREXTI_APP/ImagenEditar.html'
-    success_url = reverse_lazy('ImagenListar')
+    # success_url = reverse_lazy('ImagenListar')
+
+    # def get_context_data(self, *args, **kwargs):
+    #     context = super().get_context_data(*args, **kwargs)
+    #     context['details'] = ", ".join(self.object.imagendetalle_set.values_list('texto', flat=True))
+    #     return context
 
 
 def ImagenEliminar(request, Imagenid):
