@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-from matplotlib import pyplot as plt
 import pytesseract
 import math
 import ImagenProcesar
@@ -8,8 +7,8 @@ import ImagenProcesar
 
 class Segmentacion:
 
-    def __init__(self, imagen, ancho):
-        self.imagen = imagen
+    def __init__(self, ancho):
+        # self.imagen = imagen
         # self.tipo = tipo
         self.ancho = ancho
         self.alto = math.trunc(ancho * 1.7777777777777777777777777777778)
@@ -26,10 +25,11 @@ class Segmentacion:
         else:
             dim = (self.alto, self.ancho)
         img_escalada = cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
+        self.gris = cv2.cvtColor(img_escalada, cv2.COLOR_BGR2GRAY)
         return img_escalada
 
     def tratarImagen(self, img):
-        self.gris = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        # self.gris = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         # Aplicar suavizado Gaussiano
         gauss = cv2.GaussianBlur(self.gris, (5, 5), 0)
         # gauss = cv2.medianBlur(gris, 5)
@@ -72,7 +72,7 @@ class Segmentacion:
         (topx, topy) = (np.min(x), np.min(y))
         (bottomx, bottomy) = (np.max(x), np.max(y))
         globo = globo[topx:bottomx + 1, topy:bottomy + 1]
-        globoDetalle = ImagenProcesar.ImagenDetalle(self.imagen.id)
+        globoDetalle = ImagenProcesar.ImagenDetalle()
 
         leftmost = tuple(contorno[contorno[:, :, 0].argmin()][0])
         if leftmost[0] < self.puntoIzquierda:
@@ -94,7 +94,7 @@ class Segmentacion:
         return texto
 
     def segmentarChat(self):
-        img = self.configurarImagen
+        img = self.configurarImagen()
         imgTratada = self.tratarImagen(img)
         globos = self.obtenerGlobos(imgTratada)
         # globos = self.extraerGlobos(contornos)
@@ -118,6 +118,15 @@ class Segmentacion:
         detalle.texto = texto
         detalles.append(detalle)
         return detalles
+
+    def procesarImagen(self, imagen):
+        if imagen.get_imagentipo == 'C':
+            imagen.set_detalles = self.segmentarChat()
+        else:
+            if imagen.get_imagentipo == 'M':
+                imagen.set_detalles = self.segmentarMail()
+            else:
+                imagen.set_detalles = self.segmentarOtro()
 
 
 class ExtraccionTexto:

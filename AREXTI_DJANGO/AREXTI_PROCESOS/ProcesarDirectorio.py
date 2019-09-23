@@ -8,6 +8,7 @@ import RedesNeuronales
 import Hashes
 import Metadatos
 import ImagenProcesar
+import Segmentacion
 
 # Se leen los parametros
 '''
@@ -22,7 +23,7 @@ args = parser.parse_args()
 
 rootDir = args.dir
 '''
-rootDir = 'F:\PythonProyects\SegmentacionIMG\Imagenes'
+rootDir = r'C:\Users\Mariano-Dell\PycharmProjects\Imagenes'
 
 # Insertar tabla de procesos, analizar paquete logging
 
@@ -65,6 +66,9 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
     rn_chat = RedesNeuronales.RedNeuronalChat()
     #rn_mail = RedesNeuronales.RedNeuronalEmail()
 
+    # instancio el segmentador
+    segmentador = Segmentacion(720)
+
     while not imagenes_cola.empty():
         img_procesar = imagenes_cola.get()
         img_path = img_procesar[0]
@@ -100,10 +104,10 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
             es_chat = rn_chat.imagen_es_chat(img_path, img_nombre)
 
             if es_chat:
-                imagen_procesada.set_imagentipo("CHAT")
+                imagen_procesada.set_imagentipo("C")
                 # Segmenta la imagen y extraer texto DE CHAT
             else:
-                imagen_procesada.set_imagentipo("NO CHAT")
+                imagen_procesada.set_imagentipo("O") # no chat
                 '''
                 # Verifica si es de mail o no con la RN
                 
@@ -116,7 +120,7 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
                     pass  # Segmenta la imagen y extraer texto DE OTROS
                 '''
 
-            imagen_procesada.procesarImagen()  # LA CLASE IMAGEN PROCESADA INICIA EL PROCESO DE SEGMENTACION SEGUN EL TIPO DE IMAGEN SETEADO ARRIBA
+            segmentador.procesarImagen(imagen_with_path)  # LA CLASE IMAGEN PROCESADA INICIA EL PROCESO DE SEGMENTACION SEGUN EL TIPO DE IMAGEN SETEADO ARRIBA
             # Guarda en BD
             imagenes_guardar.put(imagen_procesada)
 

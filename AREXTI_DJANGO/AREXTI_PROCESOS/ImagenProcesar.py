@@ -11,7 +11,7 @@ class Imagen:
         self.__hashes = {}
         self.__metadatos = dict()
         self.__detalles = []
-        self.__segmentador = Segmentacion(self, 720)
+        # self.__segmentador = Segmentacion(self, 720)
 
     # Listar Atributos
     def imprimir(self):
@@ -22,14 +22,14 @@ class Imagen:
         print("Hashes: {0}".format(self.get_hashes()))
         print("Metadatos: {0}".format(self.get_metadatos()))
 
-    def procesarImagen(self):
-        if self.__imagentipo == 'C':
-            self.__detalles = self.__segmentador.segmentarChat()
-        else:
-            if self.tipoImagen == 'M':
-                self.__detalles = self.__segmentador.segmentarMail()
-            else:
-                self.__detalles = self.__segmentador.segmentarOtro()
+    # def procesarImagen(self):
+    #     if self.__imagentipo == 'C':
+    #         self.__detalles = self.__segmentador.segmentarChat()
+    #     else:
+    #         if self.tipoImagen == 'M':
+    #             self.__detalles = self.__segmentador.segmentarMail()
+    #         else:
+    #             self.__detalles = self.__segmentador.segmentarOtro()
 
     # getters
     def get_nombre(self):
@@ -78,8 +78,8 @@ class Imagen:
 
 class ImagenDetalle:
 
-    def __init__(self, imgId):
-        self.__imagen = imgId
+    def __init__(self):
+        self.__imagen = 0
         self.__texto = ''
         self.__tipoGlobo = ''
         self.__nombre = ''
@@ -128,5 +128,5 @@ class ImagenDetalle:
     def set_metadatos(self, mailFrom):
         self.__mailFrom = mailFrom
 
-    def set_detalles(self, mailTo):
+    def set_mailTo(self, mailTo):
         self.__mailTo = mailTo
