@@ -3,23 +3,25 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import View
 from django.views.generic.detail import SingleObjectMixin
-from django.views.generic import ListView, CreateView, UpdateView, DetailView
+from django.views.generic import ListView, CreateView, UpdateView
 from AREXTI_APP.models import Proyecto, Pericia, Imagen, TipoHash, ImagenHash
-from AREXTI_APP.forms import ProyectoForm, PericiaForm, ImagenForm, ImagenEditForm
-from .filters import ProyectoFilter, PericiaFilter
+from AREXTI_APP.forms import ProyectoForm, PericiaForm, ImagenForm
+from .filters import ProyectoFilter, PericiaFilter, ImagenFilter
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 # from django_filters import FilterView
 
 
 class FilteredListView(ListView):
     filterset_class = None
-
+    idfil = 0
     def get_queryset(self):
         # Get the queryset however you usually would.  For example:
         queryset = super().get_queryset()
         # Then use the query parameters and the queryset to
         # instantiate a filterset and save it as an attribute
         # on the view instance for later.
+
+        # self.idfil = self.extra_context['id']
         self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
         # Return the filtered queryset
         return self.filterset.qs.distinct()
@@ -45,7 +47,7 @@ def home(request):
 class ProyectoListar(FilteredListView):
     filterset_class = ProyectoFilter
     queryset = Proyecto.objects.filter(activo=1).order_by('-id')
-    paginate_by = 5
+    paginate_by = 10
     template_name = 'AREXTI_APP/ProyectoListar.html'
 
 
@@ -66,6 +68,15 @@ class ProyectoEditar(UpdateView):
 def ProyectoEliminar(request, Proyectoid):
     # model = Proyecto
     if Proyectoid:
+        # PRIMERO ELIMINACION LOGICA DE PERICIAS E IMAGENES CORRESPONDIENTES AL PROYECTO
+        pericias = Pericia.objects.filter(proyecto=Proyectoid)
+        for per in pericias:
+            imagenes = Imagen.objects.filter(pericia=per.id)
+            for ima in imagenes:
+                ima.activo = 0
+                ima.save()
+            per.activo = 0
+            per.save()
         pro = Proyecto.objects.get(id=Proyectoid)
         pro.activo = 0
         pro.save()
@@ -88,8 +99,21 @@ class PericiaListarOld(ListView):
 
 class PericiaListar(FilteredListView):
     filterset_class = PericiaFilter
-    queryset = Pericia.objects.filter(activo=1).order_by('-id')
-    paginate_by = 5
+
+    def get_queryset(self):
+        proid = self.kwargs.get("id")
+        if proid is None:
+            proid = 0
+        # queryset = super().get_queryset()
+        if proid != 0:
+            queryset = Pericia.objects.filter(activo=1, proyecto=proid).order_by('-id')
+        else:
+            queryset = Pericia.objects.filter(activo=1).order_by('-id')
+        self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
+
+        return self.filterset.qs.distinct()
+    # queryset = Pericia.objects.filter(activo=1).order_by('-id')
+    paginate_by = 10
     template_name = 'AREXTI_APP/PericiaListar.html'
 
 
@@ -110,17 +134,38 @@ class PericiaEditar(UpdateView):
 def PericiaEliminar(request, Periciaid):
     # model = Proyecto
     if Periciaid:
+        # PRIMERO ELIMINACION LOGICA DE IMAGENES CORRESPONDIENTES A LA PERICIA
+        imagenes = Imagen.objects.filter(pericia=Periciaid)
+        for ima in imagenes:
+            ima.activo = 0
+            ima.save()
         pro = Pericia.objects.get(id=Periciaid)
         pro.activo = 0
         pro.save()
     return redirect('PericiaListar')
 
 
-class ImagenListar(ListView):
-    # model = Imagen
-    context_object_name = 'imagen_lista'
-    queryset = Imagen.objects.filter(activo=1)
+class ImagenListar(FilteredListView):
+    filterset_class = ImagenFilter
+    def get_queryset(self):
+        perid = self.kwargs.get("id")
+        # queryset = super().get_queryset()
+        if perid != 0:
+            queryset = Imagen.objects.filter(activo=1, pericia=perid).order_by('-id')
+        else:
+            queryset = Imagen.objects.filter(activo=1).order_by('-id')
+        self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
+
+        return self.filterset.qs.distinct()
+    # queryset = Imagen.objects.filter(activo=1).order_by('-id')
+    paginate_by = 10
     template_name = 'AREXTI_APP/ImagenListar.html'
+
+# class ImagenListar(ListView):
+#     # model = Imagen
+#     context_object_name = 'imagen_lista'
+#     queryset = Imagen.objects.filter(activo=1)
+#     template_name = 'AREXTI_APP/ImagenListar.html'
 
 
 class ImagenCrear(CreateView):
@@ -130,16 +175,11 @@ class ImagenCrear(CreateView):
     success_url = reverse_lazy('ImagenListar')
 
 
-class ImagenEditar(DetailView):
+class ImagenEditar(UpdateView):
     model = Imagen
-    # form_class = ImagenEditForm
+    form_class = ImagenForm
     template_name = 'AREXTI_APP/ImagenEditar.html'
-    # success_url = reverse_lazy('ImagenListar')
-
-    # def get_context_data(self, *args, **kwargs):
-    #     context = super().get_context_data(*args, **kwargs)
-    #     context['details'] = ", ".join(self.object.imagendetalle_set.values_list('texto', flat=True))
-    #     return context
+    success_url = reverse_lazy('ImagenListar')
 
 
 def ImagenEliminar(request, Imagenid):

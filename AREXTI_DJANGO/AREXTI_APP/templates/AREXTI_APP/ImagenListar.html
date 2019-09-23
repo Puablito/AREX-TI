@@ -1,4 +1,5 @@
 {% extends 'base/ListadoBase.html' %}
+{% load widget_tweaks %}
 
 {% block ListadoBaseScripts %}
 <script>
@@ -13,56 +14,43 @@
 {% endblock %}
 
 {% block filtros %}
-<div class="row">
-    <div class="col-md-4">
-        <div class="form-group">
-            <label class="col-md-3 control-label" for="filtronombre">Nombre</label>
-            <div class="col-md-9">
-                <input type="text" id="filtronombre" class="form-control" placeholder="Nombre" name="nombre">
+<form>
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                <!--<div class="form-group">-->
+                {{ filterset.form.nombre.label_tag }}
+                {% render_field filterset.form.nombre class="form-control" %}
+                    <!--</div>-->
+                <!--</div>-->
+            </div>
+            <div class="form-group col-md-3">
+                <!--<div class="form-group">-->
+                    {{ filterset.form.extension.label_tag }}
+                    {% render_field filterset.form.extension class="form-control" %}
+                    <!--</div>-->
+                <!--</div>-->
+            </div>
+            <div class="form-group col-md-3">
+                    {{ filterset.form.tipoImagen.label_tag }}
+                    {% render_field filterset.form.tipoImagen class="form-control" %}
+            </div>
+            <div class="form-group col-md-3">
+                    {{ filterset.form.hash.label_tag }}
+                    {% render_field filterset.form.hash class="form-control" %}
             </div>
         </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="form-group">
-            <label class="col-md-3 control-label" for="filtroextension">Extensión</label>
-            <div class="col-md-9">
-                <input type="text" id="filtroextension" class="form-control" placeholder="Extension" name="extension">
-            </div>
+        <div class="form-group col-md-4">
+            <button type="submit" class="btn btn-primary">Buscar</button>
         </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="form-group">
-            <label class="col-md-5 control-label">Tipo Imagen</label>
-            <div class="col-md-7">
-                <select class="form-control">
-                    <option>Chat</option>
-                    <option>E-Mail</option>
-                    <option>Otro</option>
-                </select>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-8">
-        <div class="form-group">
-            <label class="col-md-2 control-label" for="filtrohash">Hash</label>
-            <div class="col-md-10">
-                <input type="text" id="filtrohash" class="form-control" placeholder="Hash" name="hash">
-            </div>
-        </div>
-    </div>
-</div>
+    </form>
 {% endblock %}
 
 {% block acciones %}
-<a class="btn btn-success" href="{% url 'ImagenCrear' %}">Agregar</a>
+<!--<a class="btn btn-success" href="{% url 'ImagenCrear' %}">Agregar</a>-->
 {% endblock %}
 
 {% block tabla_contenido %}
+<a class="btn btn-success" href="{% url 'ImagenCrear' %}">Agregar</a>
 <thead class="thead-dark" >
     <tr>
         <th style="width: 10px"></th>
@@ -110,7 +98,9 @@
 
     </tr>
     {% empty %}
-        <h1>No hay imagenes</h1>
+        <tr>
+          <td colspan="5"><h1>No hay imagenes</h1></td>
+        </tr>
     {% endfor %}
 
 </tbody>

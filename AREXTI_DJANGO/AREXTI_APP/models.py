@@ -54,7 +54,7 @@ class TipoHash(models.Model):
 
 class Imagen(models.Model):
     pericia = models.ForeignKey(Pericia, on_delete=models.CASCADE)
-    tipoImagen = models.ForeignKey(TipoImagen, on_delete=models.CASCADE)
+    tipoImagen = models.ForeignKey(TipoImagen, on_delete=models.CASCADE, limit_choices_to={'activo': 1})
     hash = models.ManyToManyField(TipoHash, help_text="Seleccione un hash", through='ImagenHash')
     nombre = models.CharField(max_length=100)
     miniatura = models.CharField(max_length=100)

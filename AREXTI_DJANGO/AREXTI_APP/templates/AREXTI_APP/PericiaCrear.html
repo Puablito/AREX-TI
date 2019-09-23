@@ -1,5 +1,10 @@
 {% extends 'base/AbmBase.html' %}
 
+{% block AbmBaseScripts %}
+    <script>
+
+    </script>
+{% endblock %}
 {% block error %}
     <section class="alert-container">
         <div class="alert alert-error"><a class="close" data-dismiss="alert" href="#">&times;</a>
@@ -15,7 +20,7 @@
    Pericia
 {% endblock %}
 {% block linkVolver %}
-  <a type="" href="{% url 'PericiaListar' %}" style="color:black"> &laquo; Volver a Pericias</a>
+  <a type="" href="{% url 'PericiaListar' 0 %}" style="color:black"> &laquo; Volver a Pericias</a>
 {% endblock %}
 
 {% block body %}
@@ -23,8 +28,10 @@
 {% endblock %}
 
 {% block btnCancelar %}
-  <button class="btn btn-default" onclick="location.href={% url 'PericiaListar' %}">Cancelar</button>
+  <!--<button class="btn btn-default" onclick="location.href={% url 'PericiaListar' 0 %}">Cancelar</button>-->
+    <a type="" href="{% url 'PericiaListar' 0 %}" class="btn btn-default">Cancelar</a>
 {% endblock %}
 {% block btnListar %}
-  <button type="button" onclick="location.href={% url 'PericiaListar' %}" class="btn btn-success pull-right">Ver Imagenes</button>
+  <!--<button type="button" onclick="location.href={% url 'PericiaListar' 0 %}" class="btn btn-success pull-right">Ver Imagenes</button>-->
+    <a type="" href="{% url 'ImagenListar' pericia.id %}" class="btn btn-success pull-right">Ver Imagenes</a>
 {% endblock %}
