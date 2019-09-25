@@ -110,22 +110,22 @@ class ImagenDetalle:
         return self.__mailTo
 
     # setters
-    def set_nombre(self, imagen):
+    def set_imagen(self, imagen):
         self.__imagen = imagen
 
-    def set_extension(self, texto):
+    def set_texto(self, texto):
         self.__texto = texto
 
-    def set_path(self, tipoGlobo):
+    def set_tipoGlobo(self, tipoGlobo):
         self.__tipoGlobo = tipoGlobo
 
-    def set_imagentipo(self, nombre):
+    def set_nombre(self, nombre):
         self.__nombre = nombre
 
-    def set_hashes(self, hora):
+    def set_hora(self, hora):
         self.__hora = hora
 
-    def set_metadatos(self, mailFrom):
+    def set_mailFrom(self, mailFrom):
         self.__mailFrom = mailFrom
 
     def set_mailTo(self, mailTo):

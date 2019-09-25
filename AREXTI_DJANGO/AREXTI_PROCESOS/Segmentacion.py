@@ -1,3 +1,4 @@
+import os
 import cv2
 import numpy as np
 import pytesseract
@@ -5,10 +6,10 @@ import math
 import ImagenProcesar
 
 
-class Segmentacion:
+class Segmentador:
 
     def __init__(self, ancho):
-        # self.imagen = imagen
+        self.imagen = None
         # self.tipo = tipo
         self.ancho = ancho
         self.alto = math.trunc(ancho * 1.7777777777777777777777777777778)
@@ -17,7 +18,8 @@ class Segmentacion:
         self.gris = None
 
     def configurarImagen(self):
-        img = cv2.imread(self.imagen.get_path)
+        imgPath = self.imagen.get_path() + os.sep + self.imagen.get_nombre()
+        img = cv2.imread(imgPath)
         imgAncho = img.shape[1] # ANCHO
         imgAlto = img.shape[0] # ALTO
         if imgAlto > imgAncho: # PARA VER SI ESTA LA IMAGEN ROTADA HORIZONTAL O VERTICAL
@@ -26,9 +28,11 @@ class Segmentacion:
             dim = (self.alto, self.ancho)
         img_escalada = cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
         self.gris = cv2.cvtColor(img_escalada, cv2.COLOR_BGR2GRAY)
-        return img_escalada
+        # cv2.imshow('imagenini ', self.gris)
+        # cv2.waitKey(0)
+        return self.gris
 
-    def tratarImagen(self, img):
+    def tratarImagen(self):
         # self.gris = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         # Aplicar suavizado Gaussiano
         gauss = cv2.GaussianBlur(self.gris, (5, 5), 0)
@@ -37,6 +41,8 @@ class Segmentacion:
         th = cv2.adaptiveThreshold(tres, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 11, 2)
         kernel = np.ones((3, 3), np.uint8)
         erosion = cv2.erode(th, kernel, iterations=1)
+        # cv2.imshow('erosion ', erosion)
+        # cv2.waitKey(0)
         return erosion
 
     def obtenerGlobos(self, img):  # DEVUELVE LA LISTA CON LOS DETALLES DE LOS GLOBOS
@@ -49,44 +55,51 @@ class Segmentacion:
         cv2.drawContours(canny, contornos, -1, (255, 255, 255), 2)
         (contornos_optimizados, _) = cv2.findContours(canny, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         i = 0
-        contornos_finales = []
+        # cv2.imshow('cannyContorno ', canny)
+        # cv2.waitKey(0)
+        # contornos_finales = []
         for contorno in reversed(contornos_optimizados):
             # print('contorno: '+ str(i)+' Area: '+ str(cv2.contourArea(contorno)))
             if cv2.contourArea(contorno) > self.areaMinima:  # contorno.size>200 and 35000
-                globoDetalle = self.setearGlobos(contorno)
-                globos.append(globoDetalle)
+                # globoDetalle = self.setearGlobos(contorno)
+                globos.append(contorno)
                 i = i + 1
         return globos
 
-    def setearGlobos(self, contorno):
-        # j = 0
-        # globos = []
-        # for contorno in reversed(contornos_finales):
-        mask = np.zeros_like(self.gris)  # tres
-        cv2.drawContours(mask, contorno, -1, 255, -1)
-        globo = np.zeros_like(self.gris)  # tres
-        globo[mask == 255] = self.gris[mask == 255]  # tres
+    def setearGlobos(self, contornos_finales):
+        j = 0
+        globos = []
+        for contorno in contornos_finales:
+            mask = np.zeros_like(self.gris)  # tres
+            cv2.drawContours(mask, contornos_finales, j, 255, -1)
+            globo = np.zeros_like(self.gris)  # tres
+            globo[mask == 255] = self.gris[mask == 255]  # tres
 
-        # Cortar
-        (x, y) = np.where(mask == 255)
-        (topx, topy) = (np.min(x), np.min(y))
-        (bottomx, bottomy) = (np.max(x), np.max(y))
-        globo = globo[topx:bottomx + 1, topy:bottomy + 1]
-        globoDetalle = ImagenProcesar.ImagenDetalle()
+            # Cortar
+            (x, y) = np.where(mask == 255)
+            (topx, topy) = (np.min(x), np.min(y))
+            (bottomx, bottomy) = (np.max(x), np.max(y))
+            globo = globo[topx:bottomx + 1, topy:bottomy + 1]
+            globoDetalle = ImagenProcesar.ImagenDetalle()
 
-        leftmost = tuple(contorno[contorno[:, :, 0].argmin()][0])
-        if leftmost[0] < self.puntoIzquierda:
-            globoDetalle.tipoGlobo = 'I'
-        else:
-            globoDetalle.tipoGlobo = 'D'
+            leftmost = tuple(contorno[contorno[:, :, 0].argmin()][0])
+            rightmost = tuple(contorno[contorno[:, :, 0].argmax()][0])
+            rangoDerecha = self.ancho - rightmost[0]
+            rangoIzquierda = leftmost[0]
+            if rangoDerecha > rangoIzquierda:
+                globoDetalle.set_tipoGlobo('I')
+            else:
+                globoDetalle.set_tipoGlobo('D')
 
-        texto = self.extraerTextoImagen(globo)
-        globoDetalle.texto = texto
-        # globos.append(globoDetalle)
-        # print(texto)
-        # cv2.imshow('Output ' + str(j), globo)
-        # j = j + 1
-        return globoDetalle
+            texto = self.extraerTextoImagen(globo)
+            globoDetalle.set_texto(texto)
+            globos.append(globoDetalle)
+            # print(texto)
+            # cv2.imshow('Output ' + str(j), globo)
+            j = j + 1
+            # cv2.imshow('Output ', globo)
+            # cv2.waitKey(0)
+        return globos
 
     def extraerTextoImagen(self, img):
         extractor = ExtraccionTexto(img)
@@ -94,18 +107,18 @@ class Segmentacion:
         return texto
 
     def segmentarChat(self):
-        img = self.configurarImagen()
-        imgTratada = self.tratarImagen(img)
-        globos = self.obtenerGlobos(imgTratada)
-        # globos = self.extraerGlobos(contornos)
+        self.configurarImagen()
+        imgTratada = self.tratarImagen()
+        contornos = self.obtenerGlobos(imgTratada)
+        globos = self.setearGlobos(contornos)
         return globos
 
     def segmentarMail(self):
         detalles = []
         img = self.configurarImagen
         texto = self.extraerTextoImagen(img)
-        detalle = ImagenProcesar.ImagenDetalle(self.imagen.id)
-        detalle.texto = texto
+        detalle = ImagenProcesar.ImagenDetalle()
+        detalle.set_texto(texto)
         detalles.append(detalle)
         return detalles
 
@@ -114,24 +127,28 @@ class Segmentacion:
         detalles = []
         img = self.configurarImagen
         texto = self.extraerTextoImagen(img)
-        detalle = ImagenProcesar.ImagenDetalle(self.imagen.id)
-        detalle.texto = texto
+        detalle = ImagenProcesar.ImagenDetalle()
+        detalle.set_texto(texto)
         detalles.append(detalle)
         return detalles
 
     def procesarImagen(self, imagen):
-        if imagen.get_imagentipo == 'C':
-            imagen.set_detalles = self.segmentarChat()
+        tipo = imagen.get_imagentipo()
+        self.imagen = imagen
+        if imagen.get_imagentipo() == 'C':
+            imagen.set_detalles(self.segmentarChat())
         else:
-            if imagen.get_imagentipo == 'M':
-                imagen.set_detalles = self.segmentarMail()
+            if imagen.get_imagentipo() == 'M':
+                imagen.set_detalles(self.segmentarMail())
             else:
-                imagen.set_detalles = self.segmentarOtro()
+                imagen.set_detalles(self.segmentarOtro())
+        return imagen
 
 
 class ExtraccionTexto:
     imagen = None
-
+    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files (x86)\Tesseract-OCR\tesseract'
+    tessdata_dir_config = r'--tessdata-dir "C:\Program Files(x86)\Tesseract-OCR\tessdata"'
     def __init__(self, img):
         self.imagen = img
 

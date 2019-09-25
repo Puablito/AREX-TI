@@ -23,7 +23,7 @@ args = parser.parse_args()
 
 rootDir = args.dir
 '''
-rootDir = r'C:\Users\Mariano-Dell\PycharmProjects\Imagenes'
+rootDir = r'C:\Users\Mariano-Dell\PycharmProjects\Imagenes\CapturasMarian'
 
 # Insertar tabla de procesos, analizar paquete logging
 
@@ -67,7 +67,7 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
     #rn_mail = RedesNeuronales.RedNeuronalEmail()
 
     # instancio el segmentador
-    segmentador = Segmentacion(720)
+    segmentador = Segmentacion.Segmentador(720)
 
     while not imagenes_cola.empty():
         img_procesar = imagenes_cola.get()
@@ -120,9 +120,18 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
                     pass  # Segmenta la imagen y extraer texto DE OTROS
                 '''
 
-            segmentador.procesarImagen(imagen_with_path)  # LA CLASE IMAGEN PROCESADA INICIA EL PROCESO DE SEGMENTACION SEGUN EL TIPO DE IMAGEN SETEADO ARRIBA
+            imagen_segmentada = segmentador.procesarImagen(imagen_procesada)  # LA CLASE IMAGEN PROCESADA INICIA EL PROCESO DE SEGMENTACION SEGUN EL TIPO DE IMAGEN SETEADO ARRIBA
+            print("////////////////////////////////////////////////////////////////////////")
+            print(imagen_segmentada.get_path())
+            print("----------------------------------------")
+            for detalle in imagen_segmentada.get_detalles():
+                print("_____________________________________________________________________")
+                print("Tipo globo: " + detalle.get_tipoGlobo())
+                print(detalle.get_texto())
+                print("_____________________________________________________________________")
+            print("////////////////////////////////////////////////////////////////////////")
             # Guarda en BD
-            imagenes_guardar.put(imagen_procesada)
+            imagenes_guardar.put(imagen_segmentada)
 
 
 
@@ -145,7 +154,7 @@ if __name__ == '__main__':
     print("Inicio la RN")
     TiempoInicial = datetime.datetime.now()
 
-    procesos_paralelos = os.cpu_count()  # cantidad de procesos maximos a utilizar
+    procesos_paralelos = 4 #os.cpu_count()  # cantidad de procesos maximos a utilizar
     procesos_ejecucion = []              # cantidad de procesos en ejecución
     indiceProceso = 1
 
