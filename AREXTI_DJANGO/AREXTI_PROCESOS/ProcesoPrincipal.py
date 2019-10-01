@@ -19,8 +19,8 @@ args = parser.parse_args()
 
 rootDir = args.dir
 '''
-#rootDir = r'C:\Users\Mariano-Dell\PycharmProjects\Imagenes\CapturasMarian'
-rootDir = 'F:\PythonProyects\SegmentacionIMG\Imagenes'
+rootDir = r'C:\Users\Mariano-Dell\PycharmProjects\Imagenes\CapturasMarian'
+# rootDir = 'F:\PythonProyects\SegmentacionIMG\Imagenes'
 # Insertar tabla de procesos, analizar paquete logging
 
 # Listado de extensiones que se van a procesar
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     print("Inicio la RN")
     TiempoInicial = datetime.datetime.now()
 
-    procesos_paralelos = os.cpu_count()  # cantidad de procesos maximos a utilizar
+    procesos_paralelos = 4 #os.cpu_count()  # cantidad de procesos maximos a utilizar
     procesos_ejecucion = []              # cantidad de procesos en ejecución
     indiceProceso = 1
 
