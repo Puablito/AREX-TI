@@ -16,8 +16,8 @@ class Segmentador:
         self.gris = None
         self.difRango = 20          # PARAMETRO PARA MARCAR UMBRAL DE DIFERENCIA MAXIMA ENTRE IZQ Y DERECHA PARA CLASIFICAR GLOBO INDEFINIDO
 
-        self.minLargoLinea = math.trunc(ancho * (250 / 9) / 100)         # PARAMETRO PARA LA FUNCION cv2.HoughLinesP 200
-        self.maxEspacioLinea = math.trunc(ancho * (250 / 9) / 100)       # PARAMETRO PARA LA FUNCION cv2.HoughLinesP 200
+        self.minLargoLinea = math.trunc(ancho * (125 / 3) / 100)         # PARAMETRO PARA LA FUNCION cv2.HoughLinesP 200
+        self.maxEspacioLinea = math.trunc(ancho * (125 / 3) / 100)       # PARAMETRO PARA LA FUNCION cv2.HoughLinesP 200
         self.altoMaxCabecera = math.trunc(self.alto * (325 / 16) / 100)  # PARAMETRO PARA DEFINIR ALTO MAXIMO DE CABECERA EN CASO DE NO ENCONTRAR LINEAS POR DEBAJO DE ESE VALOR 260
         self.altoMinCabecera = math.trunc(self.alto * (75 / 16) / 100)   # PARAMETRO PARA DEFINIR ALTO MINIMO DE CABECERA EN CASO DE ENCONTRAR LINEAS POR DEBAJO DE ESE VALOR 60
         self.lineaBarraInfo = math.trunc(self.alto * (105 / 32) / 100)   # PARAMETRO PARA DEFINIR EL ALTO QUE SE VA A CORTAR DE LA CABECERA DE INFO DE FECHA RED ETC, DE LA CAPTURA 42
@@ -73,8 +73,8 @@ class Segmentador:
                 # i = i + 1
         cv2.drawContours(self.gris, globos, -1, (0, 0, 255), 2)
         imgS = cv2.resize(self.gris, (540, 960))
-        cv2.imshow('cannyContorno ', imgS)
-        cv2.waitKey(0)
+        # cv2.imshow('cannyContorno ', imgS)
+        # cv2.waitKey(0)
         return globos
 
     def setearGlobos(self, contornos_finales):  # SE LEE LA LISA DE CONTORNOS RECONOCIDOS COMO GLOBOS Y SE EXTAEN DE LA IMAGEN PARA DETECTAR TEXTO Y SE SETEAN SUS PROPIEDADES
@@ -145,6 +145,7 @@ class Segmentador:
         print("CABECERA: ******************************************")
         print(cabeceraTexto)
         print("FIN CABECERA: ******************************************")
+        cv2.imwrite("cabeceras\cabecera " + self.imagen.get_nombre() + ".jpg", cabecera)
         # cv2.imshow("cabecera", cabecera)
         # cv2.waitKey(0)
         return cabeceraTexto

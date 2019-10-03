@@ -2,7 +2,7 @@
 
 #### Nombre - Versión
 1. Django - 2.2.2
-2. numpy - 1.6.4
+2. numpy - 1.16.4
 3. setuptools - 39.1.0
 4. pip - 19.1.1
 5. opencv-python - 4.1.025

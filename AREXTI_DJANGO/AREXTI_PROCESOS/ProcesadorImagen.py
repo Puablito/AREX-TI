@@ -6,10 +6,11 @@ import Segmentacion
 import logging
 import sys
 import os
+import BaseDatos
 
 # Funcion que procesa la imagen recibida por paramentro
-# noinspection PyBroadException
-def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto):
+
+def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto, listado_hashes):
     # instancio las RN
     try:
         rn_txt = RedesNeuronales.RedNeuronalTexto()
@@ -34,9 +35,8 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
 
     while not imagenes_cola.empty():
         img_procesar = imagenes_cola.get()
-        img_path = img_procesar[0]
+        img_path = img_procesar[0] + os.sep
         img_nombre = img_procesar[1]
-        img_path = img_path + os.sep
         imagen_with_path = img_path + img_nombre
 
         imagen_procesada = ImagenProcesar.Imagen()
@@ -44,7 +44,7 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
         imagen_procesada.set_extension(img_procesar[2])
         imagen_procesada.set_path(img_procesar[0])
 
-        # Verifica si posee texto o no con la RN
+        # Verifica si posee texto o no
         try:
             tiene_texto = rn_txt.imagen_tiene_texto(img_path, img_nombre)
         except:
@@ -58,7 +58,6 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
 
             # Calcula Hashes
             try:
-                listado_hashes = {"md5": "", "sha1": "", "sha256": ""}
                 listado_hashes = Hashes.calcular_hashes(listado_hashes, imagen_with_path)
                 imagen_procesada.set_hashes(listado_hashes)
             except ValueError:
@@ -79,7 +78,7 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
                 logging.error(msgerror + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]) + ")")
                 continue
 
-            # Verifica si es de chat o no con la RN
+            # Verifica si es de chat o no
             try:
                 img_path = img_path + os.sep
                 es_chat = rn_chat.imagen_es_chat(img_path, img_nombre)
@@ -118,4 +117,7 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
             print("////////////////////////////////////////////////////////////////////////")
             #Guarda en BD
             imagenes_guardar.put(imagen_segmentada)
+            conexion = BaseDatos.Conexion("postgres", "1234", "127.0.0.1", "5432", "AREX-TI")
+            conexion.conectar()
+            conexion.insertarImagen(imagen_segmentada)
             #imagenes_guardar.put(imagen_procesada)
