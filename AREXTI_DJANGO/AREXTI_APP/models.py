@@ -4,10 +4,10 @@ from django.db import models
 
 
 class Proyecto(models.Model):
-    IPP = models.CharField(max_length=100)
-    descripcion = models.CharField(max_length=200)
+    IPP = models.CharField(max_length=20)
+    descripcion = models.CharField(max_length=500)
     fiscalia = models.CharField(max_length=100)
-    responsable = models.CharField(max_length=100)
+    responsable = models.CharField(max_length=60)
     defensoria = models.CharField(max_length=100)
     juzgado = models.CharField(max_length=100)
     activo = models.IntegerField(default=1)
@@ -22,8 +22,8 @@ class Pericia(models.Model):
         ('Investigacion', 'Investigacion'),
         ('Otro', 'Otro'),
     )
-    descripcion = models.CharField(max_length=200)
-    nombrePerito = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=500)
+    nombrePerito = models.CharField(max_length=60)
     fecha = models.DateField()
     tipoPericia = models.CharField(max_length=30, choices=tiposPericia, default='Movil')
     proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, limit_choices_to={'activo': 1})
@@ -34,8 +34,8 @@ class Pericia(models.Model):
 
 
 class TipoImagen(models.Model):
-    nombre = models.CharField(max_length=100)
-    descripcion = models.CharField(max_length=200)
+    nombre = models.CharField(max_length=50)
+    descripcion = models.CharField(max_length=100)
     activo = models.IntegerField(default=1)
 
     def __str__(self):
@@ -43,8 +43,7 @@ class TipoImagen(models.Model):
 
 
 class TipoHash(models.Model):
-    nombre = models.CharField(max_length=100)
-    funcion = models.CharField(max_length=200)
+    nombre = models.CharField(max_length=20)
     activo = models.IntegerField(default=1)
     color = models.CharField(max_length=10)
 
@@ -55,12 +54,12 @@ class TipoHash(models.Model):
 class Imagen(models.Model):
     pericia = models.ForeignKey(Pericia, on_delete=models.CASCADE)
     tipoImagen = models.ForeignKey(TipoImagen, on_delete=models.CASCADE, limit_choices_to={'activo': 1})
-    hash = models.ManyToManyField(TipoHash, help_text="Seleccione un hash", through='ImagenHash')
-    nombre = models.CharField(max_length=100)
-    miniatura = models.CharField(max_length=100)
-    referencia = models.CharField(max_length=200)
-    extension = models.CharField(max_length=10)
-    clasificada = models.BinaryField
+    hash = models.ManyToManyField(TipoHash, help_text="Seleccione un hash", through='ImagenHash', limit_choices_to={'activo': 1})
+    nombre = models.CharField(max_length=256)
+    miniatura = models.ImageField()
+    path = models.CharField(max_length=500)
+    extension = models.CharField(max_length=5)
+    clasificada = models.BooleanField(default=False)
     activo = models.IntegerField(default=1)
 
     def __str__(self):
@@ -73,11 +72,16 @@ class ImagenHash(models.Model):
     valor = models.CharField(max_length=1000)
 
 
+class TipoDetalle(models.Model):
+    nombre = models.CharField(max_length=60)
+    descripcion = models.CharField(max_length=10)
+
+
 class ImagenDetalle(models.Model):
     imagen = models.ForeignKey(Imagen, on_delete=models.CASCADE)
+    tipoDetalle = models.ForeignKey(TipoDetalle, on_delete=models.CASCADE)
     texto = models.CharField(max_length=200)
-    tipoGlobo = models.CharField(max_length=10)
-    nombre = models.CharField(max_length=100)
-    hora = models.DateTimeField
-    mailFrom = models.CharField(max_length=200)
-    mailTo = models.CharField(max_length=200)
+
+
+
+
