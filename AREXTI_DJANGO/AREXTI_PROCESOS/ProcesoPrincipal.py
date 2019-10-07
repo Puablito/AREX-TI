@@ -5,6 +5,8 @@ import time
 import argparse
 import json
 import ProcesadorImagen
+import Herramientas
+import BaseDatos
 from multiprocessing import Process, Queue
 
 # llamada de ejemplo (DESACTIVADAS)
@@ -34,16 +36,36 @@ if __name__ == '__main__':
     procesotipo = args.tipo
     listaHash = json.loads(args.hash)
     rootDir = args.dir
-'''
-    ###################### Parametros hardcodeados ######################################
+    '''
+    # Realizo una conexion a la BD
+    conexionBD = BaseDatos.Conexion()
+    conexionBD.conectar("postgres", "arexti", "127.0.0.1", "5432", "arexti")
+    # Recupero parametros
+    '''
+    RtaBD[0] indica si la consulta se realizó OK o con "ERROR"
+    RtaBD[1] si RtaBD[0] = "OK" contiene la respuesta de la consulta, caso contrario contiene el error obtenido
+    '''
+    RtaBD = Herramientas.parametro_get(conexionBD, 'DIRECTORIOIMAGEN')
+    if RtaBD[0] == "OK":
+        rootDir = RtaBD[1][0]["ParametroTexto"]
+    else:
+        print(RtaBD[1])  ####################### VER QUE HACER EN ESTE CASO ######################
+
+    RtaBD = Herramientas.parametro_get(conexionBD, 'LISTAEXTENSIONES')
+    if RtaBD[0] == "OK":
+        ListadoExtensiones = RtaBD[1][0]["ParametroTexto"]
+    else:
+        print(RtaBD[1])  ####################### VER QUE HACER EN ESTE CASO ######################
+
+###################### Parametros hardcodeados ######################################
     # rootDir = r'C:\Users\Mariano-Dell\PycharmProjects\Imagenes\CapturasMarian'
-    rootDir = 'D:\PythonProyects\SegmentacionIMG\Imagenes'
     listaHash = {"md5": "", "sha1": "", "sha256": ""}
 
     # Insertar tabla de procesos, analizar paquete logging
 
     # Listado de extensiones que se van a procesar
-    ListadoExtensiones = ["JPG", "JPEG", "PNG", "GIF", "TIFF"]
+    # ListadoExtensiones = ["JPG", "JPEG", "PNG", "GIF", "TIFF"]
+###################### FIN Parametros hardcodeados ######################################
 
     # Colas de trabajo multiproceso
     ImagenesCola = Queue()  # cola de imagenes a procesar
@@ -119,11 +141,25 @@ if __name__ == '__main__':
                 while not imagenesNoTexto.empty():
                     archivo_notexto.write(imagenesNoTexto.get() + "\n")
 
-        # Si hay imagenes ya procesadas para guardar las guarda
+        # Guarda las Imagenes ya procesadas en la BD
         # Realizar mas pruebas (si la cola "ImagenesGuardar_Cola" se llena los procesos no terminan)
         while not ImagenesGuardar_Cola.empty():
             img_guardar = ImagenesGuardar_Cola.get()
+# Guarda de a una imagen, ver de guardar por bloque de ser posible
+            RtaBD = Herramientas.imagenInsertar(conexionBD, img_guardar)
+            if RtaBD[0] == "ERROR":
+                print(RtaBD[1])
+
             print("Imagen: {0} - {1}".format(img_guardar.get_nombre(), img_guardar.get_imagentipo()))
+            print("////////////////////////////////////////////////////////////////////////")
+            print(img_guardar.get_path())
+            print("----------------------------------------")
+            for detalle in img_guardar.get_detalles():
+                print("_____________________________________________________________________")
+                print("Tipo globo: " + detalle.get_tipoGlobo())
+                print(detalle.get_texto())
+                print("_____________________________________________________________________")
+            print("////////////////////////////////////////////////////////////////////////")
 
         # Para no saturar el cpu, dormimos el ciclo durante 1 segundo
         time.sleep(1)

@@ -6,10 +6,8 @@ import Segmentacion
 import logging
 import sys
 import os
-import BaseDatos
 
 # Funcion que procesa la imagen recibida por paramentro
-
 def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto, listado_hashes):
     # instancio las RN
     try:
@@ -76,7 +74,6 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
             except:
                 msgerror = 'Error al intentar calcular los metadatos de la imagen: ' + imagen_with_path + " ("
                 logging.error(msgerror + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]) + ")")
-                continue
 
             # Verifica si es de chat o no
             try:
@@ -103,21 +100,8 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
                 else:
                     pass  # Segmenta la imagen y extraer texto DE OTROS
                 '''
+            # LA CLASE IMAGEN PROCESADA INICIA EL PROCESO DE SEGMENTACION SEGUN EL TIPO DE IMAGEN SETEADO ARRIBA
+            imagen_segmentada = segmentador.procesarImagen(imagen_procesada)
 
-            imagen_segmentada = segmentador.procesarImagen(
-                imagen_procesada)  # LA CLASE IMAGEN PROCESADA INICIA EL PROCESO DE SEGMENTACION SEGUN EL TIPO DE IMAGEN SETEADO ARRIBA
-            print("////////////////////////////////////////////////////////////////////////")
-            print(imagen_segmentada.get_path())
-            print("----------------------------------------")
-            for detalle in imagen_segmentada.get_detalles():
-                print("_____________________________________________________________________")
-                print("Tipo globo: " + detalle.get_tipoGlobo())
-                print(detalle.get_texto())
-                print("_____________________________________________________________________")
-            print("////////////////////////////////////////////////////////////////////////")
-            #Guarda en BD
+            # Guarda en Cola para guardar en BD
             imagenes_guardar.put(imagen_segmentada)
-            conexion = BaseDatos.Conexion("postgres", "1234", "127.0.0.1", "5432", "AREX-TI")
-            conexion.conectar()
-            conexion.insertarImagen(imagen_segmentada)
-            #imagenes_guardar.put(imagen_procesada)
