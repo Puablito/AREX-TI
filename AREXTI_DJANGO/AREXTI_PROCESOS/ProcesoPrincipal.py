@@ -42,8 +42,8 @@ if __name__ == '__main__':
     conexionBD.conectar("postgres", "arexti", "127.0.0.1", "5432", "arexti")
     # Recupero parametros
     '''
-    RtaBD[0] indica si la consulta se realizó OK o con "ERROR"
-    RtaBD[1] si RtaBD[0] = "OK" contiene la respuesta de la consulta, caso contrario contiene el error obtenido
+        RtaBD[0] indica si la consulta se realizó OK o con "ERROR"
+        RtaBD[1] si RtaBD[0] = "OK" contiene la respuesta de la consulta, caso contrario contiene el error obtenido
     '''
     RtaBD = Herramientas.parametro_get(conexionBD, 'DIRECTORIOIMAGEN')
     if RtaBD[0] == "OK":
@@ -73,14 +73,14 @@ if __name__ == '__main__':
     imagenesNoTexto = Queue()  # cola de imagenes no procesadas por no detectar texto en ellas
 
     '''
-     Se recorre el directorio que viene por parametro con sus subdirectorios en busqueda de archivos de imagenes, el
-     listado de tipo de imagenes soportados está guardado en una varialbe "ListadoExtensiones".
-     Se analizan todos los archivos y los que son de tipo imagen se guardan en una cola "ImagenesCola"
-
-     Formato de cada elemento de la cola "ImagenesCola"
-        elemento 0 = Ruta absoluta del archivo, Ej: F:/Proyects/Imagenes
-        elemento 1 = Nombre del archivo, Ej: Twitter.jpg
-        elemento 2 = Extensión del archivo, Ej: jpeg
+         Se recorre el directorio que viene por parametro con sus subdirectorios en busqueda de archivos de imagenes, el
+         listado de tipo de imagenes soportados está guardado en una varialbe "ListadoExtensiones".
+         Se analizan todos los archivos y los que son de tipo imagen se guardan en una cola "ImagenesCola"
+    
+         Formato de cada elemento de la cola "ImagenesCola"
+            elemento 0 = Ruta absoluta del archivo, Ej: F:/Proyects/Imagenes
+            elemento 1 = Nombre del archivo, Ej: Twitter.jpg
+            elemento 2 = Extensión del archivo, Ej: jpeg
     '''
     for dirName, subdirList, fileList in os.walk(rootDir):
         for fname in fileList:
@@ -92,13 +92,13 @@ if __name__ == '__main__':
                     ImagenesCola.put([dirName, fname, ext])
 
     '''
-     Inicio del procesamiento en paralelo
-
-     1- Se crea un pool de procesos activos "procesos_ejecucion"
-     2- Se crean los procesos, se inician y se agrega a "procesos_ejecucion"
-     3- Mientras "procesos_ejecucion" tenga procesos activos:
-        A- Para cada proceso revisamos si el proceso sigue vivo
-        B- Si ha muerto algun proceso lo recuperamos, le quitamos los recursos y lo sacamos de "procesos_ejecucion"
+         Inicio del procesamiento en paralelo
+    
+         1- Se crea un pool de procesos activos "procesos_ejecucion"
+         2- Se crean los procesos, se inician y se agrega a "procesos_ejecucion"
+         3- Mientras "procesos_ejecucion" tenga procesos activos:
+            A- Para cada proceso revisamos si el proceso sigue vivo
+            B- Si ha muerto algun proceso lo recuperamos, le quitamos los recursos y lo sacamos de "procesos_ejecucion"
 
 # CAMBIAR EL PUNTO c YA QUE CAMBIO LA LOGICA       
         C- Mientras la piscina de procesos no esté llena y el listado de imagenes no esté vacio, 
@@ -146,20 +146,20 @@ if __name__ == '__main__':
         while not ImagenesGuardar_Cola.empty():
             img_guardar = ImagenesGuardar_Cola.get()
 # Guarda de a una imagen, ver de guardar por bloque de ser posible
-            RtaBD = Herramientas.imagenInsertar(conexionBD, img_guardar)
-            if RtaBD[0] == "ERROR":
-                print(RtaBD[1])
-
+#             RtaBD = Herramientas.imagenInsertar(conexionBD, img_guardar)
+#             if RtaBD[0] == "ERROR":
+#                 print(RtaBD[1])
+#
             print("Imagen: {0} - {1}".format(img_guardar.get_nombre(), img_guardar.get_imagentipo()))
-            print("////////////////////////////////////////////////////////////////////////")
-            print(img_guardar.get_path())
-            print("----------------------------------------")
-            for detalle in img_guardar.get_detalles():
-                print("_____________________________________________________________________")
-                print("Tipo globo: " + detalle.get_tipoGlobo())
-                print(detalle.get_texto())
-                print("_____________________________________________________________________")
-            print("////////////////////////////////////////////////////////////////////////")
+#             print("////////////////////////////////////////////////////////////////////////")
+#             print(img_guardar.get_path())
+#             print("----------------------------------------")
+#             for detalle in img_guardar.get_detalles():
+#                 print("_____________________________________________________________________")
+#                 print("Tipo globo: " + detalle.get_tipoGlobo())
+#                 print(detalle.get_texto())
+#                 print("_____________________________________________________________________")
+#             print("////////////////////////////////////////////////////////////////////////")
 
         # Para no saturar el cpu, dormimos el ciclo durante 1 segundo
         time.sleep(1)

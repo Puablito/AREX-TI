@@ -20,10 +20,10 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
     except:
         logging.error('Error al instanciar la RN de Chat - ' + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]))
 
-    # try:
-    #     # rn_mail = RedesNeuronales.RedNeuronalEmail()
-    # except:
-    #     logging.error('Error al instanciar la RN de Email - ' + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]))
+    try:
+        rn_mail = RedesNeuronales.RedNeuronalEmail()
+    except:
+        logging.error('Error al instanciar la RN de Email - ' + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]))
 
     # instancio el segmentador
     try:
@@ -88,20 +88,24 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
                 imagen_procesada.set_imagentipo("C")
                 # Segmenta la imagen y extraer texto DE CHAT
             else:
-                imagen_procesada.set_imagentipo("O")  # no chat
-                '''
                 # Verifica si es de mail o no con la RN
-
-                img_path = img_path + os.sep
-                es_mail = rn_mail.imagen_es_email(img_path, img_nombre)
+                try:
+                    img_path = img_path + os.sep
+                    es_mail = rn_mail.imagen_es_email(img_path, img_nombre)
+                except:
+                    msgerror = 'Error en RN Mail, al intentar predecir la imagen: ' + imagen_with_path + " ("
+                    logging.error(msgerror + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]) + ")")
+                    continue
 
                 if es_mail:
-                    pass  # Segmenta la imagen y extraer texto DE MAIL
+                    imagen_procesada.set_imagentipo("M")  # Segmenta la imagen y extraer texto DE MAIL
                 else:
-                    pass  # Segmenta la imagen y extraer texto DE OTROS
-                '''
+                    imagen_procesada.set_imagentipo("O")  # Segmenta la imagen y extraer texto DE OTROS
+
+
             # LA CLASE IMAGEN PROCESADA INICIA EL PROCESO DE SEGMENTACION SEGUN EL TIPO DE IMAGEN SETEADO ARRIBA
             imagen_segmentada = segmentador.procesarImagen(imagen_procesada)
 
             # Guarda en Cola para guardar en BD
             imagenes_guardar.put(imagen_segmentada)
+            #imagenes_guardar.put(imagen_procesada)
