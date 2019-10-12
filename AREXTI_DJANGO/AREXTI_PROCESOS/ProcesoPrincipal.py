@@ -58,13 +58,13 @@ if __name__ == '__main__':
         print(RtaBD[1])  ####################### VER QUE HACER EN ESTE CASO ######################
 
 ###################### Parametros hardcodeados ######################################
-    # rootDir = r'C:\Users\Mariano-Dell\PycharmProjects\Imagenes\CapturasMarian'
+    rootDir = r'C:\Users\Mariano-Dell\PycharmProjects\Imagenes\CapturasMarian 720X1280'
     listaHash = {"md5": "", "sha1": "", "sha256": ""}
 
     # Insertar tabla de procesos, analizar paquete logging
 
     # Listado de extensiones que se van a procesar
-    # ListadoExtensiones = ["JPG", "JPEG", "PNG", "GIF", "TIFF"]
+    ListadoExtensiones = ["JPG", "JPEG", "PNG", "GIF", "TIFF"]
 ###################### FIN Parametros hardcodeados ######################################
 
     # Colas de trabajo multiproceso
@@ -108,7 +108,7 @@ if __name__ == '__main__':
     print(str(ImagenesCola.qsize()) + " Imagenes a procesar")
     TiempoInicial = datetime.datetime.now()
 
-    procesos_paralelos = os.cpu_count()  # cantidad de procesos maximos a utilizar
+    procesos_paralelos = 4 #os.cpu_count()  # cantidad de procesos maximos a utilizar
     procesos_ejecucion = []  # cantidad de procesos en ejecución
     indiceProceso = 1
 

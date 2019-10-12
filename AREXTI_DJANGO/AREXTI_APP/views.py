@@ -106,9 +106,9 @@ class PericiaListar(FilteredListView):
             proid = 0
         # queryset = super().get_queryset()
         if proid != 0:
-            queryset = Pericia.objects.filter(activo=1, proyecto=proid).order_by('-id')
+            queryset = Pericia.objects.filter(activo=1, proyecto=proid).order_by('-proyecto', '-id')
         else:
-            queryset = Pericia.objects.filter(activo=1).order_by('-id')
+            queryset = Pericia.objects.filter(activo=1).order_by('-proyecto', '-id')
         self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
 
         return self.filterset.qs.distinct()

@@ -83,14 +83,17 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
                 msgerror = 'Error en RN Chat, al intentar predecir la imagen: ' + imagen_with_path + " ("
                 logging.error(msgerror + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]) + ")")
                 continue
-
+            segmentador.set_imagen(imagen_procesada)
             if es_chat:
                 imagen_procesada.set_imagentipo("C")
+                imagen_procesada.set_detalles(segmentador.segmentarChat())
                 # Segmenta la imagen y extraer texto DE CHAT
             else:
                 imagen_procesada.set_imagentipo("O")  # no chat
+                imagen_procesada.set_detalles(segmentador.segmentarOtro())
                 '''
                 # Verifica si es de mail o no con la RN
+                imagen_procesada.set_detalles(segmentador.segmentarMail())
 
                 img_path = img_path + os.sep
                 es_mail = rn_mail.imagen_es_email(img_path, img_nombre)
@@ -101,7 +104,8 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
                     pass  # Segmenta la imagen y extraer texto DE OTROS
                 '''
             # LA CLASE IMAGEN PROCESADA INICIA EL PROCESO DE SEGMENTACION SEGUN EL TIPO DE IMAGEN SETEADO ARRIBA
-            imagen_segmentada = segmentador.procesarImagen(imagen_procesada)
+            # imagen_segmentada = segmentador.procesarImagen(imagen_procesada)
+
 
             # Guarda en Cola para guardar en BD
-            imagenes_guardar.put(imagen_segmentada)
+            imagenes_guardar.put(imagen_procesada)

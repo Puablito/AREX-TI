@@ -9,7 +9,7 @@ import ImagenProcesar
 class Segmentador:
 
     def __init__(self, ancho):
-        self.imagen = None
+        self.__imagen = None
         self.ancho = ancho
         self.alto = math.trunc(ancho * (16 / 9))
         self.areaMinima = (self.ancho * self.alto) * 0.6 / 100              # area minima que debe cumplir un contorno para ser considerado globo de chat
@@ -22,8 +22,14 @@ class Segmentador:
         self.altoMinCabecera = math.trunc(self.alto * (75 / 16) / 100)   # PARAMETRO PARA DEFINIR ALTO MINIMO DE CABECERA EN CASO DE ENCONTRAR LINEAS POR DEBAJO DE ESE VALOR 60
         self.lineaBarraInfo = math.trunc(self.alto * (105 / 32) / 100)   # PARAMETRO PARA DEFINIR EL ALTO QUE SE VA A CORTAR DE LA CABECERA DE INFO DE FECHA RED ETC, DE LA CAPTURA 42
 
+    def get_imagen(self):
+        return self.__imagen
+
+    def set_imagen(self, imagen):
+        self.__imagen = imagen
+
     def configurarImagen(self):
-        imgPath = self.imagen.get_path() + os.sep + self.imagen.get_nombre()
+        imgPath = self.__imagen.get_path() + os.sep + self.__imagen.get_nombre()
         img = cv2.imread(imgPath)
         imgAncho = img.shape[1]  # ANCHO
         imgAlto = img.shape[0]   # ALTO
@@ -31,6 +37,12 @@ class Segmentador:
             dim = (self.ancho, self.alto)
         else:
             dim = (self.alto, self.ancho)
+        r = self.ancho / float(imgAncho)
+        dim = (self.ancho, int(imgAlto * r))
+
+        # resize the image
+
+        resized = cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
         img_escalada = cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
         self.gris = cv2.cvtColor(img_escalada, cv2.COLOR_BGR2GRAY)
         # cv2.imshow('imagenini ', self.gris)
@@ -145,7 +157,7 @@ class Segmentador:
         print("CABECERA: ******************************************")
         print(cabeceraTexto)
         print("FIN CABECERA: ******************************************")
-        cv2.imwrite("cabeceras\cabecera " + self.imagen.get_nombre() + ".jpg", cabecera)
+        cv2.imwrite("cabeceras\cabecera " + self.__imagen.get_nombre() + ".jpg", cabecera)
         # cv2.imshow("cabecera", cabecera)
         # cv2.waitKey(0)
         return cabeceraTexto
