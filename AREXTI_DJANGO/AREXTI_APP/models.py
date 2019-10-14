@@ -57,6 +57,7 @@ class Imagen(models.Model):
     hash = models.ManyToManyField(TipoHash, help_text="Seleccione un hash", through='ImagenHash', limit_choices_to={'activo': 1})
     nombre = models.CharField(max_length=256)
     miniatura = models.ImageField()
+    thumbnail = models.BinaryField(blank=True, null=True)
     path = models.CharField(max_length=500)
     extension = models.CharField(max_length=5)
     clasificada = models.BooleanField(default=False)
