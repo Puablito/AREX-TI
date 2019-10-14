@@ -105,15 +105,21 @@ if __name__ == '__main__':
            se realiza lo indicado en el paso 2
      4- El proceso finaliza cuando "procesos_ejecucion" se encuentre vacio
     '''
-    print(str(ImagenesCola.qsize()) + " Imagenes a procesar")
+    ImagenesCola_cantidad = ImagenesCola.qsize()
+    print(str(ImagenesCola_cantidad) + " Imagenes a procesar")
     TiempoInicial = datetime.datetime.now()
 
-    procesos_paralelos = os.cpu_count()  # cantidad de procesos maximos a utilizar
+    # cantidad de procesos maximos a utilizar
+    if os.cpu_count() < ImagenesCola_cantidad:
+        procesos_paralelos = os.cpu_count()
+    else:
+        procesos_paralelos = ImagenesCola_cantidad
+
     procesos_ejecucion = []  # cantidad de procesos en ejecución
     indiceProceso = 1
 
     # Creación de los procesos que procesaran las imagenes leidas
-    while len(procesos_ejecucion) < procesos_paralelos and not ImagenesCola.empty():
+    while len(procesos_ejecucion) < procesos_paralelos:
         p = Process(name="Proceso {0}".format(indiceProceso),
                     target=ProcesadorImagen.procesar_imagen,
                     args=(indiceProceso, ImagenesCola, ImagenesGuardar_Cola, imagenesNoTexto, listaHash,)
@@ -143,6 +149,7 @@ if __name__ == '__main__':
 
         # Guarda las Imagenes ya procesadas en la BD
         # Realizar mas pruebas (si la cola "ImagenesGuardar_Cola" se llena los procesos no terminan)
+
         while not ImagenesGuardar_Cola.empty():
             img_guardar = ImagenesGuardar_Cola.get()
 # Guarda de a una imagen, ver de guardar por bloque de ser posible
@@ -163,8 +170,6 @@ if __name__ == '__main__':
 
         # Para no saturar el cpu, dormimos el ciclo durante 1 segundo
         time.sleep(1)
-
-    print("WHILE: todos los procesos han terminado")
 
     TiempoFinal = datetime.datetime.now()
     print("Inicio: " + str(TiempoInicial))

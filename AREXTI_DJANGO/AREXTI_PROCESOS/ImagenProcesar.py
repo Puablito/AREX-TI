@@ -10,6 +10,7 @@ class Imagen:
         self.__imagentipo = ""
         self.__hashes = {}
         self.__metadatos = dict()
+        self.__thumbnail = ""
         self.__detalles = []
         # self.__segmentador = Segmentacion(self, 720)
 
@@ -50,6 +51,9 @@ class Imagen:
     def get_metadatos(self):
         return self.__metadatos
 
+    def get_thumbnail(self):
+        return self.__thumbnail
+
     def get_detalles(self):
         return self.__detalles
 
@@ -71,6 +75,9 @@ class Imagen:
 
     def set_metadatos(self, metadatos):
         self.__metadatos = metadatos
+
+    def set_thumbnail(self, thumbnail):
+        self.__thumbnail = thumbnail
 
     def set_detalles(self, detalles):
         self.__detalles = detalles

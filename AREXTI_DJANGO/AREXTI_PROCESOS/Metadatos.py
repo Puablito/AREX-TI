@@ -53,15 +53,3 @@ def metadata_extraer(imagen_procesar):
         metadatos_dict.update(gpsinfo)
 
     return metadatos_dict
-
-
-# Notebook
-# imagen_procesar = "D:/PythonProyects/TesisPC/conGPS.jpg"
-# imagen_procesar = "D:/PythonProyects/TesisPC/FotoProcessing.jpg"
-# PC
-# imagen_procesar = "F:/PythonProyects/TesisML/conGPS.jpg"
-# imagen_procesar = "F:/PythonProyects/TesisML/FotoProcessing.jpg"
-
-# meta = metadata_extraer(imagen_procesar)
-# print(meta)
-#exif_GPS = get_decimal_coordinates(gpsinfo)

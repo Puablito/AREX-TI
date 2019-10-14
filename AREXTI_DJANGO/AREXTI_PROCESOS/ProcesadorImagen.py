@@ -6,6 +6,7 @@ import Segmentacion
 import logging
 import sys
 import os
+import Herramientas
 
 # Funcion que procesa la imagen recibida por paramentro
 def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto, listado_hashes):
@@ -35,6 +36,7 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
         img_procesar = imagenes_cola.get()
         img_path = img_procesar[0] + os.sep
         img_nombre = img_procesar[1]
+        img_extension = img_procesar[2]
         imagen_with_path = img_path + img_nombre
 
         imagen_procesada = ImagenProcesar.Imagen()
@@ -63,7 +65,7 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
                 logging.error(msgerror + str(sys.exc_info()[0]) + " - " + str(sys.exc_info()[1]) + ")")
                 break
             except:
-                msgerror = 'Error al intentar calcular los hash de la imagen: ' + imagen_with_path + " ("
+                msgerror = 'Error al calcular los hash de la imagen: ' + imagen_with_path + " ("
                 logging.error(msgerror + str(sys.exc_info()[0]) + " - " + str(sys.exc_info()[1]) + ")")
                 continue
 
@@ -72,7 +74,15 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
                 listado_metadatos = Metadatos.metadata_extraer(imagen_with_path)
                 imagen_procesada.set_metadatos(listado_metadatos)
             except:
-                msgerror = 'Error al intentar calcular los metadatos de la imagen: ' + imagen_with_path + " ("
+                msgerror = 'Error al extraer los metadatos de la imagen: ' + imagen_with_path + " ("
+                logging.error(msgerror + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]) + ")")
+
+            # Crea la miniatura
+            try:
+                thumbnail = Herramientas.miniaturaCrea(imagen_with_path, img_extension)
+                imagen_procesada.set_thumbnail(thumbnail)
+            except:
+                msgerror = 'Error al crear la miniatura: ' + imagen_with_path + " ("
                 logging.error(msgerror + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]) + ")")
 
             # Verifica si es de chat o no
@@ -104,8 +114,8 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
 
 
             # LA CLASE IMAGEN PROCESADA INICIA EL PROCESO DE SEGMENTACION SEGUN EL TIPO DE IMAGEN SETEADO ARRIBA
-            imagen_segmentada = segmentador.procesarImagen(imagen_procesada)
+            # imagen_segmentada = segmentador.procesarImagen(imagen_procesada)
 
             # Guarda en Cola para guardar en BD
-            imagenes_guardar.put(imagen_segmentada)
-            #imagenes_guardar.put(imagen_procesada)
+            # imagenes_guardar.put(imagen_segmentada)
+            imagenes_guardar.put(imagen_procesada)
