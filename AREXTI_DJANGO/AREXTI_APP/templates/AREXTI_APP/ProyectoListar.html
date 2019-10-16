@@ -14,33 +14,25 @@
 {% endblock %}
 
 {% block filtros %}
-<!--<div class="row">-->
     <form>
         <div class="form-row">
             <div class="form-group col-md-3">
-                <!--<div class="form-group">-->
                 {{ filterset.form.IPP.label_tag }}
                 {% render_field filterset.form.IPP class="form-control" %}
-                    <!--</div>-->
-                <!--</div>-->
             </div>
             <div class="form-group col-md-3">
-                <!--<div class="form-group">-->
-                    {{ filterset.form.fiscalia.label_tag }}
-                    {% render_field filterset.form.fiscalia class="form-control" %}
-                    <!--</div>-->
-                <!--</div>-->
+                {{ filterset.form.descripcion.label_tag }}
+                {% render_field filterset.form.descripcion class="form-control" %}
             </div>
             <div class="form-group col-md-3">
-                    {{ filterset.form.descripcion.label_tag }}
-                    {% render_field filterset.form.descripcion class="form-control" %}
+                {{ filterset.form.fiscalia.label_tag }}
+                {% render_field filterset.form.fiscalia class="form-control" %}
             </div>
         </div>
         <div class="form-group col-md-4">
             <button type="submit" class="btn btn-primary">Buscar</button>
         </div>
     </form>
-<!--</div>-->
 {% endblock %}
 
 {% block acciones %}

@@ -17,26 +17,20 @@
 <form>
         <div class="form-row">
             <div class="form-group col-md-3">
-                <!--<div class="form-group">-->
                 {{ filterset.form.nombre.label_tag }}
                 {% render_field filterset.form.nombre class="form-control" %}
-                    <!--</div>-->
-                <!--</div>-->
             </div>
             <div class="form-group col-md-3">
-                <!--<div class="form-group">-->
-                    {{ filterset.form.extension.label_tag }}
-                    {% render_field filterset.form.extension class="form-control" %}
-                    <!--</div>-->
-                <!--</div>-->
+                {{ filterset.form.extension.label_tag }}
+                {% render_field filterset.form.extension class="form-control" %}
             </div>
             <div class="form-group col-md-3">
-                    {{ filterset.form.tipoImagen.label_tag }}
-                    {% render_field filterset.form.tipoImagen class="form-control" %}
+                {{ filterset.form.tipoImagen.label_tag }}
+                {% render_field filterset.form.tipoImagen class="form-control" %}
             </div>
             <div class="form-group col-md-3">
-                    {{ filterset.form.hash.label_tag }}
-                    {% render_field filterset.form.hash class="form-control" %}
+                {{ filterset.form.hash.label_tag }}
+                {% render_field filterset.form.hash class="form-control" %}
             </div>
         </div>
         <div class="form-group col-md-4">
