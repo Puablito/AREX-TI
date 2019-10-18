@@ -32,22 +32,16 @@ class FilteredListView(ListView):
         context['filterset'] = self.filterset
         return context
 
-
 def home(request):
     return render(request, 'home/index.html')
 
 
-# class ProyectoListarOld(ListView):
-#     # model = Proyecto
-#     context_object_name = 'proyecto_lista'
-#     paginate_by = 5
-#     queryset = Proyecto.objects.filter(activo=1)
-#     template_name = 'AREXTI_APP/ProyectoListar.html'
-
 class ProyectoListar(FilteredListView):
     filterset_class = ProyectoFilter
     queryset = Proyecto.objects.filter(activo=1).order_by('-id')
-    paginate_by = 10
+
+    def get_paginate_by(self, queryset):
+        return self.request.GET.get('paginate_by', self.paginate_by)
     template_name = 'AREXTI_APP/ProyectoListar.html'
 
 
@@ -121,14 +115,14 @@ class PericiaCrear(CreateView):
     model = Pericia
     form_class = PericiaForm
     template_name = 'AREXTI_APP/PericiaCrear.html'
-    success_url = reverse_lazy('PericiaListar')
+    success_url = reverse_lazy('PericiaListar', kwargs={'id': 0})
 
 
 class PericiaEditar(UpdateView):
     model = Pericia
     form_class = PericiaForm
     template_name = 'AREXTI_APP/PericiaCrear.html'
-    success_url = reverse_lazy('PericiaListar')
+    success_url = reverse_lazy('PericiaListar', kwargs={'id': 0})
 
 
 def PericiaEliminar(request, Periciaid):
@@ -139,10 +133,11 @@ def PericiaEliminar(request, Periciaid):
         for ima in imagenes:
             ima.activo = 0
             ima.save()
-        pro = Pericia.objects.get(id=Periciaid)
-        pro.activo = 0
-        pro.save()
-    return redirect('PericiaListar')
+        per = Pericia.objects.get(id=Periciaid)
+        per.activo = 0
+        per.save()
+        pro = per.proyecto.id
+    return redirect('PericiaListar', id=pro)
 
 
 class ImagenListar(FilteredListView):

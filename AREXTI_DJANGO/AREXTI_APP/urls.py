@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     path('', views.home, name='arextiIndex'),
     path('ProyectoListar/', views.ProyectoListar.as_view(), name='ProyectoListar'),
+    # path('ProyectoListar/', views.home2, name='ProyectoListar'),
     path('ProyectoCrear/', views.ProyectoCrear.as_view(), name='ProyectoCrear'),
     path('ProyectoEditar/<int:pk>/', views.ProyectoEditar.as_view(), name='ProyectoEditar'),
     path('ProyectoEliminar/<int:Proyectoid>/', views.ProyectoEliminar, name='ProyectoEliminar'),

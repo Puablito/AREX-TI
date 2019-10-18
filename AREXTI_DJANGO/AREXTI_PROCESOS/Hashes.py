@@ -18,10 +18,3 @@ def obtener_hash(hash, imagen_procesar):
     imagen_hash = cv2.imread(imagen_procesar)
     hasher.update(imagen_hash)
     return hasher.hexdigest()
-
-
-
-
-# listado_hashes = {"mD3": "", "sHa1": "", "SHA256": ""}
-# listado_hashes = calcular_hashes(listado_hashes, "F:\PythonProyects\SegmentacionIMG\Imagenes\Whatsapp.jpg")
-# print(listado_hashes)

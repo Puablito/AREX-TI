@@ -4,12 +4,12 @@ from django.db import models
 
 
 class Proyecto(models.Model):
-    IPP = models.CharField(max_length=20)
+    IPP = models.CharField(max_length=20, unique=True)
     descripcion = models.CharField(max_length=500)
-    fiscalia = models.CharField(max_length=100)
-    responsable = models.CharField(max_length=60)
-    defensoria = models.CharField(max_length=100)
-    juzgado = models.CharField(max_length=100)
+    fiscalia = models.CharField(max_length=100, blank=True)
+    responsable = models.CharField(max_length=60, blank=True)
+    defensoria = models.CharField(max_length=100, blank=True)
+    juzgado = models.CharField(max_length=100, blank=True)
     activo = models.IntegerField(default=1)
 
     def __str__(self):
@@ -34,12 +34,12 @@ class Pericia(models.Model):
 
 
 class TipoImagen(models.Model):
-    nombre = models.CharField(max_length=50)
-    descripcion = models.CharField(max_length=100)
+    nombre = models.CharField(max_length=50, primary_key=True)
+    descripcion = models.CharField(max_length=100, blank=True)
     activo = models.IntegerField(default=1)
 
     def __str__(self):
-        return self.descripcion
+        return self.nombre
 
 
 class TipoHash(models.Model):
@@ -57,9 +57,9 @@ class Imagen(models.Model):
     hash = models.ManyToManyField(TipoHash, help_text="Seleccione un hash", through='ImagenHash', limit_choices_to={'activo': 1})
     nombre = models.CharField(max_length=256)
     miniatura = models.ImageField()
+    thumbnail = models.BinaryField(blank=True, null=True)
     path = models.CharField(max_length=500)
     extension = models.CharField(max_length=5)
-    clasificada = models.BooleanField(default=False)
     activo = models.IntegerField(default=1)
 
     def __str__(self):
@@ -73,14 +73,14 @@ class ImagenHash(models.Model):
 
 
 class TipoDetalle(models.Model):
-    nombre = models.CharField(max_length=60)
-    descripcion = models.CharField(max_length=10)
+    nombre = models.CharField(max_length=60, primary_key=True)
+    descripcion = models.CharField(max_length=100)
 
 
 class ImagenDetalle(models.Model):
     imagen = models.ForeignKey(Imagen, on_delete=models.CASCADE)
     tipoDetalle = models.ForeignKey(TipoDetalle, on_delete=models.CASCADE)
-    texto = models.CharField(max_length=200)
+    texto = models.CharField(max_length=100000)
 
 
 
