@@ -41,7 +41,11 @@ class ProyectoListar(FilteredListView):
     queryset = Proyecto.objects.filter(activo=1).order_by('-id')
 
     def get_paginate_by(self, queryset):
-        return self.request.GET.get('paginate_by', self.paginate_by)
+        paginacion = self.request.GET.get('paginate_by', self.paginate_by)
+        if paginacion:
+            return paginacion
+        else:
+            return 10
     template_name = 'AREXTI_APP/ProyectoListar.html'
 
 
@@ -76,20 +80,6 @@ def ProyectoEliminar(request, Proyectoid):
         pro.save()
     return redirect('ProyectoListar')
 
-    # def post(self, *args, **kwargs):
-    #     self.object = self.get_object()
-    #     self.object.activo = 0
-    #     self.object.save(update_fields=('activo', ))
-    #     return HttpResponseRedirect('PericiaListar/')
-
-
-class PericiaListarOld(ListView):
-    # model = Pericia
-    context_object_name = 'pericia_lista'
-    paginate_by = 10
-    queryset = Pericia.objects.filter(activo=1)
-    template_name = 'AREXTI_APP/PericiaListar.html'
-
 
 class PericiaListar(FilteredListView):
     filterset_class = PericiaFilter
@@ -106,8 +96,13 @@ class PericiaListar(FilteredListView):
         self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
 
         return self.filterset.qs.distinct()
-    # queryset = Pericia.objects.filter(activo=1).order_by('-id')
-    paginate_by = 10
+
+    def get_paginate_by(self, queryset):
+        paginacion = self.request.GET.get('paginate_by', self.paginate_by)
+        if paginacion:
+            return paginacion
+        else:
+            return 10
     template_name = 'AREXTI_APP/PericiaListar.html'
 
 

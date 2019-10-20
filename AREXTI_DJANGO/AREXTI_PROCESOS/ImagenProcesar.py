@@ -88,11 +88,7 @@ class ImagenDetalle:
     def __init__(self):
         self.__imagen = 0
         self.__texto = ''
-        self.__tipoGlobo = ''
-        self.__nombre = ''
-        self.__hora = None
-        self.__mailFrom = ''
-        self.__mailTo = ''
+        self.__tipoDetalle = ''
 
     # getters
     def get_imagen(self):
@@ -102,19 +98,8 @@ class ImagenDetalle:
         return self.__texto
 
     def get_tipoGlobo(self):
-        return self.__tipoGlobo
+        return self.__tipoDetalle
 
-    def get_nombre(self):
-        return self.__nombre
-
-    def get_hora(self):
-        return self.__hora
-
-    def get_mailFrom(self):
-        return self.__mailFrom
-
-    def get_mailTo(self):
-        return self.__mailTo
 
     # setters
     def set_imagen(self, imagen):
@@ -123,17 +108,5 @@ class ImagenDetalle:
     def set_texto(self, texto):
         self.__texto = texto
 
-    def set_tipoGlobo(self, tipoGlobo):
-        self.__tipoGlobo = tipoGlobo
-
-    def set_nombre(self, nombre):
-        self.__nombre = nombre
-
-    def set_hora(self, hora):
-        self.__hora = hora
-
-    def set_mailFrom(self, mailFrom):
-        self.__mailFrom = mailFrom
-
-    def set_mailTo(self, mailTo):
-        self.__mailTo = mailTo
+    def set_tipoDetalle(self, tipoDetalle):
+        self.__tipoDetalle = tipoDetalle

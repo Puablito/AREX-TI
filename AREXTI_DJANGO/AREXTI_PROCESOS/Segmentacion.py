@@ -6,6 +6,7 @@ import math
 import ImagenProcesar
 from PIL import Image
 import tempfile
+import re
 
 
 class Segmentador:
@@ -118,6 +119,7 @@ class Segmentador:
         globos = []
         cabeceraDetalle = ImagenProcesar.ImagenDetalle()
         textoCabecera = self.extraerCabecera(self.canny)
+        cabeceraDetalle.set_tipoDetalle('CABECERA')
         cabeceraDetalle.set_texto(textoCabecera)
         globos.append(cabeceraDetalle)
         for i, contorno in enumerate(contornos_finales):
@@ -139,12 +141,12 @@ class Segmentador:
             rangoIzquierda = leftmost[0]
             difRango = abs(rangoDerecha - rangoIzquierda)
             if difRango < self.difRango:
-                globoDetalle.set_tipoGlobo('U')
+                globoDetalle.set_tipoDetalle('GLOBOINDEFINIDO')
             else:
                 if rangoDerecha > rangoIzquierda:
-                    globoDetalle.set_tipoGlobo('I')
+                    globoDetalle.set_tipoDetalle('GLOBOIZQUIERDA')
                 else:
-                    globoDetalle.set_tipoGlobo('D')
+                    globoDetalle.set_tipoDetalle('GLOBODERECHA')
 
             texto = self.extraerTextoImagen(globo)
             globoDetalle.set_texto(texto)
@@ -218,6 +220,10 @@ class Segmentador:
         # cv2.waitKey(0)
         return cabeceraTexto
 
+    def obtenerMails(self, texto):
+        mails = re.findall(r'[\w\.-]+@[\w\.-]+', texto)
+        return mails
+
     def segmentarChat(self):
         self.configurarImagen()
         erosion = self.tratarImagen()
@@ -226,15 +232,23 @@ class Segmentador:
         globos = self.setearGlobos(contornos)
         return globos
 
-    def segmentarMail(self):
+    def segmentarMail(self):  # FALTA FUNCION BUSCAR MAILS
         detalles = []
         self.configurarImagen()
         texto = self.extraerTextoImagen(self.imgEscalada)
         print('Texto Mail: ')
         print(texto)
         detalle = ImagenProcesar.ImagenDetalle()
+        detalle.set_tipoDetalle('TEXTO')
         detalle.set_texto(texto)
         detalles.append(detalle)
+        mails = self.obtenerMails(texto)
+        if mails:
+            for mail in mails:
+                detalleMail = ImagenProcesar.ImagenDetalle()
+                detalleMail.set_tipoDetalle('MAIL')
+                detalleMail.set_texto(mail)
+                detalles.append(detalleMail)
         return detalles
 
     def segmentarOtro(self):
@@ -242,8 +256,16 @@ class Segmentador:
         self.configurarImagen()
         texto = self.extraerTextoImagen(self.imgEscalada)
         detalle = ImagenProcesar.ImagenDetalle()
+        detalle.set_tipoDetalle('TEXTO')
         detalle.set_texto(texto)
         detalles.append(detalle)
+        mails = self.obtenerMails(texto)
+        if mails:
+            for mail in mails:
+                detalleMail = ImagenProcesar.ImagenDetalle()
+                detalleMail.set_tipoDetalle('MAIL')
+                detalleMail.set_texto(mail)
+                detalles.append(detalleMail)
         print('Texto Otro: ')
         print(texto)
         return detalles

@@ -95,7 +95,7 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
                 continue
             segmentador.set_imagen(imagen_procesada)
             if es_chat:
-                imagen_procesada.set_imagentipo("C")
+                imagen_procesada.set_imagentipo("CHAT")
                 imagen_procesada.set_detalles(segmentador.segmentarChat())
                 # Segmenta la imagen y extraer texto DE CHAT
             else:
@@ -109,10 +109,10 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
                     continue
 
                 if es_mail:
-                    imagen_procesada.set_imagentipo("M")  # Segmenta la imagen y extraer texto DE MAIL
+                    imagen_procesada.set_imagentipo("MAIL")  # Segmenta la imagen y extraer texto DE MAIL
                     imagen_procesada.set_detalles(segmentador.segmentarMail())
                 else:
-                    imagen_procesada.set_imagentipo("O")  # Segmenta la imagen y extraer texto DE OTROS
+                    imagen_procesada.set_imagentipo("OTRO")  # Segmenta la imagen y extraer texto DE OTROS
                     imagen_procesada.set_detalles(segmentador.segmentarOtro())
 
 
