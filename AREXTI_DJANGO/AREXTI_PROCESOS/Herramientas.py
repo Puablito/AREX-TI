@@ -17,24 +17,16 @@ def parametro_get(conexion, parametro_id):
 def imagenInsertar(conexion, periciaid,  imagen):
     # Inserta Tabla Imagen
     query = """ INSERT INTO "AREXTI_APP_imagen" 
-                ("nombre", "thumbnail", "path", "extension", "clasificada", "activo", "pericia_id", "tipoImagen_id", "miniatura")
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                ("nombre", "thumbnail", "path", "extension", "activo", "pericia_id", "tipoImagen_id", "miniatura")
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
 
     miniatura = ""
     nombre = imagen.get_nombre()
     extension = imagen.get_extension()
     path = imagen.get_path()
 
-############################### esto hay que cambiarlo
-
     tipoImagen = imagen.get_imagentipo()
-    if tipoImagen == "C":
-        tipoImagen = 1
-    elif tipoImagen == "O":
-        tipoImagen = 3
-    else:
-        tipoImagen = 2
-###############################
+
     thumbnail = imagen.get_thumbnail()
     thumbnail_binary = psycopg2.Binary(thumbnail)  # lo hago binario o serializo
 
@@ -46,9 +38,17 @@ def imagenInsertar(conexion, periciaid,  imagen):
     else:
         return ["ERROR", conexion.error]
     # insert de las otras tablas
-    # imagen.get_hashes()
-    # imagen.get_metadatos()
-    # detalles = imagen.get_detalles()
+    hashes = imagen.get_hashes()
+    metadatos = imagen.get_metadatos()
+    detalles = imagen.get_detalles()
+
+def hashesInsertar(hashes, imagenId):
+    query = """ INSERT INTO "AREXTI_APP_imagen" 
+                    (valor, imagen_id, "tipoHash_id")
+                    VALUES (%s, %s, %s)"""
+    id = imagenId
+    for hash in hashes:
+        1
 
 
 def miniaturaCrea(imagen, ext):

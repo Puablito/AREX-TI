@@ -1,5 +1,6 @@
 {% extends 'base/ListadoBase.html' %}
 {% load widget_tweaks %}
+{% load AREXTItemplatetag %}
 
 {% block ListadoBaseScripts %}
         <script>
@@ -45,7 +46,7 @@
         </div>
         <div class="form-group col-md-3">
             <button type="submit" class="btn btn-primary">Buscar</button>
-            <a class="btn btn-default" href="{% url 'PericiaListar' 0 %}">Limpiar</a>
+            <a class="btn btn-default" href="?{% param_replace proyecto='' descripcion='' tipoPericia='' fecha=''  %}">Limpiar</a>
         </div>
         <div class="form-group col-md-3">
             <!--<label>Proyectos por página:</label>-->

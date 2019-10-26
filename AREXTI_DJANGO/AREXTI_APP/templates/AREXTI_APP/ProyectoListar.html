@@ -39,7 +39,7 @@
         <form action="." method="get">
             <select name="paginate_by" class="form-control" onchange="this.form.submit();">
                 <option value="">Proyectos por página</option>
-                <option value="5">5</option>
+                <option value="5" {% if 5 == numero_paginacion %}selected{% endif %}>5</option>
                 <option value="10">10</option>
                 <option value="15">15</option>
                 <option value="20">20</option>
@@ -54,6 +54,7 @@
 {% endblock %}
 
 {% block tabla_contenido %}
+{{ numero_paginacion }}
 <a class="btn btn-success" href="{% url 'ProyectoCrear' %}">Agregar</a>
 <thead class="thead-dark">
     <tr>

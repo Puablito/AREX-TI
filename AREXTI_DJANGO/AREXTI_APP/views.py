@@ -40,12 +40,26 @@ class ProyectoListar(FilteredListView):
     filterset_class = ProyectoFilter
     queryset = Proyecto.objects.filter(activo=1).order_by('-id')
 
+
     def get_paginate_by(self, queryset):
         paginacion = self.request.GET.get('paginate_by', self.paginate_by)
         if paginacion:
             return paginacion
         else:
-            return 10
+            return 3
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # context['numero_paginacion'] = self.kwargs.get('paginate_by')
+        paginacion = self.request.GET.get('paginate_by')
+        if paginacion == None:
+            paginacion = 3
+        context['numero_paginacion'] = int(paginacion)
+        # self.paginate_by = paginacion
+        return context
+
+
+
     template_name = 'AREXTI_APP/ProyectoListar.html'
 
 

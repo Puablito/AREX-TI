@@ -65,7 +65,7 @@ if __name__ == '__main__':
         print(RtaBD[1])  ####################### VER QUE HACER EN ESTE CASO ######################
 
 ###################### Parametros hardcodeados ######################################
-    rootDir = 'C:/Users/Mariano-Dell/PycharmProjects/Imagenes/CapturasMarianOriginal/Nueva'
+    # rootDir = 'C:/Users/Mariano-Dell/PycharmProjects/Imagenes/CapturasMarianOriginal/Nueva'
     listaHash = {"md5": "", "sha1": "", "sha256": ""}
 
     # Insertar tabla de procesos, analizar paquete logging
@@ -160,9 +160,9 @@ if __name__ == '__main__':
         while not ImagenesGuardar_Cola.empty():
             img_guardar = ImagenesGuardar_Cola.get()
 # Guarda de a una imagen, ver de guardar por bloque de ser posible
-#             RtaBD = Herramientas.imagenInsertar(conexionBD, img_guardar)
-#             if RtaBD[0] == "ERROR":
-#                 print(RtaBD[1])
+            RtaBD = Herramientas.imagenInsertar(conexionBD, img_guardar)
+            if RtaBD[0] == "ERROR":
+                print(RtaBD[1])
 #
             print("Imagen: {0} - {1}".format(img_guardar.get_nombre(), img_guardar.get_imagentipo()))
 #             print("////////////////////////////////////////////////////////////////////////")

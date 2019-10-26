@@ -249,6 +249,8 @@ class Segmentador:
                 detalleMail.set_tipoDetalle('MAIL')
                 detalleMail.set_texto(mail)
                 detalles.append(detalleMail)
+                print('---------------------------MAIL-------------------------')
+                print(mail)
         return detalles
 
     def segmentarOtro(self):
@@ -266,6 +268,8 @@ class Segmentador:
                 detalleMail.set_tipoDetalle('MAIL')
                 detalleMail.set_texto(mail)
                 detalles.append(detalleMail)
+                print('---------------------------MAIL-------------------------')
+                print(mail)
         print('Texto Otro: ')
         print(texto)
         return detalles
