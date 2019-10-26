@@ -55,6 +55,12 @@ class Conexion:
                 self.error = "Error: %s" % e
         return False
 
+    def lastId(self):
+        """
+        Funcion que devuelve el ultimo id añadido
+        """
+        return self.cursor.fetchone()[0]
+
     def desconectar(self):
         self.conectado = False
         try:

@@ -151,8 +151,8 @@ class Segmentador:
             texto = self.extraerTextoImagen(globo)
             globoDetalle.set_texto(texto)
             globos.append(globoDetalle)
-            print("GLOBO " + str(i))
-            print(texto)
+            # print("GLOBO " + str(i))
+            # print(texto)
             # cv2.imshow('Output ' + str(j), globo)
             # j = j + 1
             # cv2.imshow('Output ', globo)
@@ -212,9 +212,9 @@ class Segmentador:
         # cv2.imshow("hough", imgS)
         cabecera = self.imgEscalada[lineaBarraInfo:lineaCabecera, 0:self.ancho]
         cabeceraTexto = self.extraerTextoImagen(cabecera)
-        print("CABECERA: ******************************************")
-        print(cabeceraTexto)
-        print("FIN CABECERA: ******************************************")
+        # print("CABECERA: ******************************************")
+        # print(cabeceraTexto)
+        # print("FIN CABECERA: ******************************************")
         cv2.imwrite("cabeceras\cabecera " + self.__imagen.get_nombre() + ".jpg", cabecera)
         # cv2.imshow("cabecera", cabecera)
         # cv2.waitKey(0)
@@ -236,8 +236,8 @@ class Segmentador:
         detalles = []
         self.configurarImagen()
         texto = self.extraerTextoImagen(self.imgEscalada)
-        print('Texto Mail: ')
-        print(texto)
+        # print('Texto Mail: ')
+        # print(texto)
         detalle = ImagenProcesar.ImagenDetalle()
         detalle.set_tipoDetalle('TEXTO')
         detalle.set_texto(texto)
@@ -249,8 +249,8 @@ class Segmentador:
                 detalleMail.set_tipoDetalle('MAIL')
                 detalleMail.set_texto(mail)
                 detalles.append(detalleMail)
-                print('---------------------------MAIL-------------------------')
-                print(mail)
+                # print('---------------------------MAIL-------------------------')
+                # print(mail)
         return detalles
 
     def segmentarOtro(self):
@@ -268,10 +268,10 @@ class Segmentador:
                 detalleMail.set_tipoDetalle('MAIL')
                 detalleMail.set_texto(mail)
                 detalles.append(detalleMail)
-                print('---------------------------MAIL-------------------------')
-                print(mail)
-        print('Texto Otro: ')
-        print(texto)
+                # print('---------------------------MAIL-------------------------')
+                # print(mail)
+        # print('Texto Otro: ')
+        # print(texto)
         return detalles
 
 

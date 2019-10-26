@@ -48,24 +48,24 @@ if __name__ == '__main__':
     '''
     RtaBD = Herramientas.parametro_get(conexionBD, 'DIRECTORIOIMAGEN')
     if RtaBD[0] == "OK":
-        rootDir = RtaBD[1][0]["ParametroTexto"]
+        rootDir = RtaBD[1][0]["valorTexto"]
     else:
         print(RtaBD[1])  ####################### VER QUE HACER EN ESTE CASO ######################
 
     RtaBD = Herramientas.parametro_get(conexionBD, 'LISTAEXTENSIONES')
     if RtaBD[0] == "OK":
-        ListadoExtensiones = RtaBD[1][0]["ParametroTexto"]
+        ListadoExtensiones = RtaBD[1][0]["valorTexto"]
     else:
         print(RtaBD[1])  ####################### VER QUE HACER EN ESTE CASO ######################
 
     RtaBD = Herramientas.parametro_get(conexionBD, 'TESSERACTPATH')
     if RtaBD[0] == "OK":
-        tesseract_cmd = RtaBD[1][0]["ParametroTexto"]
+        tesseract_cmd = RtaBD[1][0]["valorTexto"]
     else:
         print(RtaBD[1])  ####################### VER QUE HACER EN ESTE CASO ######################
 
 ###################### Parametros hardcodeados ######################################
-    # rootDir = 'C:/Users/Mariano-Dell/PycharmProjects/Imagenes/CapturasMarianOriginal/Nueva'
+    rootDir = 'C:/Users/Mariano-Dell/PycharmProjects/Imagenes/CapturasMarianOriginal/Nueva'
     listaHash = {"md5": "", "sha1": "", "sha256": ""}
 
     # Insertar tabla de procesos, analizar paquete logging
@@ -160,7 +160,7 @@ if __name__ == '__main__':
         while not ImagenesGuardar_Cola.empty():
             img_guardar = ImagenesGuardar_Cola.get()
 # Guarda de a una imagen, ver de guardar por bloque de ser posible
-            RtaBD = Herramientas.imagenInsertar(conexionBD, img_guardar)
+            RtaBD = Herramientas.imagenInsertar(conexionBD, 1, img_guardar)
             if RtaBD[0] == "ERROR":
                 print(RtaBD[1])
 #

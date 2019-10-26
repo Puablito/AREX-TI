@@ -2,9 +2,9 @@ import cv2
 import psycopg2
 
 def parametro_get(conexion, parametro_id):
-    query = """ SELECT "ParametroTexto","ParametroNumero","ParametroBoolean" 
+    query = """ SELECT "valorTexto","valorNumero","valorBooleano" 
                 FROM "AREXTI_APP_parametros"
-                WHERE "ParametroId"=%s;"""
+                WHERE "id"=%s;"""
     data = (parametro_id,)
     resultado = conexion.consulta(query, data)
     # return es una lista con 2 elementos [0]e[1], en cada elemento [1] es una lista de registros
@@ -17,8 +17,8 @@ def parametro_get(conexion, parametro_id):
 def imagenInsertar(conexion, periciaid,  imagen):
     # Inserta Tabla Imagen
     query = """ INSERT INTO "AREXTI_APP_imagen" 
-                ("nombre", "thumbnail", "path", "extension", "activo", "pericia_id", "tipoImagen_id", "miniatura")
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
+                ("nombre", "miniatura", "thumbnail", "path", "extension", "activo", "pericia_id", "tipoImagen_id")
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;"""
 
     miniatura = ""
     nombre = imagen.get_nombre()
@@ -30,25 +30,70 @@ def imagenInsertar(conexion, periciaid,  imagen):
     thumbnail = imagen.get_thumbnail()
     thumbnail_binary = psycopg2.Binary(thumbnail)  # lo hago binario o serializo
 
-    data = (nombre, thumbnail_binary, path, extension, True, 1, periciaid, tipoImagen, miniatura)
+    data = (nombre, miniatura, thumbnail_binary, path, extension, 1, periciaid, tipoImagen)
 
     resultado = conexion.consulta(query, data, False)
+
+    imagenId = conexion.lastId()
+    # insert de las otras tablas
+    hashes = imagen.get_hashes()
+    hashesInsertar(hashes, imagenId, conexion)
+    metadatos = imagen.get_metadatos()
+    metadatosInsertar(metadatos, imagenId, conexion)
+    detalles = imagen.get_detalles()
+    detallesInsertar(detalles, imagenId, conexion)
     if resultado:
         return ["OK", resultado]
     else:
         return ["ERROR", conexion.error]
-    # insert de las otras tablas
-    hashes = imagen.get_hashes()
-    metadatos = imagen.get_metadatos()
-    detalles = imagen.get_detalles()
 
-def hashesInsertar(hashes, imagenId):
-    query = """ INSERT INTO "AREXTI_APP_imagen" 
+
+def hashesInsertar(hashes, imagenId, conexion):
+    query = """ INSERT INTO "AREXTI_APP_imagenhash" 
                     (valor, imagen_id, "tipoHash_id")
                     VALUES (%s, %s, %s)"""
-    id = imagenId
-    for hash in hashes:
-        1
+    if hashes:
+        for hash in hashes:
+            tipoHash = hash
+            valorHash = hashes[hash]
+            data = (valorHash, imagenId, tipoHash)
+            resultado = conexion.consulta(query, data, False)
+            # if resultado:
+            #     return ["OK", resultado]
+            # else:
+            #     return ["ERROR", conexion.error]
+
+
+def metadatosInsertar(metadatos, imagenId, conexion):
+    query = """ INSERT INTO "AREXTI_APP_imagenmetadatos" 
+                        ("idMetadato", valor, imagen_id)
+                        VALUES (%s, %s, %s)"""
+    if metadatos:
+        for metadato in metadatos:
+            idMetadato = metadato
+            valorMetadato = metadatos[metadato]
+            data = (idMetadato, valorMetadato, imagenId)
+            resultado = conexion.consulta(query, data, False)
+            # if resultado:
+            #     return ["OK", resultado]
+            # else:
+            #     return ["ERROR", conexion.error]
+
+
+def detallesInsertar(detalles, imagenId, conexion):
+    query = """ INSERT INTO "AREXTI_APP_imagendetalle" 
+                            (texto, imagen_id, "tipoDetalle_id")
+                            VALUES (%s, %s, %s)"""
+    if detalles:
+        for detalle in detalles:
+            texto = detalle.get_texto()
+            tipoDetalle = detalle.get_tipoDetalle()
+            data = (texto, imagenId, tipoDetalle)
+            resultado = conexion.consulta(query, data, False)
+            # if resultado:
+            #     return ["OK", resultado]
+            # else:
+            #     return ["ERROR", conexion.error]
 
 
 def miniaturaCrea(imagen, ext):

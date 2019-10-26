@@ -127,6 +127,11 @@ class PericiaListar(FilteredListView):
             return paginacion
         else:
             return 10
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['proyectoId'] = self.kwargs.get("id")
+        return context
     template_name = 'AREXTI_APP/PericiaListar.html'
 
 
@@ -134,14 +139,16 @@ class PericiaCrear(CreateView):
     model = Pericia
     form_class = PericiaForm
     template_name = 'AREXTI_APP/PericiaCrear.html'
-    success_url = reverse_lazy('PericiaListar', kwargs={'id': 0})
+    success_url = reverse_lazy('PericiaListar', kwargs={'id': 0})  # PASAR ID DE PERICIA EN LISTADO
 
 
 class PericiaEditar(UpdateView):
     model = Pericia
     form_class = PericiaForm
     template_name = 'AREXTI_APP/PericiaCrear.html'
-    success_url = reverse_lazy('PericiaListar', kwargs={'id': 0})
+    def get_success_url(self):
+        print(self.kwargs)
+        return reverse_lazy('PericiaListar', kwargs={'id': self.model.proyecto}) # VER NO FUNCIONA
 
 
 def PericiaEliminar(request, Periciaid):
