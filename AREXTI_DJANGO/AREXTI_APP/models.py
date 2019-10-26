@@ -4,13 +4,19 @@ from django.db import models
 
 
 class Proyecto(models.Model):
-    IPP = models.CharField(max_length=100)
-    descripcion = models.CharField(max_length=200)
-    fiscalia = models.CharField(max_length=100)
-    responsable = models.CharField(max_length=100)
-    defensoria = models.CharField(max_length=100)
-    juzgado = models.CharField(max_length=100)
+    IPP = models.CharField(max_length=20, unique=True)
+    descripcion = models.CharField(max_length=500)
+    fiscalia = models.CharField(max_length=100, blank=True)
+    responsable = models.CharField(max_length=60, blank=True)
+    defensoria = models.CharField(max_length=100, blank=True)
+    juzgado = models.CharField(max_length=100, blank=True)
     activo = models.IntegerField(default=1)
+
+    class Meta:
+        indexes = [models.Index(fields=['IPP']),
+                   models.Index(fields=['descripcion']),
+                   models.Index(fields=['fiscalia']),
+                   models.Index(fields=['IPP', 'descripcion', 'fiscalia'])]
 
     def __str__(self):
         return self.descripcion
@@ -22,20 +28,27 @@ class Pericia(models.Model):
         ('Investigacion', 'Investigacion'),
         ('Otro', 'Otro'),
     )
-    descripcion = models.CharField(max_length=200)
-    nombrePerito = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=500)
+    nombrePerito = models.CharField(max_length=60)
     fecha = models.DateField()
     tipoPericia = models.CharField(max_length=30, choices=tiposPericia, default='Movil')
     proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, limit_choices_to={'activo': 1})
     activo = models.IntegerField(default=1)
+    directorio = models.CharField(max_length=100, blank=True)
+
+    class Meta:
+        indexes = [models.Index(fields=['proyecto']),
+                   models.Index(fields=['descripcion']),
+                   models.Index(fields=['fecha']),
+                   models.Index(fields=['proyecto', 'descripcion', 'fecha'])]
 
     def __str__(self):
         return self.descripcion
 
 
 class TipoImagen(models.Model):
-    nombre = models.CharField(max_length=100)
-    descripcion = models.CharField(max_length=200)
+    id = models.CharField(max_length=50, primary_key=True)
+    descripcion = models.CharField(max_length=100, blank=True)
     activo = models.IntegerField(default=1)
 
     def __str__(self):
@@ -43,8 +56,7 @@ class TipoImagen(models.Model):
 
 
 class TipoHash(models.Model):
-    nombre = models.CharField(max_length=100)
-    funcion = models.CharField(max_length=200)
+    id = models.CharField(max_length=20, primary_key=True)
     activo = models.IntegerField(default=1)
     color = models.CharField(max_length=10)
 
@@ -56,11 +68,18 @@ class Imagen(models.Model):
     pericia = models.ForeignKey(Pericia, on_delete=models.CASCADE)
     tipoImagen = models.ForeignKey(TipoImagen, on_delete=models.CASCADE, limit_choices_to={'activo': 1})
     hash = models.ManyToManyField(TipoHash, help_text="Seleccione un hash", through='ImagenHash')
-    nombre = models.CharField(max_length=100)
-    miniatura = models.CharField(max_length=100)
-    referencia = models.CharField(max_length=200)
-    extension = models.CharField(max_length=10)
+    nombre = models.CharField(max_length=256)
+    miniatura = models.ImageField(blank=True)
+    thumbnail = models.BinaryField(blank=True, null=True)
+    path = models.CharField(max_length=500)
+    extension = models.CharField(max_length=5)
     activo = models.IntegerField(default=1)
+
+    class Meta:
+        indexes = [models.Index(fields=['nombre']),
+                   models.Index(fields=['extension']),
+                   models.Index(fields=['tipoImagen']),
+                   models.Index(fields=['nombre', 'extension', 'tipoImagen'])]
 
     def __str__(self):
         return self.nombre
@@ -75,14 +94,50 @@ class ImagenHash(models.Model):
     valor = models.CharField(max_length=1000)
 
 
+class TipoDetalle(models.Model):
+    id = models.CharField(max_length=60, primary_key=True)
+    descripcion = models.CharField(max_length=100)
+
+
 class ImagenDetalle(models.Model):
     imagen = models.ForeignKey(Imagen, on_delete=models.CASCADE)
-    texto = models.CharField(max_length=200)
-    tipoGlobo = models.CharField(max_length=10)
-    nombre = models.CharField(max_length=100)
-    hora = models.DateTimeField
-    mailFrom = models.CharField(max_length=200)
-    mailTo = models.CharField(max_length=200)
+    tipoDetalle = models.ForeignKey(TipoDetalle, on_delete=models.CASCADE)
+    texto = models.CharField(max_length=100000)
+
+
+
+class Log(models.Model):
+    periciaId = models.IntegerField(blank=True)
+    tipo = models.CharField(max_length=4, blank=True)
+    descripcion = models.CharField(max_length=2048, blank=True)
+    imagentPath = models.CharField(max_length=512, blank=True)
+    imagenNombre = models.CharField(max_length=256, blank=True)
+
+
+class Parametros(models.Model):
+    id = models.CharField(max_length=30, primary_key=True)
+    descripcion = models.CharField(max_length=128, blank=True)
+    valorTexto = models.CharField(max_length=512, blank=True)
+    valorNumero = models.DecimalField(max_digits=12, decimal_places=2, blank=True)
+    valorBooleano = models.BooleanField(blank=True)
+
+
+class Metadatos(models.Model):
+    id = models.CharField(max_length=50, primary_key=True)
+    idMetadatoImagen = models.CharField(max_length=50)
+
+    class Meta:
+        unique_together = (('id', 'idMetadatoImagen'),)
+
+class ImagenMetadatos(models.Model):
+    imagen = models.ForeignKey(Imagen, on_delete=models.CASCADE)
+    idMetadato = models.CharField(max_length=50)
+    valor = models.CharField(max_length=512)
+
+    class Meta:
+        indexes = [models.Index(fields=['idMetadato']),
+                   models.Index(fields=['valor']),
+                   models.Index(fields=['idMetadato', 'valor'])]
 
 
 class ImagenFile(object):

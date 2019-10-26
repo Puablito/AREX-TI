@@ -2,6 +2,8 @@
 import cv2
 import numpy as np
 import os
+# from tensorflow.python.keras.preprocessing.image import img_to_array
+# from tensorflow.python.keras.models import load_model
 from tensorflow.python.keras.preprocessing.image import img_to_array
 from tensorflow.python.keras.models import load_model
 
@@ -18,7 +20,7 @@ class RedNeuronalTexto:
         path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'RN_MODELOS')
         modelo = path + os.sep + "RNTexto.h5"
         self.cnnTexto = load_model(modelo)
-        self.targetSize = (300, 300)
+        self.targetSize = (320, 320)
 
     # Indica si una imagen posee texto o no
     def imagen_tiene_texto(self, imagen_path, imagen_nombre):
@@ -95,14 +97,13 @@ class RedNeuronalEmail:
     def __new__(cls):
         if RedNeuronalEmail.__instancemail is None:
             RedNeuronalEmail.__instancemail = object.__new__(cls)
-            print("CREO nueva instancia")
         return RedNeuronalEmail.__instancemail
 
     def __init__(self):
-        #modelo = 'F:/PythonProyects/RNs/Texto/pruebaCV(300x300)/modelo/best_texto.h5'
+        path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'RN_MODELOS')
+        modelo = path + os.sep + "RNMail.h5"
         self.cnn = load_model(modelo)
-        self.targetSize = (300, 200)
-        print("INICIO instancia")
+        self.targetSize = (350, 260)
 
     def imagen_es_email(self, imagen_path, imagen_nombre):
         resultado = False

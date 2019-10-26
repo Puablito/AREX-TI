@@ -10,6 +10,7 @@ class Imagen:
         self.__imagentipo = ""
         self.__hashes = {}
         self.__metadatos = dict()
+        self.__thumbnail = ""
         self.__detalles = []
         # self.__segmentador = Segmentacion(self, 720)
 
@@ -50,6 +51,9 @@ class Imagen:
     def get_metadatos(self):
         return self.__metadatos
 
+    def get_thumbnail(self):
+        return self.__thumbnail
+
     def get_detalles(self):
         return self.__detalles
 
@@ -72,6 +76,9 @@ class Imagen:
     def set_metadatos(self, metadatos):
         self.__metadatos = metadatos
 
+    def set_thumbnail(self, thumbnail):
+        self.__thumbnail = thumbnail
+
     def set_detalles(self, detalles):
         self.__detalles = detalles
 
@@ -81,11 +88,7 @@ class ImagenDetalle:
     def __init__(self):
         self.__imagen = 0
         self.__texto = ''
-        self.__tipoGlobo = ''
-        self.__nombre = ''
-        self.__hora = None
-        self.__mailFrom = ''
-        self.__mailTo = ''
+        self.__tipoDetalle = ''
 
     # getters
     def get_imagen(self):
@@ -95,38 +98,15 @@ class ImagenDetalle:
         return self.__texto
 
     def get_tipoGlobo(self):
-        return self.__tipoGlobo
+        return self.__tipoDetalle
 
-    def get_nombre(self):
-        return self.__nombre
-
-    def get_hora(self):
-        return self.__hora
-
-    def get_mailFrom(self):
-        return self.__mailFrom
-
-    def get_mailTo(self):
-        return self.__mailTo
 
     # setters
-    def set_nombre(self, imagen):
+    def set_imagen(self, imagen):
         self.__imagen = imagen
 
-    def set_extension(self, texto):
+    def set_texto(self, texto):
         self.__texto = texto
 
-    def set_path(self, tipoGlobo):
-        self.__tipoGlobo = tipoGlobo
-
-    def set_imagentipo(self, nombre):
-        self.__nombre = nombre
-
-    def set_hashes(self, hora):
-        self.__hora = hora
-
-    def set_metadatos(self, mailFrom):
-        self.__mailFrom = mailFrom
-
-    def set_mailTo(self, mailTo):
-        self.__mailTo = mailTo
+    def set_tipoDetalle(self, tipoDetalle):
+        self.__tipoDetalle = tipoDetalle

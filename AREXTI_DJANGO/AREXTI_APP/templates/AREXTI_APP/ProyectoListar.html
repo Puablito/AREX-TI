@@ -1,11 +1,10 @@
 {% extends 'base/ListadoBase.html' %}
 {% load widget_tweaks %}
+{% load AREXTItemplatetag %}
 
 {% block ListadoBaseScripts %}
     <script>
-        $(document).ready(function(){
-          $("#id_IPP").mask("00-000000-00")
-        })
+
     </script>
 {% endblock %}
 
@@ -14,33 +13,40 @@
 {% endblock %}
 
 {% block filtros %}
-<!--<div class="row">-->
-    <form>
+    <form action="?{% param_replace %}">
         <div class="form-row">
-            <div class="form-group col-md-3">
-                <!--<div class="form-group">-->
+            <div class="form-group col-md-4">
                 {{ filterset.form.IPP.label_tag }}
                 {% render_field filterset.form.IPP class="form-control" %}
-                    <!--</div>-->
-                <!--</div>-->
             </div>
-            <div class="form-group col-md-3">
-                <!--<div class="form-group">-->
-                    {{ filterset.form.fiscalia.label_tag }}
-                    {% render_field filterset.form.fiscalia class="form-control" %}
-                    <!--</div>-->
-                <!--</div>-->
+            <div class="form-group col-md-4">
+                {{ filterset.form.descripcion.label_tag }}
+                {% render_field filterset.form.descripcion class="form-control" %}
             </div>
-            <div class="form-group col-md-3">
-                    {{ filterset.form.descripcion.label_tag }}
-                    {% render_field filterset.form.descripcion class="form-control" %}
+            <div class="form-group col-md-4">
+                {{ filterset.form.fiscalia.label_tag }}
+                {% render_field filterset.form.fiscalia class="form-control" %}
             </div>
         </div>
         <div class="form-group col-md-4">
             <button type="submit" class="btn btn-primary">Buscar</button>
+            <a class="btn btn-default" href="?{% param_replace IPP='' descripcion='' fiscalia='' %}">Limpiar</a>
         </div>
+
     </form>
-<!--</div>-->
+    <div class="form-group col-md-3">
+        <!--<label>Proyectos por página:</label>-->
+        <form action="." method="get">
+            <select name="paginate_by" class="form-control" onchange="this.form.submit();">
+                <option value="">Proyectos por página</option>
+                <option value="5" {% if 5 == numero_paginacion %}selected{% endif %}>5</option>
+                <option value="10">10</option>
+                <option value="15">15</option>
+                <option value="20">20</option>
+            </select>
+        </form>
+    </div>
+
 {% endblock %}
 
 {% block acciones %}
@@ -48,6 +54,7 @@
 {% endblock %}
 
 {% block tabla_contenido %}
+{{ numero_paginacion }}
 <a class="btn btn-success" href="{% url 'ProyectoCrear' %}">Agregar</a>
 <thead class="thead-dark">
     <tr>

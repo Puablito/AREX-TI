@@ -1,5 +1,6 @@
 {% extends 'base/ListadoBase.html' %}
 {% load widget_tweaks %}
+{% load AREXTItemplatetag %}
 
 {% block ListadoBaseScripts %}
         <script>
@@ -43,8 +44,22 @@
             </div>
             <!--<input class="form-control" type="text" id="fechaa" data-toggle="daterangepicker" maxlength="23" name="timestamp" data-filter-type="date-range">-->
         </div>
-        <div class="form-group col-md-4">
+        <div class="form-group col-md-3">
             <button type="submit" class="btn btn-primary">Buscar</button>
+            <a class="btn btn-default" href="?{% param_replace proyecto='' descripcion='' tipoPericia='' fecha=''  %}">Limpiar</a>
+        </div>
+        <div class="form-group col-md-3">
+            <!--<label>Proyectos por página:</label>-->
+            <form action="." method="get">
+                <select name="paginate_by" class="form-control" onchange="this.form.submit();">
+                    <option value="">Pericias por página</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                </select>
+                <!--<button type="submit" class="btn btn-primary">OK</button>-->
+            </form>
         </div>
     </form>
 {% endblock %}
@@ -60,11 +75,13 @@
         <th style="width: 10px"></th>
         <th style="width: 10px"></th>
         <th style="width: 10px"></th>
-        <th>Causa</th>
+        <th>IPP</th>
+        <th>Proyecto</th>
         <th>Descripción</th>
         <th>Perito</th>
-        <th>Fecha</th>
         <th>Tipo Pericia</th>
+        <th>Fecha</th>
+        <th>Imagenes</th>
     </tr>
 </thead>
 <tbody>
@@ -86,11 +103,13 @@
             </a>
         </td>
         <td style="display:none;">{{pericia.id}}</td>
+        <td>{{pericia.proyecto.IPP}}</td>
         <td>{{pericia.proyecto.descripcion}}</td>
         <td>{{pericia.descripcion}}</td>
         <td>{{pericia.nombrePerito}}</td>
-        <td>{{pericia.fecha}}</td>
         <td>{{pericia.tipoPericia}}</td>
+        <td>{{pericia.fecha}}</td>
+        <td>Cantidad</td>
     </tr>
     <div id="Eliminar{{ pericia.id }}" class="modal fade">
         <div class="modal-dialog modal-confirm">
