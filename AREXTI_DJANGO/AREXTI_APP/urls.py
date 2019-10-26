@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.home, name='arextiIndex'),
+    path('', views.Home.as_view(), name='arextiIndex'),
     path('ProyectoListar/', views.ProyectoListar.as_view(), name='ProyectoListar'),
     path('ProyectoCrear/', views.ProyectoCrear.as_view(), name='ProyectoCrear'),
     path('ProyectoEditar/<int:pk>/', views.ProyectoEditar.as_view(), name='ProyectoEditar'),
@@ -11,8 +11,8 @@ urlpatterns = [
     path('PericiaCrear/', views.PericiaCrear.as_view(), name='PericiaCrear'),
     path('PericiaEditar/<int:pk>/', views.PericiaEditar.as_view(), name='PericiaEditar'),
     path('PericiaEliminar/<int:Periciaid>/', views.PericiaEliminar, name='PericiaEliminar'),
-    path('ImagenListar/<int:id>/', views.ImagenListar.as_view(), name='ImagenListar'),
-    path('ImagenCrear/', views.ImagenCrear.as_view(), name='ImagenCrear'),
+    path('ImagenListar/<int:pericia>/', views.ImagenListar.as_view(), name='ImagenListar'),
+    path('ImagenCrear/<int:pericia>/', views.ImagenCrear.as_view(), name='ImagenCrear'),
     path('ImagenEditar/<int:pk>/', views.ImagenEditar.as_view(), name='ImagenEditar'),
     path('ImagenEliminar/<int:Imagenid>/', views.ImagenEliminar, name='ImagenEliminar'),
 ]

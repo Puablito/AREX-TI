@@ -10,5 +10,77 @@
 {% endblock %}
 
 {% block body %}
-    {{ form.as_p }}
+
+{{pepe}}
+  <!-- Nav tabs -->
+<div class="nav tabs-custom">
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a class="nav-link active" data-toggle="tab" href="#directorio">Directorio</a>
+    </li>
+
+    {% if activeTab %}
+    <li class="nav-item">
+      <a class="nav-link" data-toggle="tab" href="#archivo">Archivo</a>
+    </li>
+    {% endif %}
+  </ul>
+
+  <!-- Tab panes -->
+  <div class="tab-content">
+    <div id="directorio" class="tab-pane active"><br>
+      <div class="container" style="border-style:groove;">
+        <div class="row">
+          <div class="col-md-12">
+          <p>Seleccione los hashes a aplicar</p>
+            {% for obj_tipoHash in tipoHashes%}
+            <div class="col-md-3" style="display:inline">
+                <label class="form-check-label">
+                    <input name="inputHash" type="checkbox" class="form-check-input" value="{{obj_tipoHash.id}}"> {{obj_tipoHash.nombre}}
+                </label>
+            </div>
+          {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="container" style="border-style:groove; margin-top:20px;">
+        <div class="row" style="margin-top:10px; margin-bottom: 10px;">
+          <div class="col-md-12">
+            <p>Ingrese el nombre de la carpeta donde se encuentran las imágenes</p>
+            <div class="input-group" style="width:100%">
+                <input class="form-control" placeholder="nombre de la carpeta...">
+            </div>
+            <article style="margin-top:5px;">
+              <div class="info">
+                <strong><i class="fa fa-info-circle"></i> Nota:</strong> recuerde que la carpeta se tiene que encontrar en .../home/arexti
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% if activeTab %}
+      <div id="archivo" class="tab-pane"><br>
+      <div class="container" style="border-style:groove;">
+        <div class="row">
+          <div class="col-md-12">
+          <p>Seleccione los hashes a aplicar</p>
+            {% for obj_tipoHash in tipoHashes%}
+            <div class="col-md-3" style="display:inline">
+                <label class="form-check-label">
+                    <input type="checkbox" class="form-check-input"> {{obj_tipoHash.nombre}}
+                </label>
+            </div>
+          {% endfor %}
+          </div>
+        </div>
+      </div>
+
+    </div>
+    {% endif %}
+
+  </div>
+</div>
 {% endblock %}

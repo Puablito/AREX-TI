@@ -1,4 +1,4 @@
-from AREXTI_APP.models import Proyecto, Pericia, Imagen, TipoImagen
+from AREXTI_APP.models import Proyecto, Pericia, Imagen, TipoImagen, ImagenHash
 import django_filters
 from django.db import models
 from django import forms
@@ -110,14 +110,19 @@ class PericiaFilter(django_filters.FilterSet):
 class ImagenFilter(django_filters.FilterSet):
     nombre = django_filters.CharFilter(lookup_expr='icontains', label='Nombre')
     extension = django_filters.CharFilter(lookup_expr='icontains', label='Extensión')
-    hash = django_filters.CharFilter(lookup_expr='contains', label='Hash')
     tipoImagen = django_filters.ModelChoiceFilter(queryset=TipoImagen.objects.filter(activo=1), label='Tipo Imagen')
+    hash = django_filters.CharFilter(method='filter_hash')
 
     class Meta:
         model = Imagen
-        fields = ['hash',]
+        fields = ['hash']
 
     def __init__(self, *args, **kwargs):
         super(ImagenFilter, self).__init__(*args, **kwargs)
         self.filters['tipoImagen'].extra.update(
             {'empty_label': 'Todas'})
+
+    def filter_hash(self, queryset, name, value):
+        if value:
+            queryset = Imagen.objects.filter(imagenhash__valor__contains=value)
+        return queryset

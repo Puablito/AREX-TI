@@ -1,14 +1,24 @@
 from django.shortcuts import render, redirect
+import logging
 from django.http import HttpResponse, HttpResponseRedirect
-from django.urls import reverse_lazy
-from django.views.generic import View
+from django.urls import reverse_lazy, reverse
+
+from django.template import loader
+
+from django.views.generic import TemplateView
 from django.views.generic.detail import SingleObjectMixin
-from django.views.generic import ListView, CreateView, UpdateView
-from AREXTI_APP.models import Proyecto, Pericia, Imagen, TipoHash, ImagenHash
-from AREXTI_APP.forms import ProyectoForm, PericiaForm, ImagenForm
+from django.views.generic import ListView, CreateView, UpdateView, DetailView
+from AREXTI_APP.models import Proyecto, Pericia, Imagen, TipoHash, ImagenHash, ImagenDetalle, ImagenFile
+from AREXTI_APP.forms import ProyectoForm, PericiaForm, ImagenForm, ImagenEditForm
 from .filters import ProyectoFilter, PericiaFilter, ImagenFilter
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-# from django_filters import FilterView
+
+import os
+from django.conf import settings
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
+import json as simplejson
+from django.template import Context, loader
+from django.template.context_processors import csrf
+import subprocess
 
 
 class FilteredListView(ListView):
@@ -33,9 +43,8 @@ class FilteredListView(ListView):
         return context
 
 
-def home(request):
-    return render(request, 'home/index.html')
-
+class Home(TemplateView):
+    template_name = 'home/index.html'
 
 # class ProyectoListarOld(ListView):
 #     # model = Proyecto
@@ -148,7 +157,7 @@ def PericiaEliminar(request, Periciaid):
 class ImagenListar(FilteredListView):
     filterset_class = ImagenFilter
     def get_queryset(self):
-        perid = self.kwargs.get("id")
+        perid = self.kwargs.get("pericia")
         # queryset = super().get_queryset()
         if perid != 0:
             queryset = Imagen.objects.filter(activo=1, pericia=perid).order_by('-id')
@@ -158,28 +167,89 @@ class ImagenListar(FilteredListView):
 
         return self.filterset.qs.distinct()
     # queryset = Imagen.objects.filter(activo=1).order_by('-id')
+
+    #Agrego al contexto la periciaId sobre el cual se obtuvo el conjunto de imagenes
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['periciaId'] = self.kwargs.get("pericia")
+        context['tipoHashes'] = TipoHash.objects.filter(activo=1)
+        return context
+
     paginate_by = 10
     template_name = 'AREXTI_APP/ImagenListar.html'
 
-# class ImagenListar(ListView):
-#     # model = Imagen
-#     context_object_name = 'imagen_lista'
-#     queryset = Imagen.objects.filter(activo=1)
-#     template_name = 'AREXTI_APP/ImagenListar.html'
-
 
 class ImagenCrear(CreateView):
-    model = Imagen
-    form_class = ImagenForm
+    model = ImagenFile
     template_name = 'AREXTI_APP/ImagenCrear.html'
-    success_url = reverse_lazy('ImagenListar')
+
+    def get(self, request, *args, **kwargs):
+        queryset = TipoHash.objects.filter(activo=1)
+        activeTab = False
+        perid = self.kwargs.get("pericia")
+        if Imagen.objects.filter(pericia=perid).count() > 0:
+            activeTab = True
+
+        contexto = {
+            'tipoHashes': queryset,
+            'activeTab': activeTab
+        }
+
+        return render(request, self.template_name, contexto)
+
+    def post(self, request, *args, **kwargs):
+        hashesId = request.POST.getlist('inputHash')
+        hashes = TipoHash.objects.filter(id__in=hashesId)
+        jsonObject = {}
+        hashListObject = []
+
+        for hash in hashes:
+            hashObject = {"name": hash.nombre}
+            hashListObject.append(hashObject)
+
+        jsonObject["hashes"] = hashListObject
+        jsonObject["pericia"] = 1
+        jsonObject["urlFile"] = "C:\\Users\\javier\\Desktop\\Capturas"
+
+        return render(request, self.template_name, {'pepe': jsonObject})
+
+
+# class ImagenCrear(View):
+#     model = ImagenFile
+#     template_name = 'AREXTI_APP/ImagenCrear.html'
+#     success_url = reverse_lazy('ImagenListar', 1)
+#
+#     def get_context_data(self, *args, **kwargs):
+#         context = super().get_context_data(*args, **kwargs)
+#         context['tipoHashes'] = TipoHash.objects.filter(activo=1)
+#         return context
 
 
 class ImagenEditar(UpdateView):
     model = Imagen
-    form_class = ImagenForm
+    form_class = ImagenEditForm
     template_name = 'AREXTI_APP/ImagenEditar.html'
-    success_url = reverse_lazy('ImagenListar')
+
+    def get_context_data(self, *args, **kwargs):
+        imagen = self.get_object()
+        context = super().get_context_data(*args, **kwargs)
+        context['detalles'] = ImagenDetalle.objects.filter(imagen=imagen)
+        return context
+
+    def get_success_url(self):
+        print(self.kwargs)
+        return reverse('ImagenListar', kwargs={'id': self.model.pericia})
+
+
+class ImagenConsultar(DetailView):
+    model = Imagen
+    template_name = 'AREXTI_APP/ImagenEditar.html'
+
+    def get_context_data(self, *args, **kwargs):
+        imagen = self.get_object()
+        context = super().get_context_data(*args, **kwargs)
+        context['detalles'] = ImagenDetalle.objects.filter(imagen=imagen)
+        return context
 
 
 def ImagenEliminar(request, Imagenid):
@@ -187,6 +257,9 @@ def ImagenEliminar(request, Imagenid):
         img = Imagen.objects.get(id=Imagenid)
         img.activo = 0
         img.save()
-    return redirect('ImagenListar')
+    return redirect('ImagenListar', img.pericia.id)
+
+
+
 
 

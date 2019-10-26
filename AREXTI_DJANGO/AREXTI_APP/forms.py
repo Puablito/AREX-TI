@@ -90,13 +90,11 @@ class ImagenEditForm(forms.ModelForm):
 
     class Meta:
         model = Imagen
-        model2 = Imagen.tipoImagen
 
         fields = [
             'nombre',
             'extension',
             'tipoImagen',
-            'hash'
         ]
 
         labels = {
@@ -110,7 +108,3 @@ class ImagenEditForm(forms.ModelForm):
             'extension': forms.TextInput(attrs={'class': 'form-control', 'id': 'extension', 'readonly':'readonly'}),
             'tipoImagen': forms.Select(attrs={'class': 'form-control', 'id': 'tipoImagen'}),
         }
-
-        pepe = forms.ModelChoiceField(queryset=TipoImagen.objects.all())
-        # hashes = forms.ModelChoiceField(queryset=TipoDocumento.objects.all(),
-        #                                         empty_label=None)

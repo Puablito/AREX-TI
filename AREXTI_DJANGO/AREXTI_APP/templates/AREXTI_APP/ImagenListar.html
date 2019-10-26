@@ -3,6 +3,21 @@
 
 {% block ListadoBaseScripts %}
 <script>
+
+    function create_button(color, title, value, id, imagenId)
+    {
+        var btn = document.createElement('input');
+        btn.type = "button";
+        btn.className = "btn btn-hash";
+        btn.style = "background-color:{{color}}; border-color:color";
+
+        btn.title= title;
+
+        btn.value = value;
+        var td = $('#tipoHash_'+imagenId+id)
+        $(td).append(btn);
+    }
+
     $(function () {
         $('[data-toggle="tooltipHash"]').tooltip()
     })
@@ -46,11 +61,11 @@
 {% endblock %}
 
 {% block acciones %}
-<!--<a class="btn btn-success" href="{% url 'ImagenCrear' %}">Agregar</a>-->
 {% endblock %}
 
 {% block tabla_contenido %}
-<a class="btn btn-success" href="{% url 'ImagenCrear' %}">Agregar</a>
+
+<a class="btn btn-success" href="{% url 'ImagenCrear' periciaId %}">Agregar</a>
 <thead class="thead-dark" >
     <tr>
         <th style="width: 10px"></th>
@@ -87,16 +102,55 @@
         <td>{{imagen.extension}}</td>
         <td>{{imagen.tipoImagen.nombre}}</td>
         <td>
-            {% for obj_hash in imagen.imagenhash_set.all %}
-                <a type="button" class="btn btn-hash" style="background-color:{{obj_hash.tipoHash.color}}; border-color:{{obj_hash.tipoHash.color}};" data-toggle="tooltipHash" data-original-title="{{obj_hash.valor}}" data-trigger="click">
-                {{obj_hash.tipoHash.nombre}}
-                </a>
+            <table>
+                <tr>
 
-            {% endfor %}
+                    {% for tipoHash in tipoHashes %}
 
+                    <td class="child" id="tipoHash_{{imagen.id}}{{tipoHash.id}}">
+                        {% if  imagen.get_datos  %}
+                            <a type="button" class="btn btn-hash" style="background-color:{{obj_hash.tipoHash.color}}; border-color:{{obj_hash.tipoHash.color}};" data-toggle="tooltipHash" data-original-title="{{obj_hash.valor}}" data-trigger="click">
+                                {{obj_hash.tipoHash.nombre}}
+                            </a>
+                        {% else %}
+                            <span></span>
+                        {% endif %}
+                    </td>
+
+                    {% endfor %}
+
+
+
+                    <!--{% for obj_hash in imagen.imagenhash_set.all %}-->
+                            <!--<a type="button" class="btn btn-hash" style="background-color:{{obj_hash.tipoHash.color}}; border-color:{{obj_hash.tipoHash.color}};" data-toggle="tooltipHash" data-original-title="{{obj_hash.valor}}" data-trigger="click">-->
+                                <!--{{obj_hash.tipoHash.nombre}}-->
+                            <!--</a>-->
+                    <!--{% endfor %}-->
+                </tr>
+            </table>
         </td>
 
     </tr>
+    <div id="Eliminar{{ imagen.id }}" class="modal fade">
+        <div class="modal-dialog modal-confirm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="icon-box">
+                        <i class="material-icons">&#xE5CD;</i>
+                    </div>
+                    <h4 class="modal-title">Atención!</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Seguro que desea eliminar la imagen {{ imagen.descripcion }}?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-info" data-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-danger" onclick="window.location.href='{% url 'ImagenEliminar' imagen.id %}'">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
     {% empty %}
         <tr>
           <td colspan="5"><h1>No hay imagenes</h1></td>

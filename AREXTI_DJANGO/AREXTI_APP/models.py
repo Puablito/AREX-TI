@@ -39,7 +39,7 @@ class TipoImagen(models.Model):
     activo = models.IntegerField(default=1)
 
     def __str__(self):
-        return self.descripcion
+        return self.nombre
 
 
 class TipoHash(models.Model):
@@ -60,11 +60,13 @@ class Imagen(models.Model):
     miniatura = models.CharField(max_length=100)
     referencia = models.CharField(max_length=200)
     extension = models.CharField(max_length=10)
-    clasificada = models.BinaryField
     activo = models.IntegerField(default=1)
 
     def __str__(self):
         return self.nombre
+
+    def get_datos(self, tipoHashId):
+        return self.imagenhash_set.filter(tipoHash=tipoHashId)
 
 
 class ImagenHash(models.Model):
@@ -81,3 +83,10 @@ class ImagenDetalle(models.Model):
     hora = models.DateTimeField
     mailFrom = models.CharField(max_length=200)
     mailTo = models.CharField(max_length=200)
+
+
+class ImagenFile(object):
+    periciaId = models.IntegerField()
+    fileUrl = models.CharField(max_length=200)
+    hashList = models.CharField(max_length=5000)
+
