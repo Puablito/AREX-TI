@@ -110,16 +110,16 @@ class Log(models.Model):
     periciaId = models.IntegerField(blank=True)
     tipo = models.CharField(max_length=4, blank=True)
     descripcion = models.CharField(max_length=2048, blank=True)
-    imagentPath = models.CharField(max_length=512, blank=True)
+    imagenPath = models.CharField(max_length=512, blank=True)
     imagenNombre = models.CharField(max_length=256, blank=True)
 
 
 class Parametros(models.Model):
     id = models.CharField(max_length=30, primary_key=True)
     descripcion = models.CharField(max_length=128, blank=True)
-    valorTexto = models.CharField(max_length=512, blank=True)
-    valorNumero = models.DecimalField(max_digits=12, decimal_places=2, blank=True)
-    valorBooleano = models.BooleanField(blank=True)
+    valorTexto = models.CharField(max_length=512, blank=True, null=True)
+    valorNumero = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    valorBooleano = models.BooleanField(blank=True, null=True)
 
 
 class Metadatos(models.Model):
