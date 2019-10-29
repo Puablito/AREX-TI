@@ -72,33 +72,40 @@ if __name__ == '__main__':
     #DirBase = 'C:/Users/Mariano-Dell/PycharmProjects/Imagenes/CapturasMarianOriginal/Nueva'
     listaHash = {"md5": "", "sha1": "", "sha256": ""}
     tipoProceso = "D"
-    DirPrincipal = "PericiaPrueba"
+    DirPrincipal = "PericiaPrueba\\Directorio1"
 ###################### FIN Parametros hardcodeados ######################################
+    DirTemp = ""
+    if tipoProceso == "A":
+        RtaBD = Herramientas.parametro_get(conexionBD, 'DIRECTORIOIMAGENTEMP')
+        if RtaBD[0] == "OK":
+            DirTemp = RtaBD[1][0]["valorTexto"]
+        else:
+            print(RtaBD[1])  ####################### VER QUE HACER EN ESTE CASO ######################
 
-    # Colas de trabajo multiproceso
+    # Inicializo colas de trabajo multiproceso
     ImagenesCola = Queue()          # cola de imagenes a procesar
     ImagenesGuardar_Cola = Queue()  # cola de imagenes procesadas para guardar BD
     imagenesNoTexto = Queue()       # cola de imagenes no procesadas por no detectar texto en ellas
 
     # Lectura de las imagenes que van a ser procesadasa
-    RtaCarga = ImagenAcciones.leer_imagenes(DirBase, ListadoExtensiones, ImagenesCola, tipoProceso, DirPrincipal)
+    RtaCarga = ImagenAcciones.leer_imagenes(DirBase, DirTemp, ListadoExtensiones, ImagenesCola, tipoProceso, DirPrincipal)
     if RtaCarga[0] == "ERROR":
         print("DIO ERRROR, HAY QUE CORTAR LA EJECUCION Y GUARDAR LOG: {0}".format(RtaCarga[1]))
 
-    '''
-         Inicio del procesamiento en paralelo
-    
-         1- Se crea un pool de procesos activos "procesos_ejecucion"
-         2- Se crean los procesos, se inician y se agrega a "procesos_ejecucion"
-         3- Mientras "procesos_ejecucion" tenga procesos activos:
-            A- Para cada proceso revisamos si el proceso sigue vivo
-            B- Si ha muerto algun proceso lo recuperamos, le quitamos los recursos y lo sacamos de "procesos_ejecucion"
+    """
+    Inicio del procesamiento en paralelo
+
+    1- Se crea un pool de procesos activos "procesos_ejecucion"
+    2- Se crean los procesos, se inician y se agrega a "procesos_ejecucion"
+    3- Mientras "procesos_ejecucion" tenga procesos activos:
+        A- Para cada proceso revisamos si el proceso sigue vivo
+        B- Si ha muerto algun proceso lo recuperamos, le quitamos los recursos y lo sacamos de "procesos_ejecucion"
 
 # CAMBIAR EL PUNTO c YA QUE CAMBIO LA LOGICA       
         C- Mientras la piscina de procesos no esté llena y el listado de imagenes no esté vacio, 
            se realiza lo indicado en el paso 2
      4- El proceso finaliza cuando "procesos_ejecucion" se encuentre vacio
-    '''
+    """
     ImagenesCola_cantidad = ImagenesCola.qsize()
     print(str(ImagenesCola_cantidad) + " Imagenes a procesar")
     TiempoInicial = datetime.datetime.now()
@@ -116,7 +123,7 @@ if __name__ == '__main__':
     while len(procesos_ejecucion) < procesos_paralelos:
         p = Process(name="Proceso {0}".format(indiceProceso),
                     target=ImagenAcciones.procesar_imagen,
-                    args=(indiceProceso, ImagenesCola, ImagenesGuardar_Cola, imagenesNoTexto, listaHash,tesseract_cmd,)
+                    args=(indiceProceso, ImagenesCola, ImagenesGuardar_Cola, imagenesNoTexto, listaHash, tesseract_cmd,)
                     )
         p.start()
         procesos_ejecucion.append(p)
