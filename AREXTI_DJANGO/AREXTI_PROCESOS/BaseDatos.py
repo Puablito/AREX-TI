@@ -19,8 +19,8 @@ class Conexion:
             self.conectado = True
             return True
 
-        except (Exception, psycopg2.Error) as e:
-            self.error = "Error: %s" % e
+        except psycopg2.Error:
+            self.error = "Error al intentar conectarse a la Base de Datos "
         except:
             self.error = "Error desconocido"
         return False

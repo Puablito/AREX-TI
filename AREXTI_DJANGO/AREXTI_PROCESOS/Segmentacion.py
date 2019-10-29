@@ -9,6 +9,11 @@ import tempfile
 import re
 
 
+"""
+    
+"""
+
+
 class Segmentador:
 
     def __init__(self, tesseract_cmd):

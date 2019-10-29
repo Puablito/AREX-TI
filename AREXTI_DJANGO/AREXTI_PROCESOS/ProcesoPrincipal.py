@@ -4,7 +4,7 @@ import datetime
 import time
 import argparse
 import json
-import ProcesadorImagen
+import ImagenAcciones
 import Herramientas
 import BaseDatos
 from multiprocessing import Process, Queue
@@ -35,20 +35,24 @@ if __name__ == '__main__':
     pericia = args.pericia
     procesotipo = args.tipo
     listaHash = json.loads(args.hash)
-    rootDir = args.dir
+    DirBase = args.dir
     '''
-    # Realizo una conexion a la BD
+
+    # Realizo la conexión a la BD
     conexionBD = BaseDatos.Conexion()
-    # conexionBD.conectar("postgres", "arexti", "127.0.0.1", "5432", "arexti")
-    conexionBD.conectar("postgres", "1234", "127.0.0.1", "5432", "AREX-TI")
-    # Recupero parametros
-    '''
-        RtaBD[0] indica si la consulta se realizó OK o con "ERROR"
-        RtaBD[1] si RtaBD[0] = "OK" contiene la respuesta de la consulta, caso contrario contiene el error obtenido
-    '''
+    conexionOK = conexionBD.conectar("postgres", "arexti", "127.0.0.1", "5432", "arexti")
+    #conexionOK = conexionBD.conectar("postgres", "1234", "127.0.0.1", "5432", "AREX-TI")
+    if not conexionOK:
+        print(conexionBD.error)
+
+    # Recupero parametros necesarios para ejecurar el proceso
+    """
+    RtaBD[0] indica si la consulta se realizó OK o con "ERROR"
+    RtaBD[1] si RtaBD[0] = "OK" contiene la respuesta de la consulta, caso contrario contiene el error obtenido
+    """
     RtaBD = Herramientas.parametro_get(conexionBD, 'DIRECTORIOIMAGEN')
     if RtaBD[0] == "OK":
-        rootDir = RtaBD[1][0]["valorTexto"]
+        DirBase = RtaBD[1][0]["valorTexto"]
     else:
         print(RtaBD[1])  ####################### VER QUE HACER EN ESTE CASO ######################
 
@@ -65,38 +69,21 @@ if __name__ == '__main__':
         print(RtaBD[1])  ####################### VER QUE HACER EN ESTE CASO ######################
 
 ###################### Parametros hardcodeados ######################################
-    rootDir = 'C:/Users/Mariano-Dell/PycharmProjects/Imagenes/CapturasMarianOriginal/Nueva'
+    #DirBase = 'C:/Users/Mariano-Dell/PycharmProjects/Imagenes/CapturasMarianOriginal/Nueva'
     listaHash = {"md5": "", "sha1": "", "sha256": ""}
-
-    # Insertar tabla de procesos, analizar paquete logging
-
-    # Listado de extensiones que se van a procesar
-    ListadoExtensiones = ["JPG", "JPEG", "PNG", "GIF", "TIFF"]
+    tipoProceso = "D"
+    DirPrincipal = "PericiaPrueba"
 ###################### FIN Parametros hardcodeados ######################################
 
     # Colas de trabajo multiproceso
-    ImagenesCola = Queue()  # cola de imagenes a procesar
+    ImagenesCola = Queue()          # cola de imagenes a procesar
     ImagenesGuardar_Cola = Queue()  # cola de imagenes procesadas para guardar BD
-    imagenesNoTexto = Queue()  # cola de imagenes no procesadas por no detectar texto en ellas
+    imagenesNoTexto = Queue()       # cola de imagenes no procesadas por no detectar texto en ellas
 
-    '''
-         Se recorre el directorio que viene por parametro con sus subdirectorios en busqueda de archivos de imagenes, el
-         listado de tipo de imagenes soportados está guardado en una varialbe "ListadoExtensiones".
-         Se analizan todos los archivos y los que son de tipo imagen se guardan en una cola "ImagenesCola"
-    
-         Formato de cada elemento de la cola "ImagenesCola"
-            elemento 0 = Ruta absoluta del archivo, Ej: F:/Proyects/Imagenes
-            elemento 1 = Nombre del archivo, Ej: Twitter.jpg
-            elemento 2 = Extensión del archivo, Ej: jpeg
-    '''
-    for dirName, subdirList, fileList in os.walk(rootDir):
-        for fname in fileList:
-            archivo = dirName + os.sep + fname
-            # Identifico si "archivo" es imagen por el contenido y NO por la extensión
-            if imghdr.what(archivo) is not None:
-                ext = imghdr.what(archivo)
-                if ext.upper() in ListadoExtensiones:
-                    ImagenesCola.put([dirName, fname, ext])
+    # Lectura de las imagenes que van a ser procesadasa
+    RtaCarga = ImagenAcciones.leer_imagenes(DirBase, ListadoExtensiones, ImagenesCola, tipoProceso, DirPrincipal)
+    if RtaCarga[0] == "ERROR":
+        print("DIO ERRROR, HAY QUE CORTAR LA EJECUCION Y GUARDAR LOG: {0}".format(RtaCarga[1]))
 
     '''
          Inicio del procesamiento en paralelo
@@ -118,7 +105,7 @@ if __name__ == '__main__':
 
     # cantidad de procesos maximos a utilizar
     if os.cpu_count() < ImagenesCola_cantidad:
-        procesos_paralelos = 4  #  os.cpu_count()
+        procesos_paralelos = 4  ################################################# os.cpu_count()
     else:
         procesos_paralelos = ImagenesCola_cantidad
 
@@ -128,7 +115,7 @@ if __name__ == '__main__':
     # Creación de los procesos que procesaran las imagenes leidas
     while len(procesos_ejecucion) < procesos_paralelos:
         p = Process(name="Proceso {0}".format(indiceProceso),
-                    target=ProcesadorImagen.procesar_imagen,
+                    target=ImagenAcciones.procesar_imagen,
                     args=(indiceProceso, ImagenesCola, ImagenesGuardar_Cola, imagenesNoTexto, listaHash,tesseract_cmd,)
                     )
         p.start()
