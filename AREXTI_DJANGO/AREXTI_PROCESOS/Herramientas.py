@@ -37,14 +37,21 @@ def imagenInsertar(conexion, periciaid,  imagen):
     imagenId = conexion.lastId()
     # insert de las otras tablas
     hashes = imagen.get_hashes()
-    hashesInsertar(hashes, imagenId, conexion)
+    resultadoHash = hashesInsertar(hashes, imagenId, conexion)
+
     metadatos = imagen.get_metadatos()
-    metadatosInsertar(metadatos, imagenId, conexion)
+    resultadoMetadato = metadatosInsertar(metadatos, imagenId, conexion)
+
     detalles = imagen.get_detalles()
-    detallesInsertar(detalles, imagenId, conexion)
+    resultadoDetalle = detallesInsertar(detalles, imagenId, conexion)
+
+    resultado = resultado and resultadoHash and resultadoMetadato and resultadoDetalle
+
+    conexion.conexionCommitRoll(resultado)
     if resultado:
         return ["OK", resultado]
     else:
+        # GUARDAR EN LOG????
         return ["ERROR", conexion.error]
 
 
@@ -58,10 +65,10 @@ def hashesInsertar(hashes, imagenId, conexion):
             valorHash = hashes[hash]
             data = (valorHash, imagenId, tipoHash)
             resultado = conexion.consulta(query, data, False)
-            # if resultado:
-            #     return ["OK", resultado]
-            # else:
-            #     return ["ERROR", conexion.error]
+            if not resultado:
+                return resultado
+        return resultado
+    return True
 
 
 def metadatosInsertar(metadatos, imagenId, conexion):
@@ -74,10 +81,10 @@ def metadatosInsertar(metadatos, imagenId, conexion):
             valorMetadato = metadatos[metadato]
             data = (idMetadato, valorMetadato, imagenId)
             resultado = conexion.consulta(query, data, False)
-            # if resultado:
-            #     return ["OK", resultado]
-            # else:
-            #     return ["ERROR", conexion.error]
+            if not resultado:
+                return resultado
+        return resultado
+    return True
 
 
 def detallesInsertar(detalles, imagenId, conexion):
@@ -90,10 +97,10 @@ def detallesInsertar(detalles, imagenId, conexion):
             tipoDetalle = detalle.get_tipoDetalle()
             data = (texto, imagenId, tipoDetalle)
             resultado = conexion.consulta(query, data, False)
-            # if resultado:
-            #     return ["OK", resultado]
-            # else:
-            #     return ["ERROR", conexion.error]
+            if not resultado:
+                return resultado
+        return resultado
+    return True
 
 
 def miniaturaCrea(imagen, ext):

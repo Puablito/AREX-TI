@@ -118,7 +118,7 @@ if __name__ == '__main__':
 
     # cantidad de procesos maximos a utilizar
     if os.cpu_count() < ImagenesCola_cantidad:
-        procesos_paralelos = 4  # os.cpu_count()
+        procesos_paralelos = 4  #  os.cpu_count()
     else:
         procesos_paralelos = ImagenesCola_cantidad
 

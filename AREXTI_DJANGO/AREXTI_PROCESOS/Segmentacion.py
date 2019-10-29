@@ -162,6 +162,11 @@ class Segmentador:
     def extraerTextoImagen(self, img):
         extractor = ExtraccionTexto(self.tesseract_cmd)  # pasar paths por parametro en inicializacion?
         texto = extractor.extraerTexto(img)
+        texto = texto.strip()
+        texto = texto.replace('"', "")
+        texto = texto.replace("'", "")
+        texto = texto.replace("\n\n", "\n")
+        texto = texto.replace("\n", "//")
         return texto
 
     def extraerCabecera(self, canny):

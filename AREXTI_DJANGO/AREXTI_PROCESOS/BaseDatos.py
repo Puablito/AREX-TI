@@ -42,7 +42,7 @@ class Conexion:
             self.error = ""
             try:
                 self.cursor.execute(query, params)
-                self.miconexion.commit()
+                # self.miconexion.commit()
                 if execute:
                     # convierte el resultado en un diccionario
                     result = []
@@ -54,6 +54,12 @@ class Conexion:
             except (Exception, psycopg2.Error) as e:
                 self.error = "Error: %s" % e
         return False
+
+    def conexionCommitRoll(self, resultado):
+        if resultado:
+            self.miconexion.commit()
+        else:
+            self.miconexion.rollback()
 
     def lastId(self):
         """

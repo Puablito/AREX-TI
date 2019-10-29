@@ -102,7 +102,7 @@ class TipoDetalle(models.Model):
 class ImagenDetalle(models.Model):
     imagen = models.ForeignKey(Imagen, on_delete=models.CASCADE)
     tipoDetalle = models.ForeignKey(TipoDetalle, on_delete=models.CASCADE)
-    texto = models.CharField(max_length=100000)
+    texto = models.TextField(max_length=100000)
 
 
 
