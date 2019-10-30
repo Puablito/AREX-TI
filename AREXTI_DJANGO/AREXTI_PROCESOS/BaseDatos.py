@@ -1,4 +1,5 @@
 import psycopg2
+import json
 
 
 class Conexion:
@@ -8,7 +9,29 @@ class Conexion:
         self.conectado = False
         self.error = ""
 
-    def conectar(self, usuario, clave, host, puerto, bd):
+    def conectar(self):
+        try:
+            f = open("BDConect.txt", "r")
+            contenido = f.read()
+            f.close()
+            DBdata = json.loads(contenido)
+
+            host = DBdata['host']
+            puerto = DBdata['puerto']
+            bd = DBdata['BaseDeDatos']
+            usuario = DBdata['usuario']
+            clave = DBdata['clave']
+
+        except FileNotFoundError:
+            self.error = "Error al abrir la configuración de la BD"
+            return False
+        except:
+            try:
+                f.close()
+                return False
+            except:
+                return False
+
         try:
             self.miconexion = psycopg2.connect(user=usuario,
                                                password=clave,
