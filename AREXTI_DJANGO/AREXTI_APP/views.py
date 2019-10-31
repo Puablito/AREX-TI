@@ -56,20 +56,17 @@ class ProyectoListar(FilteredListView):
         if paginacion:
             return paginacion
         else:
-            return 3
+            return 5
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # context['numero_paginacion'] = self.kwargs.get('paginate_by')
         paginacion = self.request.GET.get('paginate_by')
         if paginacion == None:
-            paginacion = 3
+            paginacion = 5
         context['numero_paginacion'] = int(paginacion)
         # self.paginate_by = paginacion
         return context
-
-
-
     template_name = 'AREXTI_APP/ProyectoListar.html'
 
 
@@ -126,12 +123,17 @@ class PericiaListar(FilteredListView):
         if paginacion:
             return paginacion
         else:
-            return 10
+            return 5
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['proyectoId'] = self.kwargs.get("id")
+        paginacion = self.request.GET.get('paginate_by')
+        if paginacion == None:
+            paginacion = 5
+        context['numero_paginacion'] = int(paginacion)
         return context
+
     template_name = 'AREXTI_APP/PericiaListar.html'
 
 
