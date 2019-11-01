@@ -32,22 +32,20 @@ def imagenInsertar(conexion, periciaid,  imagen):
 
     data = (nombre, miniatura, thumbnail_binary, path, extension, 1, periciaid, tipoImagen)
 
-    resultado = conexion.consulta(query, data, False)
+    conexion.consulta(query, data, False)
 
     imagenId = conexion.lastId()
     # insert de las otras tablas
     hashes = imagen.get_hashes()
-    resultadoHash = hashesInsertar(hashes, imagenId, conexion)
+    hashesInsertar(hashes, imagenId, conexion)
 
     metadatos = imagen.get_metadatos()
-    resultadoMetadato = metadatosInsertar(metadatos, imagenId, conexion)
+    metadatosInsertar(metadatos, imagenId, conexion)
 
     detalles = imagen.get_detalles()
-    resultadoDetalle = detallesInsertar(detalles, imagenId, conexion)
+    detallesInsertar(detalles, imagenId, conexion)
 
-    resultado = resultado and resultadoHash and resultadoMetadato and resultadoDetalle
-
-    conexion.conexionCommitRoll(resultado)
+    resultado = conexion.conexionCommitRoll()
     if resultado:
         return ["OK", resultado]
     else:
@@ -64,11 +62,9 @@ def hashesInsertar(hashes, imagenId, conexion):
             tipoHash = hash
             valorHash = hashes[hash]
             data = (valorHash, imagenId, tipoHash)
-            resultado = conexion.consulta(query, data, False)
-            if not resultado:
-                return resultado
-        return resultado
-    return True
+            conexion.consulta(query, data, False)
+
+
 
 
 def metadatosInsertar(metadatos, imagenId, conexion):
@@ -80,11 +76,8 @@ def metadatosInsertar(metadatos, imagenId, conexion):
             idMetadato = metadato
             valorMetadato = metadatos[metadato]
             data = (idMetadato, valorMetadato, imagenId)
-            resultado = conexion.consulta(query, data, False)
-            if not resultado:
-                return resultado
-        return resultado
-    return True
+            conexion.consulta(query, data, False)
+
 
 
 def detallesInsertar(detalles, imagenId, conexion):
@@ -96,11 +89,8 @@ def detallesInsertar(detalles, imagenId, conexion):
             texto = detalle.get_texto()
             tipoDetalle = detalle.get_tipoDetalle()
             data = (texto, imagenId, tipoDetalle)
-            resultado = conexion.consulta(query, data, False)
-            if not resultado:
-                return resultado
-        return resultado
-    return True
+            conexion.consulta(query, data, False)
+
 
 
 def miniaturaCrea(imagen, ext):

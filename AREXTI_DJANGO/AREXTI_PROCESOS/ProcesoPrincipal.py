@@ -72,10 +72,10 @@ if __name__ == '__main__':
             print("Error en parametro: TESSERACTPATH ("+RtaBD[1]+")")  ####### VER QUE HACER EN ESTE CASO ##########
 
     ###################### Parametros hardcodeados ######################################
-        #DirBase = 'C:/Users/Mariano-Dell/PycharmProjects/Imagenes/CapturasMarianOriginal/Nueva'
+        # DirBase = 'C:/Users/Mariano-Dell/PycharmProjects/Imagenes/CapturasMarianOriginal/Nueva'
         listaHash = {"md5": "", "sha1": "", "sha256": ""}
         tipoProceso = "D"
-        DirPrincipal = "PericiaPrueba\\Directorio1"
+        DirPrincipal = "Nueva"
     ###################### FIN Parametros hardcodeados ######################################
         DirTemp = ""
         if tipoProceso == "A":
@@ -172,21 +172,11 @@ if __name__ == '__main__':
                 RtaBD = Herramientas.imagenInsertar(conexionBD, 1, img_guardar)
                 if RtaBD[0] == "ERROR":
                     print(RtaBD[1])
-    #
-                print("Imagen: {0} - {1}".format(img_guardar.get_nombre(), img_guardar.get_imagentipo()))
-    #             print("////////////////////////////////////////////////////////////////////////")
-    #             print(img_guardar.get_path())
-    #             print("----------------------------------------")
-    #             for detalle in img_guardar.get_detalles():
-    #                 print("_____________________________________________________________________")
-    #                 print("Tipo globo: " + detalle.get_tipoGlobo())
-    #                 print(detalle.get_texto())
-    #                 print("_____________________________________________________________________")
-    #             print("////////////////////////////////////////////////////////////////////////")
 
+                print("Imagen: {0} - {1}".format(img_guardar.get_nombre(), img_guardar.get_imagentipo()))
             # Para no saturar el cpu, dormimos el ciclo durante 1 segundo
             time.sleep(1)
-
+        conexionBD.desconectar()
         print("WHILE: todos los procesos han terminado")
 
         TiempoFinal = datetime.datetime.now()

@@ -78,11 +78,15 @@ class Conexion:
                 self.error = "Error: %s" % e
         return False
 
-    def conexionCommitRoll(self, resultado):
-        if resultado:
+    def conexionCommitRoll(self):
+        try:
             self.miconexion.commit()
-        else:
+            return True
+        except(Exception, psycopg2.Error) as e:
             self.miconexion.rollback()
+            self.error = "Error: %s" % e
+            # self.desconectar()   LA VAMOS A DESCONECTAR DESDE EL PROCESO PRINCIPAL
+            return False
 
     def lastId(self):
         """
