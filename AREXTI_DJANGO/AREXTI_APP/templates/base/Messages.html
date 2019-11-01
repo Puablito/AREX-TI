@@ -1,0 +1,39 @@
+{% if messages %}
+    {% regroup messages by level_tag as messageLevels %}
+    {% for messageLevel in messageLevels %}
+
+        <div class="alert {{ messageLevel.grouper}} alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+
+            <div class="alert-title" style="font-size:20px;">
+            {% if 'success' in messageLevel.grouper %}
+              <i class="fa fa-check"></i>&nbsp;
+            {% elif 'warning' in messageLevel.grouper %}
+              <i class='fa fa-warning'></i>&nbsp;
+            {% elif 'info' in messageLevel.grouper %}
+              <i class='fa fa-info'></i>&nbsp;
+            {% elif 'danger' in messageLevel.grouper %}
+              <i class='fa fa-times'></i>&nbsp;
+            {% endif %}
+
+            {% for message in messageLevel.list %}
+                {% if forloop.first %}
+
+                    {% if 'title' in message.extra_tags %}
+                        {{message|linebreaksbr}}
+                    {% endif %}
+
+                    </div>
+                {% else%}
+                    {{message|linebreaksbr}}
+                {% endif %}
+
+            {% endfor %}
+        </div>
+
+    {% endfor %}
+
+{% endif %}
+

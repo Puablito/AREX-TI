@@ -19,7 +19,7 @@
   <!-- Custom styles for this template -->
 
 {% block error %}
-
+    {% include 'base/Messages.html' %}
 {% endblock %}
 
 {% block principal %}
@@ -31,13 +31,21 @@
     <section class="content-header">
         <!--<div class="jumbotron" style="margin-bottom:0">-->
             <h1>
+                {% block icon %}
+                {% endblock %}
+
                 {% if not object %}
                 Crear
                 {% endif %}
                 {% block titulo %}
                 {% endblock %}
                 {% if object %}
-                 - {{ object.descripcion }}
+                 -
+                    {% if object.descripcion%}
+                        {{object.descripcion}}
+                    {% else %}
+                        {{ object.nombre }}
+                    {% endif %}
                 {% endif %}
             </h1>
             <h6>

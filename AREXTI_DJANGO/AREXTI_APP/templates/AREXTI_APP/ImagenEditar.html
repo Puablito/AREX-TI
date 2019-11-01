@@ -1,5 +1,9 @@
 {% extends 'base/AbmBase.html' %}
 
+{% block icon %}
+<i class="fa fa-image"></i>
+{% endblock %}
+
 {% block titulo %}
    Imagen
 {% endblock %}
@@ -86,7 +90,7 @@
                   </tr>
                   {% for obj_hash in imagen.imagenhash_set.all %}
                     <tr>
-                      <td>{{obj_hash.tipoHash.nombre}}</td>
+                      <td>{{obj_hash.tipoHash.id}}</td>
                       <td>{{obj_hash.valor}}</td>
                     </tr>
                   {% endfor %}

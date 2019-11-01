@@ -52,7 +52,7 @@ class TipoImagen(models.Model):
     activo = models.IntegerField(default=1)
 
     def __str__(self):
-        return self.nombre
+        return self.id
 
 
 class TipoHash(models.Model):
@@ -61,7 +61,7 @@ class TipoHash(models.Model):
     color = models.CharField(max_length=10)
 
     def __str__(self):
-        return self.nombre
+        return self.id
 
 
 class Imagen(models.Model):

@@ -48,7 +48,7 @@ tbody>tr>td>span {
 .alert {
   position: relative;
   z-index: 999999;
-  width: 400px;
+  width: 60%;
   left: 0;
   right: 0;
   margin-left: auto;
@@ -1291,4 +1291,14 @@ form .form-group {
     padding: 10px 15px;
     font-size: 14px;
     margin-bottom: 2.5rem;
+}
+
+label.required::after {
+    content: ' *';
+    color: red;
+}
+
+.alert-title{
+   text-align:center;
+   font-weight: bolder;
 }

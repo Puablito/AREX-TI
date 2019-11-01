@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 import logging
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
+from django.contrib import messages
+from enum import Enum
 
 from django.template import loader
 
@@ -19,6 +21,13 @@ import json as simplejson
 from django.template import Context, loader
 from django.template.context_processors import csrf
 import subprocess
+
+
+#enumerables
+class messageTitle(Enum):
+    Alta = "Alta exitosa"
+    Modificacion = "Modificación exitosa"
+
 
 
 class FilteredListView(ListView):
@@ -46,10 +55,10 @@ class FilteredListView(ListView):
 class Home(TemplateView):
     template_name = 'home/index.html'
 
+
 class ProyectoListar(FilteredListView):
     filterset_class = ProyectoFilter
     queryset = Proyecto.objects.filter(activo=1).order_by('-id')
-
 
     def get_paginate_by(self, queryset):
         paginacion = self.request.GET.get('paginate_by', self.paginate_by)
@@ -68,8 +77,6 @@ class ProyectoListar(FilteredListView):
         # self.paginate_by = paginacion
         return context
 
-
-
     template_name = 'AREXTI_APP/ProyectoListar.html'
 
 
@@ -79,12 +86,30 @@ class ProyectoCrear(CreateView):
     template_name = 'AREXTI_APP/ProyectoCrear.html'
     success_url = reverse_lazy('ProyectoListar')
 
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, messageTitle.Alta.value, extra_tags='title')
+        return redirect(self.success_url)
+
+    def form_invalid(self, form):
+        ctx = {'form': form}
+        return render(self.request, self.template_name, ctx)
+
 
 class ProyectoEditar(UpdateView):
     model = Proyecto
     form_class = ProyectoForm
     template_name = 'AREXTI_APP/ProyectoCrear.html'
     success_url = reverse_lazy('ProyectoListar')
+
+    def form_valid(self, form,):
+        form.save()
+        messages.success(self.request, messageTitle.Modificacion.value, extra_tags='title')
+        return redirect(self.success_url)
+
+    def form_invalid(self, form):
+        ctx = {'form': form}
+        return render(self.request, self.template_name, ctx)
 
 
 def ProyectoEliminar(request, Proyectoid):
@@ -109,7 +134,7 @@ class PericiaListar(FilteredListView):
     filterset_class = PericiaFilter
 
     def get_queryset(self):
-        proid = self.kwargs.get("id")
+        proid = self.kwargs.get("Proyectoid")
         if proid is None:
             proid = 0
         # queryset = super().get_queryset()
@@ -134,14 +159,38 @@ class PericiaCrear(CreateView):
     model = Pericia
     form_class = PericiaForm
     template_name = 'AREXTI_APP/PericiaCrear.html'
-    success_url = reverse_lazy('PericiaListar', kwargs={'id': 0})
+    pericia = None
+
+    def form_valid(self, form):
+        self.pericia = form.save()
+        messages.success(self.request, messageTitle.Alta.value, extra_tags='title')
+        return redirect(self.get_success_url())
+
+    def form_invalid(self, form):
+        ctx = {'form': form}
+        return render(self.request, self.template_name, ctx)
+
+    def get_success_url(self):
+        return reverse_lazy('PericiaListar', kwargs={'Proyectoid': self.pericia.proyecto.id})
 
 
 class PericiaEditar(UpdateView):
     model = Pericia
     form_class = PericiaForm
     template_name = 'AREXTI_APP/PericiaCrear.html'
-    success_url = reverse_lazy('PericiaListar', kwargs={'id': 0})
+
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, messageTitle.Modificacion.value, extra_tags='title')
+        return redirect(self.get_success_url())
+
+    def form_invalid(self, form):
+        messages.warning(self.request, 'Por favor corrija los errores')
+        ctx = {'form': form}
+        return render(self.request, self.template_name, ctx)
+
+    def get_success_url(self):
+        return reverse_lazy('PericiaListar', kwargs={'Proyectoid': self.object.proyecto.id})
 
 
 def PericiaEliminar(request, Periciaid):
@@ -156,7 +205,7 @@ def PericiaEliminar(request, Periciaid):
         per.activo = 0
         per.save()
         pro = per.proyecto.id
-    return redirect('PericiaListar', id=pro)
+    return redirect('PericiaListar', Proyectoid=pro)
 
 
 class ImagenListar(FilteredListView):

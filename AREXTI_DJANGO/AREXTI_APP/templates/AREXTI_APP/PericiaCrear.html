@@ -5,20 +5,15 @@
 
     </script>
 {% endblock %}
-{% block error %}
-    <section class="alert-container">
-        <div class="alert alert-error"><a class="close" data-dismiss="alert" href="#">&times;</a>
-                        <h4><i class="icon fa fa-ban"></i> Error!</h4>
-        </div>
-        <div class="alert alert-success"><a class="close" data-dismiss="alert" href="#">&times;</a>
-                        <h4><i class="icon fa fa-ban"></i> Succes!</h4>
-        </div>
-    </section>
+
+{% block icon %}
+<i class="fa fa-search"></i>
 {% endblock %}
 
 {% block titulo %}
    Pericia
 {% endblock %}
+
 {% block linkVolver %}
   <a type="" href="{% url 'PericiaListar' 0 %}" style="color:black"> &laquo; Volver a Pericias</a>
 {% endblock %}

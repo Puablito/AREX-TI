@@ -13,16 +13,21 @@
 
 
 {% block error %}
+    {% include 'base/Messages.html' %}
 {% endblock %}
 
 {% block principal %}
 <!--<Main Content>-->
-<div class="content-header">
-{% block titulo %}
-{% endblock %}
-</div>
+<section class="content-header">
+    <h1>
+        {% block icon %}
+        {% endblock %}
+        {% block titulo %}
+        {% endblock %}
+    </h1>
+</section>
 
-<div class="content">
+<section class="content">
     <!--<div class="col-md-12">-->
         <!-- Filtros -->
         <div class="row">
@@ -99,6 +104,6 @@
             </div>
         </div>
     <!--</div>-->
-</div>
+</section>
 <!--</Main Content>-->
 {% endblock %}

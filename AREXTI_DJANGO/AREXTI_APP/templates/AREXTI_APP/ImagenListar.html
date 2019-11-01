@@ -24,8 +24,12 @@
 </script>
 {% endblock %}
 
+{% block icon %}
+<i class="fa fa-image"></i>
+{% endblock %}
+
 {% block titulo %}
-<h1> Imagenes </h1>
+ Imagenes
 {% endblock %}
 
 {% block filtros %}
@@ -94,7 +98,7 @@
             </div>
         </td>
         <td>{{imagen.extension}}</td>
-        <td>{{imagen.tipoImagen.nombre}}</td>
+        <td>{{imagen.tipoImagen.id}}</td>
         <td>
             <table>
                 <tr>
@@ -104,7 +108,7 @@
                     <td class="child" id="tipoHash_{{imagen.id}}{{tipoHash.id}}">
                         {% if  imagen.get_datos  %}
                             <a type="button" class="btn btn-hash" style="background-color:{{obj_hash.tipoHash.color}}; border-color:{{obj_hash.tipoHash.color}};" data-toggle="tooltipHash" data-original-title="{{obj_hash.valor}}" data-trigger="click">
-                                {{obj_hash.tipoHash.nombre}}
+                                {{obj_hash.tipoHash.id}}
                             </a>
                         {% else %}
                             <span></span>

@@ -1,5 +1,9 @@
 {% extends 'base/AbmBase.html' %}
 
+{% block icon %}
+<i class="fa fa-image"></i>
+{% endblock %}
+
 {% block titulo %}
    Imagen
 {% endblock %}
@@ -36,7 +40,7 @@
             {% for obj_tipoHash in tipoHashes%}
             <div class="col-md-3" style="display:inline">
                 <label class="form-check-label">
-                    <input name="inputHash" type="checkbox" class="form-check-input" value="{{obj_tipoHash.id}}"> {{obj_tipoHash.nombre}}
+                    <input name="inputHash" type="checkbox" class="form-check-input" value="{{obj_tipoHash.id}}"> {{obj_tipoHash.id}}
                 </label>
             </div>
           {% endfor %}
@@ -70,7 +74,7 @@
             {% for obj_tipoHash in tipoHashes%}
             <div class="col-md-3" style="display:inline">
                 <label class="form-check-label">
-                    <input type="checkbox" class="form-check-input"> {{obj_tipoHash.nombre}}
+                    <input type="checkbox" class="form-check-input"> {{obj_tipoHash.id}}
                 </label>
             </div>
           {% endfor %}

@@ -7,6 +7,8 @@ class DateInput(forms.DateInput):
 
 
 class ProyectoForm(forms.ModelForm):
+    error_css_class = 'error'
+    required_css_class = 'required'
 
     class Meta:
         model = Proyecto
@@ -40,6 +42,9 @@ class ProyectoForm(forms.ModelForm):
 
 
 class PericiaForm(forms.ModelForm):
+    error_css_class = 'error'
+    required_css_class = 'required'
+
     class Meta:
         model = Pericia
 
@@ -69,6 +74,8 @@ class PericiaForm(forms.ModelForm):
 
 
 class ImagenForm(forms.ModelForm):
+    error_css_class = 'error'
+    required_css_class = 'required'
 
     class Meta:
         model = Imagen
@@ -87,6 +94,8 @@ class ImagenForm(forms.ModelForm):
 
 
 class ImagenEditForm(forms.ModelForm):
+    error_css_class = 'error'
+    required_css_class = 'required'
 
     class Meta:
         model = Imagen
