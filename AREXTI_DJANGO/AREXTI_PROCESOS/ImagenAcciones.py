@@ -7,6 +7,82 @@ import logging
 import sys
 import os
 import Herramientas
+import shutil
+import imghdr
+import datetime
+
+
+def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tipoProceso, DirPrincipal):
+    """
+    Recorre "DirPrincipal" con sus subdirectorios en busqueda de archivos de imagenes, el listado de tipo de imagenes
+    soportados está guardado en una varialbe "ListadoExtensiones".
+    Se analizan todos los archivos y los que son de tipo imagen se guardan en una cola "ImagenesCola"
+
+    Formato de cada elemento de la cola "ImagenesCola"
+       elemento 0 = Ruta absoluta del archivo, Ej: F:/Proyects/Imagenes
+       elemento 1 = Nombre del archivo, Ej: Twitter.jpg
+       elemento 2 = Extensión del archivo, Ej: jpeg
+
+    DirBaseDestino = Dato parametrizado
+    DirTemp = Directorio temporal donde se suben los archivos a procesar
+    tipoProceso = A-> indica que es un upload de archivos, los cuales seran movidos dentro de la carpeta "DirPrincipal"
+                  D-> indica que se carga un directorio completo en el servidor
+    """
+    resultadoOK = True
+    msgError = ""
+    if tipoProceso == "A":
+        # Leo todas las imagenes del directorio temporal y las guardo en "ImagenesDirTemp"
+        ImagenesDirTemp = []
+        for dirName, subdirList, fileList in os.walk(DirTemp):
+            for fname in fileList:
+                archivo = dirName + os.path.sep + fname
+                # Identifico si "archivo" es imagen por el contenido y NO por la extensión
+                if imghdr.what(archivo) is not None:
+                    ext = imghdr.what(archivo)
+                    if ext.upper() in ListadoExtensiones:
+                        # listado de todas las imagenes del directorio temporal
+                        ImagenesDirTemp.append([dirName, fname, ext])
+
+        # si encontré alguna imagen
+        if len(ImagenesDirTemp) > 0:
+            # armo el directorio destino y lo creo
+            now = datetime.datetime.now()
+            dia = now.strftime("%Y")+now.strftime("%m")+now.strftime("%d")
+            hora= now.strftime("%H")+now.strftime("%M")+now.strftime("%S")
+            DirDestino = "Upload-"+dia+"-"+hora
+            pathDestino = DirBaseDestino + os.path.sep + DirPrincipal + os.path.sep + DirDestino
+
+            try:
+                os.makedirs(pathDestino)
+            except FileExistsError:
+                print("Ya existen las carpetas")
+
+            # muevo las imagenes del directorio temporal al directorio de destino
+
+            while len(ImagenesDirTemp) > 0:
+                imgTemp = ImagenesDirTemp.pop(0)
+                shutil.move(imgTemp[0] + os.path.sep + imgTemp[1], pathDestino + os.path.sep + imgTemp[1])
+                ImagenesCola.put([pathDestino, imgTemp[1], imgTemp[2]])
+        else:
+            resultadoOK = False
+            msgError = "La carpeta no posee imagenes"
+
+    elif tipoProceso == "D":
+        pathDestino = DirBaseDestino + os.path.sep + DirPrincipal
+        for dirName, subdirList, fileList in os.walk(pathDestino):
+            for fname in fileList:
+                archivo = dirName + os.path.sep + fname
+                # Identifico si "archivo" es imagen por el contenido y NO por la extensión
+                if imghdr.what(archivo) is not None:
+                    ext = imghdr.what(archivo)
+                    if ext.upper() in ListadoExtensiones:
+                        ImagenesCola.put([dirName, fname, ext])
+
+    if resultadoOK:
+        return ["OK"]
+    else:
+        return ["ERROR", msgError]
+
 
 # Funcion que procesa la imagen recibida por paramentro
 def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto, listado_hashes, tesseract_cmd):
@@ -114,10 +190,6 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
                 else:
                     imagen_procesada.set_imagentipo("OTRO")  # Segmenta la imagen y extraer texto DE OTROS
                     imagen_procesada.set_detalles(segmentador.segmentarOtro())
-
-
-            # LA CLASE IMAGEN PROCESADA INICIA EL PROCESO DE SEGMENTACION SEGUN EL TIPO DE IMAGEN SETEADO ARRIBA
-            # imagen_segmentada = segmentador.procesarImagen(imagen_procesada)
 
             # Guarda en Cola para guardar en BD
             imagenes_guardar.put(imagen_procesada)

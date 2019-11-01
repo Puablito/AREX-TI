@@ -1,4 +1,5 @@
 import psycopg2
+import json
 
 
 class Conexion:
@@ -8,7 +9,29 @@ class Conexion:
         self.conectado = False
         self.error = ""
 
-    def conectar(self, usuario, clave, host, puerto, bd):
+    def conectar(self):
+        try:
+            f = open("BDConect.txt", "r")
+            contenido = f.read()
+            f.close()
+            DBdata = json.loads(contenido)
+
+            host = DBdata['host']
+            puerto = DBdata['puerto']
+            bd = DBdata['BaseDeDatos']
+            usuario = DBdata['usuario']
+            clave = DBdata['clave']
+
+        except FileNotFoundError:
+            self.error = "Error al abrir la configuración de la BD"
+            return False
+        except:
+            try:
+                f.close()
+                return False
+            except:
+                return False
+
         try:
             self.miconexion = psycopg2.connect(user=usuario,
                                                password=clave,
@@ -19,8 +42,8 @@ class Conexion:
             self.conectado = True
             return True
 
-        except (Exception, psycopg2.Error) as e:
-            self.error = "Error: %s" % e
+        except psycopg2.Error:
+            self.error = "Error al intentar conectarse a la Base de Datos "
         except:
             self.error = "Error desconocido"
         return False
@@ -42,7 +65,7 @@ class Conexion:
             self.error = ""
             try:
                 self.cursor.execute(query, params)
-                self.miconexion.commit()
+                # self.miconexion.commit()
                 if execute:
                     # convierte el resultado en un diccionario
                     result = []
@@ -54,6 +77,18 @@ class Conexion:
             except (Exception, psycopg2.Error) as e:
                 self.error = "Error: %s" % e
         return False
+
+    def conexionCommitRoll(self, resultado):
+        if resultado:
+            self.miconexion.commit()
+        else:
+            self.miconexion.rollback()
+
+    def lastId(self):
+        """
+        Funcion que devuelve el ultimo id añadido
+        """
+        return self.cursor.fetchone()[0]
 
     def desconectar(self):
         self.conectado = False

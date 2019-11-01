@@ -97,7 +97,7 @@ class ImagenDetalle:
     def get_texto(self):
         return self.__texto
 
-    def get_tipoGlobo(self):
+    def get_tipoDetalle(self):
         return self.__tipoDetalle
 
 
