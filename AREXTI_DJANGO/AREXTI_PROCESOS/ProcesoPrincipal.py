@@ -125,6 +125,12 @@ if __name__ == '__main__':
         else:
             procesos_paralelos = ImagenesCola_cantidad
 
+        # Solo si se procesa un directorio la imagen es analizada por la RN de Texto
+        if tipoProceso == "D":
+            RNTexto_procesa = True
+        else:
+            RNTexto_procesa = False
+
         procesos_ejecucion = []  # cantidad de procesos en ejecución
         indiceProceso = 1
 
@@ -132,7 +138,7 @@ if __name__ == '__main__':
         while len(procesos_ejecucion) < procesos_paralelos:
             p = Process(name="Proceso {0}".format(indiceProceso),
                         target=ImagenAcciones.procesar_imagen,
-                        args=(indiceProceso, ImagenesCola, ImagenesGuardar_Cola, imagenesNoTexto, listaHash, tesseract_cmd,)
+                        args=(indiceProceso, ImagenesCola, ImagenesGuardar_Cola, imagenesNoTexto, listaHash, tesseract_cmd, RNTexto_procesa,)
                         )
             p.start()
             procesos_ejecucion.append(p)
@@ -153,7 +159,7 @@ if __name__ == '__main__':
 
             # Guardado en archivo las imagenes que no se reconocieron con texto
             if not imagenesNoTexto.empty():
-                with open("Imagenes_Sin_Texto.txt", "a") as archivo_notexto:
+                with open("Logs/Log_Sin_Texto.txt", "a") as archivo_notexto:
                     while not imagenesNoTexto.empty():
                         archivo_notexto.write(imagenesNoTexto.get() + "\n")
 

@@ -118,3 +118,15 @@ def miniaturaCrea(imagen, ext):
     retval, buf = cv2.imencode('.' + ext, img_resized)
     return buf
 
+
+def log_graba(conexion, parametro_id):
+    query = """ INSERT INTO "AREXTI_APP_log" 
+                        (periciaId, tipo, "descripcion", "imagenPath", "imagenNombre")
+                        VALUES (%s, %s, %s, %s, %s)"""
+    data = (parametro_id,)
+    resultado = conexion.consulta(query, data)
+    # return es una lista con 2 elementos [0]e[1], en cada elemento [1] es una lista de registros
+    if resultado:
+        return ["OK", resultado]
+    else:
+        return ["ERROR", conexion.error]

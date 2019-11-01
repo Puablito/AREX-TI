@@ -85,12 +85,13 @@ def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tip
 
 
 # Funcion que procesa la imagen recibida por paramentro
-def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto, listado_hashes, tesseract_cmd):
+def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto, listado_hashes, tesseract_cmd, RNTexto_procesa):
     # instancio las RN
-    try:
-        rn_txt = RedesNeuronales.RedNeuronalTexto()
-    except:
-        logging.error('Error al instanciar la RN de Texto - ' + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]))
+    if RNTexto_procesa:
+        try:
+            rn_txt = RedesNeuronales.RedNeuronalTexto()
+        except:
+            logging.error('Error al instanciar la RN de Texto - ' + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]))
 
     try:
         rn_chat = RedesNeuronales.RedNeuronalChat()
@@ -120,13 +121,16 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
         imagen_procesada.set_extension(img_procesar[2])
         imagen_procesada.set_path(img_procesar[0])
 
-        # Verifica si posee texto o no
-        try:
-            tiene_texto = rn_txt.imagen_tiene_texto(img_path, img_nombre)
-        except:
-            msgerror = 'Error en RN Texto, al intentar predecir la imagen: ' + imagen_with_path + " ("
-            logging.error(msgerror + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]) + ")")
-            continue
+        if RNTexto_procesa:
+            # Verifica si posee texto o no
+            try:
+                tiene_texto = rn_txt.imagen_tiene_texto(img_path, img_nombre)
+            except:
+                msgerror = 'Error en RN Texto, al intentar predecir la imagen: ' + imagen_with_path + " ("
+                logging.error(msgerror + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]) + ")")
+                continue
+        else:
+            tiene_texto = True
 
         if not tiene_texto:  # Si la imagen NO posee texto
             imagenes_notexto.put(img_path + img_nombre)
