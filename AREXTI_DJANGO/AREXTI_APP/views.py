@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
 from django.contrib import messages
 from enum import Enum
-
+from django.db.models import Count
 from django.template import loader
 
 from django.views.generic import TemplateView
@@ -140,9 +140,9 @@ class PericiaListar(FilteredListView):
             proid = 0
         # queryset = super().get_queryset()
         if proid != 0:
-            queryset = Pericia.objects.filter(activo=1, proyecto=proid).order_by('-proyecto', '-id')
+            queryset = Pericia.objects.filter(activo=1, proyecto=proid).annotate(num_imagenes=Count('imagen')).order_by('-proyecto', '-id')
         else:
-            queryset = Pericia.objects.filter(activo=1).order_by('-proyecto', '-id')
+            queryset = Pericia.objects.filter(activo=1).annotate(num_imagenes=Count('imagen')).order_by('-proyecto', '-id')
         self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
 
         return self.filterset.qs.distinct()
@@ -156,7 +156,10 @@ class PericiaListar(FilteredListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['proyectoId'] = self.kwargs.get("id")
+        proid = self.kwargs.get("Proyectoid")
+        if proid is None:
+            proid = 0
+        context['proyectoId'] = proid
         paginacion = self.request.GET.get('paginate_by')
         if paginacion == None:
             paginacion = 5
@@ -183,6 +186,14 @@ class PericiaCrear(CreateView):
 
     def get_success_url(self):
         return reverse_lazy('PericiaListar', kwargs={'Proyectoid': self.pericia.proyecto.id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        proid = self.kwargs.get("Proyectoid")
+        if proid is None:
+            proid = 0
+        context['proyectoId'] = proid
+        return context
 
 
 class PericiaEditar(UpdateView):

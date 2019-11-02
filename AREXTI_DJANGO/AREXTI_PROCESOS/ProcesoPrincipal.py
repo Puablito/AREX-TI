@@ -75,7 +75,7 @@ if __name__ == '__main__':
         # DirBase = 'C:/Users/Mariano-Dell/PycharmProjects/Imagenes/CapturasMarianOriginal/Nueva'
         listaHash = {"md5": "", "sha1": "", "sha256": ""}
         tipoProceso = "D"
-        DirPrincipal = "Nueva"
+        DirPrincipal = "Todas"
     ###################### FIN Parametros hardcodeados ######################################
         DirTemp = ""
         if tipoProceso == "A":

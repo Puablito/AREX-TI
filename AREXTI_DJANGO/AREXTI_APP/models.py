@@ -105,7 +105,6 @@ class ImagenDetalle(models.Model):
     texto = models.TextField(max_length=100000)
 
 
-
 class Log(models.Model):
     periciaId = models.IntegerField(blank=True)
     tipo = models.CharField(max_length=4, blank=True)

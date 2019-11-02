@@ -124,9 +124,10 @@ class Segmentador:
         globos = []
         cabeceraDetalle = ImagenProcesar.ImagenDetalle()
         textoCabecera = self.extraerCabecera(self.canny)
-        cabeceraDetalle.set_tipoDetalle('CABECERA')
-        cabeceraDetalle.set_texto(textoCabecera)
-        globos.append(cabeceraDetalle)
+        if textoCabecera.strip():  # SI EL GLOBO NO TIENE TEXTO O NO SE DETECTA NO SE GUARDA
+            cabeceraDetalle.set_tipoDetalle('CABECERA')
+            cabeceraDetalle.set_texto(textoCabecera)
+            globos.append(cabeceraDetalle)
         for i, contorno in enumerate(contornos_finales):
             mask = np.zeros_like(self.gris)  # tres
             cv2.drawContours(mask, contornos_finales, i, 255, -1)
@@ -138,6 +139,9 @@ class Segmentador:
             (topx, topy) = (np.min(x), np.min(y))
             (bottomx, bottomy) = (np.max(x), np.max(y))
             globo = globoColor[topx:bottomx + 1, topy:bottomy + 1]
+            texto = self.extraerTextoImagen(globo)
+            if not texto.strip():  # SI EL GLOBO NO TIENE TEXTO O NO SE DETECTA NO SE GUARDA
+                continue
             globoDetalle = ImagenProcesar.ImagenDetalle()
 
             leftmost = tuple(contorno[contorno[:, :, 0].argmin()][0])
@@ -153,15 +157,24 @@ class Segmentador:
                 else:
                     globoDetalle.set_tipoDetalle('GLOBODERECHA')
 
-            texto = self.extraerTextoImagen(globo)
             globoDetalle.set_texto(texto)
             globos.append(globoDetalle)
+
             # print("GLOBO " + str(i))
             # print(texto)
             # cv2.imshow('Output ' + str(j), globo)
             # j = j + 1
             # cv2.imshow('Output ', globo)
             # cv2.waitKey(0)
+        globos2 = globos.copy()
+        for globo in globos2:
+            mails = self.obtenerMails(globo.get_texto())
+            if mails:
+                for mail in mails:
+                    detalleMail = ImagenProcesar.ImagenDetalle()
+                    detalleMail.set_tipoDetalle('MAIL')
+                    detalleMail.set_texto(mail)
+                    globos.append(detalleMail)
         return globos
 
     def extraerTextoImagen(self, img):
@@ -242,7 +255,7 @@ class Segmentador:
         globos = self.setearGlobos(contornos)
         return globos
 
-    def segmentarMail(self):  # FALTA FUNCION BUSCAR MAILS
+    def segmentarMail(self):
         detalles = []
         self.configurarImagen()
         texto = self.extraerTextoImagen(self.imgEscalada)
