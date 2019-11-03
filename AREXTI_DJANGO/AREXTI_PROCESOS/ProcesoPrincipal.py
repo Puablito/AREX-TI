@@ -11,7 +11,7 @@ from multiprocessing import Process, Queue
 
 # llamada de ejemplo (DESACTIVADAS)
 # Notebook Pablo
-# ProcesoPrincipal.py -t d -p 1 -a {\"md5\":\"\",\"sha1\":\"\",\"sha256\":\"\"} -d D:\PythonProyects\SegmentacionIMG\Imagenes
+# python parametros.py -j {\"hashes\":[{\"name\":\"sha1\"},{\"name\":\"sha256\"}],\"pericia\":1,\"urlFile\":\"Desktop/Capturas\",\"tabFrom\":\"A\"}
 
 # Notebook Marian
 # ProcesoPrincipal.py -t d -p 1 -a {\"md5\":\"\",\"sha1\":\"\",\"sha256\":\"\"} -d r'C:\Users\Mariano-Dell\PycharmProjects\Imagenes\CapturasMarian
@@ -20,22 +20,20 @@ if __name__ == '__main__':
     '''
     # Se leen los parametros
     parser = argparse.ArgumentParser(description='Proceso principal')
-    parser.add_argument('-d', '--dir', required=True, type=str,
-                        help='Path del directorio que se desea procesar')
-    parser.add_argument('-a', '--hash', required=True, type=str,
-                        help='Listado de hashes a aplicar')
-    parser.add_argument('-t', '--tipo', required=True, type=str,
-                        help='Tipo de proceso a realizar (d = directorio a = archivos)')
-    parser.add_argument('-p', '--pericia', required=True, type=str,
-                        help='Número de pericia')
+    parser.add_argument('-j', '--json', required=True, type=str,
+                        help='Listado de parametros en formato JSON')
+    
     args = parser.parse_args()
-    #listaHash = {\"md5\":\"\",\"sha1\":\"\",\"sha256\":\"\"} asi tiene que venir
-    print("Pericia {0} Tipo {1} hashes {2}".format(args.pericia, args.tipo, args.hash))
-    print("Directorio {0}".format(args.dir))
-    pericia = args.pericia
-    procesotipo = args.tipo
-    listaHash = json.loads(args.hash)
-    DirBase = args.dir
+    Parametros = json.loads(args.json)
+    
+    pericia = Parametros['pericia']
+    procesotipo = Parametros['tabFrom']
+    DirBase = Parametros['urlFile']
+    
+    # armar json con los hashes
+    listaHash = dict()
+    for item in Parametros['hashes']:
+    listaHash.update({item['name']: ""})
     '''
 
     # Realizo la conexión a la BD
@@ -71,11 +69,21 @@ if __name__ == '__main__':
             Is_OK = False
             print("Error en parametro: TESSERACTPATH ("+RtaBD[1]+")")  ####### VER QUE HACER EN ESTE CASO ##########
 
+        RtaBD = Herramientas.parametro_get(conexionBD, 'PROCESOSPARALELOS')
+        if RtaBD[0] == "OK":
+            procesos_paralelos = RtaBD[1][0]["valorNumero"]
+        else:
+            Is_OK = False
+            print("Error en parametro: PROCESOSPARALELOS (" + RtaBD[1] + ")")  ####### VER QUE HACER EN ESTE CASO ##########
+
     ###################### Parametros hardcodeados ######################################
-        # DirBase = 'C:/Users/Mariano-Dell/PycharmProjects/Imagenes/CapturasMarianOriginal/Nueva'
         listaHash = {"md5": "", "sha1": "", "sha256": ""}
         tipoProceso = "D"
-        DirPrincipal = "Todas"
+        #Mariano
+        #DirPrincipal = "Todas"
+
+        #Pablo
+        DirPrincipal = "PericiaPrueba"
     ###################### FIN Parametros hardcodeados ######################################
         DirTemp = ""
         if tipoProceso == "A":
@@ -107,8 +115,8 @@ if __name__ == '__main__':
         1- Se crea un pool de procesos activos "procesos_ejecucion"
         2- Se crean los procesos, se inician y se agrega a "procesos_ejecucion"
         3- Mientras "procesos_ejecucion" tenga procesos activos:
-            A- Para cada proceso revisamos si el proceso sigue vivo
-            B- Si ha muerto algun proceso lo recuperamos, le quitamos los recursos y lo sacamos de "procesos_ejecucion"
+            A- Para cada proceso revisamos si el proceso sigue vivo, en caso de que haya muerto lo recuperamos, 
+                le quitamos los recursos y lo sacamos de "procesos_ejecucion"
     
     # CAMBIAR EL PUNTO c YA QUE CAMBIO LA LOGICA       
             C- Mientras la piscina de procesos no esté llena y el listado de imagenes no esté vacio, 
@@ -120,9 +128,7 @@ if __name__ == '__main__':
         TiempoInicial = datetime.datetime.now()
 
         # cantidad de procesos maximos a utilizar
-        if os.cpu_count() < ImagenesCola_cantidad:
-            procesos_paralelos = 4  ################################################# os.cpu_count()
-        else:
+        if procesos_paralelos > ImagenesCola_cantidad:
             procesos_paralelos = ImagenesCola_cantidad
 
         # Solo si se procesa un directorio la imagen es analizada por la RN de Texto
@@ -177,7 +183,7 @@ if __name__ == '__main__':
             # Para no saturar el cpu, dormimos el ciclo durante 1 segundo
             time.sleep(1)
         conexionBD.desconectar()
-        print("WHILE: todos los procesos han terminado")
+        print("Todos los procesos han terminado")
 
         TiempoFinal = datetime.datetime.now()
         print("Inicio: " + str(TiempoInicial))
