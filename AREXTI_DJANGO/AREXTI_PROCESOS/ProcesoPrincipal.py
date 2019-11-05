@@ -108,7 +108,6 @@ if __name__ == '__main__':
             print("DIO ERRROR, HAY QUE CORTAR LA EJECUCION Y GUARDAR LOG: {0}".format(RtaCarga[1]))
 
     if Is_OK:
-        # Si recuperó las imagenes
         """
         Inicio del procesamiento en paralelo
     
@@ -117,10 +116,8 @@ if __name__ == '__main__':
         3- Mientras "procesos_ejecucion" tenga procesos activos:
             A- Para cada proceso revisamos si el proceso sigue vivo, en caso de que haya muerto lo recuperamos, 
                 le quitamos los recursos y lo sacamos de "procesos_ejecucion"
-    
-    # CAMBIAR EL PUNTO c YA QUE CAMBIO LA LOGICA       
-            C- Mientras la piscina de procesos no esté llena y el listado de imagenes no esté vacio, 
-               se realiza lo indicado en el paso 2
+            B- Verificamos si la cola "imagenesNoTexto" posee datos, de ser asi guardamos la información en el archivo LOG
+            C- Verificamos si la cola "ImagenesGuardar_Cola" posee datos, de ser asi, se llama al proceso de guardado de imagen en BD 
          4- El proceso finaliza cuando "procesos_ejecucion" se encuentre vacio
         """
         ImagenesCola_cantidad = ImagenesCola.qsize()
