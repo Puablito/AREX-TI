@@ -55,7 +55,7 @@ def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tip
             try:
                 os.makedirs(pathDestino)
             except FileExistsError:
-                print("Ya existen las carpetas")
+                pass
 
             # muevo las imagenes del directorio temporal al directorio de destino
 
