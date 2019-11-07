@@ -85,7 +85,7 @@ def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tip
 
 
 # Funcion que procesa la imagen recibida por paramentro
-def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto, listado_hashes, tesseract_cmd, RNTexto_procesa):
+def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto, listado_hashes, tesseract_cmd, RNTexto_procesa, ):
     # instancio las RN
     if RNTexto_procesa:
         try:
@@ -126,7 +126,7 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
             try:
                 tiene_texto = rn_txt.imagen_tiene_texto(img_path, img_nombre)
             except:
-                msgerror = 'Error en RN Texto, al intentar predecir la imagen: ' + imagen_with_path + " ("
+                msgerror = 'Error en RN Texto, al predecir la imagen: ' + imagen_with_path + " ("
                 logging.error(msgerror + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]) + ")")
                 continue
         else:

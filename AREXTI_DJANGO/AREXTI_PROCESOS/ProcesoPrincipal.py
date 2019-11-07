@@ -126,7 +126,7 @@ if __name__ == '__main__':
         # Inicializo colas de trabajo multiproceso
         ImagenesCola = Queue()          # cola de imagenes a procesar
         ImagenesGuardar_Cola = Queue()  # cola de imagenes procesadas para guardar BD
-        imagenesNoTexto = Queue()       # cola de imagenes no procesadas por no detectar texto en ellas
+        imagenesNoTexto_Cola = Queue()       # cola de imagenes no procesadas por no detectar texto en ellas
 
         # Lectura de las imagenes que van a ser procesadasa
         RtaCarga = ImagenAcciones.leer_imagenes(DirBase, DirTemp, ListadoExtensiones, ImagenesCola, tipoProceso, DirPrincipal)
@@ -144,7 +144,7 @@ if __name__ == '__main__':
         3- Mientras "procesos_ejecucion" tenga procesos activos:
             A- Para cada proceso revisamos si el proceso sigue vivo, en caso de que haya muerto lo recuperamos, 
                 le quitamos los recursos y lo sacamos de "procesos_ejecucion"
-            B- Verificamos si la cola "imagenesNoTexto" posee datos, de ser asi guardamos la información en el archivo LOG
+            B- Verificamos si la cola "imagenesNoTexto_Cola" posee datos, de ser asi guardamos la información en el archivo LOG
             C- Verificamos si la cola "ImagenesGuardar_Cola" posee datos, de ser asi, se llama al proceso de guardado de imagen en BD 
          4- El proceso finaliza cuando "procesos_ejecucion" se encuentre vacio
         """
@@ -171,7 +171,8 @@ if __name__ == '__main__':
         while len(procesos_ejecucion) < procesos_paralelos:
             p = Process(name="Proceso {0}".format(indiceProceso),
                         target=ImagenAcciones.procesar_imagen,
-                        args=(indiceProceso, ImagenesCola, ImagenesGuardar_Cola, imagenesNoTexto, listaHash, tesseract_cmd, RNTexto_procesa,)
+                        args=(indiceProceso, ImagenesCola, ImagenesGuardar_Cola, imagenesNoTexto_Cola,
+                              listaHash, tesseract_cmd, RNTexto_procesa,)
                         )
             p.start()
             procesos_ejecucion.append(p)
@@ -193,10 +194,10 @@ if __name__ == '__main__':
                     del proceso
 
             # Guardado en archivo las imagenes que no se reconocieron con texto
-            if not imagenesNoTexto.empty():
+            if not imagenesNoTexto_Cola.empty():
                 with open("Logs/Log_imagenesSinTexto.txt", "a") as archivo_notexto:
-                    while not imagenesNoTexto.empty():
-                        archivo_notexto.write(imagenesNoTexto.get() + "\n")
+                    while not imagenesNoTexto_Cola.empty():
+                        archivo_notexto.write(imagenesNoTexto_Cola.get() + "\n")
 
             # Guarda las Imagenes ya procesadas en la BD
             # Realizar mas pruebas (si la cola "ImagenesGuardar_Cola" se llena los procesos no terminan)
@@ -206,8 +207,7 @@ if __name__ == '__main__':
     # Guarda de a una imagen, ver de guardar por bloque de ser posible
                 RtaBD = Herramientas.imagenInsertar(conexionBD, 1, img_guardar)
                 if RtaBD[0] == "ERROR":
-                    logging.error('Error al guardar la imagen, nombre: {0}, path: {1}'.format(img_guardar.get_nombre(),
-                                                                                              img_guardar.get_path()))
+                    logging.error('Error al guardar la imagen, nombre: {0}'.format(img_guardar.get_nombre()))
                     print(RtaBD[1])
 
                 print("Imagen: {0} - {1}".format(img_guardar.get_nombre(), img_guardar.get_imagentipo()))
