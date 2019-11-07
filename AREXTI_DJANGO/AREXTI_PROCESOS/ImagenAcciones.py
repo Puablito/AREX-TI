@@ -86,114 +86,121 @@ def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tip
 
 # Funcion que procesa la imagen recibida por paramentro
 def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto, listado_hashes, tesseract_cmd, RNTexto_procesa, ):
+    Is_OK = True
     # instancio las RN
     if RNTexto_procesa:
         try:
             rn_txt = RedesNeuronales.RedNeuronalTexto()
         except:
+            Is_OK = False
             logging.error('Error al instanciar la RN de Texto - ' + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]))
 
     try:
         rn_chat = RedesNeuronales.RedNeuronalChat()
     except:
+        Is_OK = False
         logging.error('Error al instanciar la RN de Chat - ' + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]))
 
     try:
         rn_mail = RedesNeuronales.RedNeuronalEmail()
     except:
+        Is_OK = False
         logging.error('Error al instanciar la RN de Email - ' + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]))
 
     # instancio el segmentador
     try:
         segmentador = Segmentacion.Segmentador(tesseract_cmd)
     except:
+        Is_OK = False
         logging.error('Error al instanciar el segmentador - ' + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]))
 
-    while not imagenes_cola.empty():
-        img_procesar = imagenes_cola.get()
-        img_path = img_procesar[0] + os.sep
-        img_nombre = img_procesar[1]
-        img_extension = img_procesar[2]
-        imagen_with_path = img_path + img_nombre
+    if Is_OK:
+        while not imagenes_cola.empty():
+            img_procesar = imagenes_cola.get()
+            img_path = img_procesar[0] + os.sep
+            img_nombre = img_procesar[1]
+            img_extension = img_procesar[2]
+            imagen_with_path = img_path + img_nombre
 
-        imagen_procesada = ImagenProcesar.Imagen()
-        imagen_procesada.set_nombre(img_procesar[1])
-        imagen_procesada.set_extension(img_procesar[2])
-        imagen_procesada.set_path(img_procesar[0])
+            imagen_procesada = ImagenProcesar.Imagen()
+            imagen_procesada.set_nombre(img_procesar[1])
+            imagen_procesada.set_extension(img_procesar[2])
+            imagen_procesada.set_path(img_procesar[0])
 
-        if RNTexto_procesa:
-            # Verifica si posee texto o no
-            try:
-                tiene_texto = rn_txt.imagen_tiene_texto(img_path, img_nombre)
-            except:
-                msgerror = 'Error en RN Texto, al predecir la imagen: ' + imagen_with_path + " ("
-                logging.error(msgerror + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]) + ")")
-                continue
-        else:
-            tiene_texto = True
-
-        if not tiene_texto:  # Si la imagen NO posee texto
-            imagenes_notexto.put(img_path + img_nombre)
-        else:  # Si la imagen posee texto
-
-            # Calcula Hashes
-            try:
-                listado_hashes = Hashes.calcular_hashes(listado_hashes, imagen_with_path)
-                imagen_procesada.set_hashes(listado_hashes)
-            except ValueError:
-                msgerror = 'Error en los tipos de hash, verifiquelos e intente nuevamente. ('
-                logging.error(msgerror + str(sys.exc_info()[0]) + " - " + str(sys.exc_info()[1]) + ")")
-                break
-            except:
-                msgerror = 'Error al calcular los hash de la imagen: ' + imagen_with_path + " ("
-                logging.error(msgerror + str(sys.exc_info()[0]) + " - " + str(sys.exc_info()[1]) + ")")
-                continue
-
-            # Extrae metadatos
-            try:
-                listado_metadatos = Metadatos.metadata_extraer(imagen_with_path)
-                imagen_procesada.set_metadatos(listado_metadatos)
-            except:
-                msgerror = 'Error al extraer los metadatos de la imagen: ' + imagen_with_path + " ("
-                logging.error(msgerror + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]) + ")")
-
-            # Crea la miniatura
-            try:
-                thumbnail = Herramientas.miniaturaCrea(imagen_with_path, img_extension)
-                imagen_procesada.set_thumbnail(thumbnail)
-            except:
-                msgerror = 'Error al crear la miniatura: ' + imagen_with_path + " ("
-                logging.error(msgerror + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]) + ")")
-
-            # Verifica si es de chat o no
-            try:
-                img_path = img_path + os.sep
-                es_chat = rn_chat.imagen_es_chat(img_path, img_nombre)
-            except:
-                msgerror = 'Error en RN Chat, al intentar predecir la imagen: ' + imagen_with_path + " ("
-                logging.error(msgerror + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]) + ")")
-                continue
-            segmentador.set_imagen(imagen_procesada)
-            if es_chat:
-                imagen_procesada.set_imagentipo("CHAT")
-                imagen_procesada.set_detalles(segmentador.segmentarChat())
-                # Segmenta la imagen y extraer texto DE CHAT
+            if RNTexto_procesa:
+                # Verifica si posee texto o no
+                try:
+                    tiene_texto = rn_txt.imagen_tiene_texto(img_path, img_nombre)
+                except:
+                    msgerror = 'Error en RN Texto, al predecir la imagen: ' + imagen_with_path + " ("
+                    logging.error(msgerror + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]) + ")")
+                    continue
             else:
-                # Verifica si es de mail o no con la RN
+                tiene_texto = True
+
+            if not tiene_texto:  # Si la imagen NO posee texto
+                imagenes_notexto.put(img_path + img_nombre)
+            else:  # Si la imagen posee texto
+
+                # Calcula Hashes
+                try:
+                    listado_hashes = Hashes.calcular_hashes(listado_hashes, imagen_with_path)
+                    imagen_procesada.set_hashes(listado_hashes)
+                except ValueError:
+                    msgerror = 'Error en los tipos de hash, verifiquelos e intente nuevamente. ('
+                    logging.error(msgerror + str(sys.exc_info()[0]) + " - " + str(sys.exc_info()[1]) + ")")
+                    break
+                except:
+                    msgerror = 'Error al calcular los hash de la imagen: ' + imagen_with_path + " ("
+                    logging.error(msgerror + str(sys.exc_info()[0]) + " - " + str(sys.exc_info()[1]) + ")")
+                    continue
+
+                # Extrae metadatos
+                try:
+                    listado_metadatos = Metadatos.metadata_extraer(imagen_with_path)
+                    imagen_procesada.set_metadatos(listado_metadatos)
+                except:
+                    msgerror = 'Error al extraer los metadatos de la imagen: ' + imagen_with_path + " ("
+                    logging.error(msgerror + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]) + ")")
+
+                # Crea la miniatura
+                try:
+                    thumbnail = Herramientas.miniaturaCrea(imagen_with_path, img_extension)
+                    imagen_procesada.set_thumbnail(thumbnail)
+                except:
+                    msgerror = 'Error al crear la miniatura: ' + imagen_with_path + " ("
+                    logging.error(msgerror + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]) + ")")
+
+                # Verifica si es de chat o no
                 try:
                     img_path = img_path + os.sep
-                    es_mail = rn_mail.imagen_es_email(img_path, img_nombre)
+                    es_chat = rn_chat.imagen_es_chat(img_path, img_nombre)
                 except:
-                    msgerror = 'Error en RN Mail, al intentar predecir la imagen: ' + imagen_with_path + " ("
+                    msgerror = 'Error en RN Chat, al intentar predecir la imagen: ' + imagen_with_path + " ("
                     logging.error(msgerror + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]) + ")")
                     continue
 
-                if es_mail:
-                    imagen_procesada.set_imagentipo("MAIL")  # Segmenta la imagen y extraer texto DE MAIL
-                    imagen_procesada.set_detalles(segmentador.segmentarMail())
+                segmentador.set_imagen(imagen_procesada)
+                if es_chat:
+                    imagen_procesada.set_imagentipo("CHAT")
+                    # Segmenta la imagen y extraer texto DE CHAT
+                    imagen_procesada.set_detalles(segmentador.segmentarChat())
                 else:
-                    imagen_procesada.set_imagentipo("OTRO")  # Segmenta la imagen y extraer texto DE OTROS
-                    imagen_procesada.set_detalles(segmentador.segmentarOtro())
+                    # Verifica si es de mail o no con la RN
+                    try:
+                        img_path = img_path + os.sep
+                        es_mail = rn_mail.imagen_es_email(img_path, img_nombre)
+                    except:
+                        msgerror = 'Error en RN Mail, al intentar predecir la imagen: ' + imagen_with_path + " ("
+                        logging.error(msgerror + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]) + ")")
+                        continue
 
-            # Guarda en Cola para guardar en BD
-            imagenes_guardar.put(imagen_procesada)
+                    if es_mail:
+                        imagen_procesada.set_imagentipo("MAIL")  # Segmenta la imagen y extraer texto DE MAIL
+                        imagen_procesada.set_detalles(segmentador.segmentarMail())
+                    else:
+                        imagen_procesada.set_imagentipo("OTRO")  # Segmenta la imagen y extraer texto DE OTROS
+                        imagen_procesada.set_detalles(segmentador.segmentarOtro())
+
+                # Guarda en Cola para guardar en BD
+                imagenes_guardar.put(imagen_procesada)
