@@ -44,18 +44,18 @@ class Conexion:
 
         except psycopg2.Error:
             self.error = "Error al intentar conectarse a la Base de Datos "
-        except:
-            self.error = "Error desconocido"
+        except Exception as e:
+            self.error = "Error: {0}".format(e)
         return False
 
-    def consulta(self, query, params=None, execute=True):
+    def consulta(self, query, params=None, retorna=True):
         """
         Funcion que ejecuta una instruccion sql
         Tiene que recibir:
             - query
         Puede recibir:
             - params => tupla con las variables
-            - execute => devuelve los registros
+            - retorna => devuelve los registros
         Devuelve False en caso de error, sino devuelve una lista de diccionarios,
             - la lista contiene los registros y dentro de cada elemento de la lista, hay un diccionario
              que contiene los campos del registro
@@ -66,7 +66,7 @@ class Conexion:
             try:
                 self.cursor.execute(query, params)
                 # self.miconexion.commit()
-                if execute:
+                if retorna:
                     # convierte el resultado en un diccionario
                     result = []
                     columns = tuple([d[0] for d in self.cursor.description])
@@ -75,7 +75,7 @@ class Conexion:
                     return result
                 return True
             except (Exception, psycopg2.Error) as e:
-                self.error = "Error: %s" % e
+                self.error = "Error: {0} - {1}".format(e.pgerror, e.diag.message_detail)
         return False
 
     def conexionCommitRoll(self):
@@ -84,8 +84,7 @@ class Conexion:
             return True
         except(Exception, psycopg2.Error) as e:
             self.miconexion.rollback()
-            self.error = "Error: %s" % e
-            # self.desconectar()   LA VAMOS A DESCONECTAR DESDE EL PROCESO PRINCIPAL
+            self.error = "Error: {0} - {1}".format(e.pgerror, e.diag.message_detail)
             return False
 
     def lastId(self):

@@ -64,11 +64,11 @@ Pericias
 <div class="form-group col-md-3">
     <a class="btn btn-success" href="{% url 'PericiaCrear' %}">Agregar</a>
 </div>
-<div class="form-group col-md-3">
-    <label>Pericias por página:</label>
+<div class="form-group col-md-3" style="display:flex">
+    <label>Pericias por página:</label>&nbsp;
     <form action="." method="get">
-        <select name="paginate_by" class="form-control" onchange="this.form.submit();">
-            <option value="5" {% if 5 == numero_paginacion %}selected{% endif %}>Predeterminado</option>
+        <select name="paginate_by" class="form-control" onchange="this.form.submit();" style="width:20%">
+            <option value="5" {% if 5 == numero_paginacion %}selected{% endif %}>5</option>
             <option value="10" {% if 10 == numero_paginacion %}selected{% endif %}>10</option>
             <option value="15" {% if 15 == numero_paginacion %}selected{% endif %}>15</option>
             <option value="20" {% if 20 == numero_paginacion %}selected{% endif %}>20</option>
@@ -115,7 +115,7 @@ Pericias
         <td>{{pericia.nombrePerito}}</td>
         <td>{{pericia.tipoPericia}}</td>
         <td>{{pericia.fecha}}</td>
-        <td>Cantidad</td>
+        <td>{{pericia.num_imagenes}}</td>
     </tr>
     <div id="Eliminar{{ pericia.id }}" class="modal fade">
         <div class="modal-dialog modal-confirm">
