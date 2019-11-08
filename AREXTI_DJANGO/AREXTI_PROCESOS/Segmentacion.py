@@ -20,14 +20,14 @@ class Segmentador:
         self.__imagen = None
         self.ancho = 0
         self.alto = 0  # math.trunc(ancho * (16 / 9))
-        self.areaMinima = (self.ancho * self.alto) * 0.6 / 100              # area minima que debe cumplir un contorno para ser considerado globo de chat
+        self.areaMinima = (self.ancho * self.alto) * 0.6 / 100  # area minima que debe cumplir un contorno para ser considerado globo de chat
         self.gris = None
         self.imgEscalada = None
         self.canny = None
         self.difRango = 20          # PARAMETRO PARA MARCAR UMBRAL DE DIFERENCIA MAXIMA ENTRE IZQ Y DERECHA PARA CLASIFICAR GLOBO INDEFINIDO
         self.horizontal = False
         self.tesseract_cmd = tesseract_cmd
-
+        self.extractor = None
 
     def get_imagen(self):
         return self.__imagen
@@ -120,11 +120,11 @@ class Segmentador:
         # cv2.waitKey(0)
         return globos
 
-    def setearGlobos(self, contornos_finales):  # SE LEE LA LISA DE CONTORNOS RECONOCIDOS COMO GLOBOS Y SE EXTAEN DE LA IMAGEN PARA DETECTAR TEXTO Y SE SETEAN SUS PROPIEDADES
+    def setearGlobos(self, contornos_finales):  # SE LEE LA LISTA DE CONTORNOS RECONOCIDOS COMO GLOBOS Y SE EXTAEN DE LA IMAGEN PARA DETECTAR TEXTO Y SE SETEAN SUS PROPIEDADES
         globos = []
         cabeceraDetalle = ImagenProcesar.ImagenDetalle()
         textoCabecera = self.extraerCabecera(self.canny)
-        if textoCabecera.strip():  # SI EL GLOBO NO TIENE TEXTO O NO SE DETECTA NO SE GUARDA
+        if textoCabecera.strip():  # SI LA CABECERA NO TIENE TEXTO O NO SE DETECTA NO SE GUARDA
             cabeceraDetalle.set_tipoDetalle('CABECERA')
             cabeceraDetalle.set_texto(textoCabecera)
             globos.append(cabeceraDetalle)
@@ -178,8 +178,9 @@ class Segmentador:
         return globos
 
     def extraerTextoImagen(self, img):
-        extractor = ExtraccionTexto(self.tesseract_cmd)  # pasar paths por parametro en inicializacion?
-        texto = extractor.extraerTexto(img)
+        if not self.extractor:
+            self.extractor = ExtraccionTexto(self.tesseract_cmd)
+        texto = self.extractor.extraerTexto(img)
         texto = texto.strip()
         texto = texto.replace('"', "")
         texto = texto.replace("'", "")
@@ -238,7 +239,7 @@ class Segmentador:
         # print("CABECERA: ******************************************")
         # print(cabeceraTexto)
         # print("FIN CABECERA: ******************************************")
-        cv2.imwrite("cabeceras\cabecera " + self.__imagen.get_nombre() + ".jpg", cabecera)
+        cv2.imwrite("cabecera " + self.__imagen.get_nombre() + ".jpg", cabecera)
         # cv2.imshow("cabecera", cabecera)
         # cv2.waitKey(0)
         return cabeceraTexto
@@ -302,7 +303,7 @@ class ExtraccionTexto:
     # pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files (x86)/Tesseract-OCR/tesseract'
     def __init__(self, tesseract_cmd):
         # self.imagen = img
-        pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
+        pytesseract.pytesseract.tesseract_cmd = tesseract_cmd  # Cachear excepcion
 
 
     def extraerTexto(self, img):

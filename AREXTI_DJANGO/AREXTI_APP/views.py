@@ -29,7 +29,6 @@ class messageTitle(Enum):
     Modificacion = "Modificación exitosa"
 
 
-
 class FilteredListView(ListView):
     filterset_class = None
     idfil = 0
