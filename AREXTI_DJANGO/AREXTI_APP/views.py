@@ -213,6 +213,14 @@ class PericiaEditar(UpdateView):
     def get_success_url(self):
         return reverse_lazy('PericiaListar', kwargs={'Proyectoid': self.object.proyecto.id})
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        proid = self.kwargs.get("Proyectoid")
+        if proid is None:
+            proid = 0
+        context['proyectoId'] = proid
+        return context
+
 
 def PericiaEliminar(request, Periciaid):
     # model = Proyecto

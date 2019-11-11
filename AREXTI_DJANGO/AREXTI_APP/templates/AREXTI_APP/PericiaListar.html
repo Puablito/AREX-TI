@@ -22,7 +22,7 @@ Pericias
             <div class="form-group col-md-3">
                 <!--<div class="form-group">-->
                 {{ filterset.form.proyecto.label_tag }}
-                {% render_field filterset.form.proyecto class="form-control" %}
+                {% render_field filterset.form.proyecto class="form-control" value="1" %}
                     <!--</div>-->
                 <!--</div>-->
             </div>
@@ -57,12 +57,12 @@ Pericias
 {% endblock %}
 
 {% block acciones %}
-<!--<a class="btn btn-success" href="{% url 'PericiaCrear' %}">Agregar</a>-->
+
 {% endblock %}
 
 {% block tabla_contenido %}
 <div class="form-group col-md-3">
-    <a class="btn btn-success" href="{% url 'PericiaCrear' %}">Agregar</a>
+    <a class="btn btn-success" href="{% url 'PericiaCrear' proyectoId %}">Agregar</a>
 </div>
 <div class="form-group col-md-3" style="display:flex">
     <label>Pericias por página:</label>&nbsp;
@@ -87,14 +87,14 @@ Pericias
         <th>Perito</th>
         <th>Tipo Pericia</th>
         <th>Fecha</th>
-        <th>Imagenes</th>
+        <th>Imágenes</th>
     </tr>
 </thead>
 <tbody>
     {% for pericia in object_list %}
     <tr>
         <td>
-            <a href="{% url 'PericiaEditar' pericia.id %}">
+            <a href="{% url 'PericiaEditar' pericia.id proyectoId%}">
                 <img src="../../static/image/editar.png" alt="Modificar" title="Modificar" style=";width: 20px">
             </a>
         </td>

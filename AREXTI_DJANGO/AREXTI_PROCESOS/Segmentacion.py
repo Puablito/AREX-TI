@@ -46,8 +46,16 @@ class Segmentador:
         #     dim = (self.alto, self.ancho)
         # r = self.ancho / float(imgAncho)
         # dim = (self.ancho, int(imgAlto * r))
-
+        metadatos = self.__imagen.get_metadatos()
         imgOriginal = Image.open(imgPath)
+        if 'Orientation' in metadatos:
+            orientacion = int(metadatos['Orientation'])
+            if orientacion == 3:
+                imgOriginal = imgOriginal.rotate(180, expand=True)
+            elif orientacion == 6:
+                imgOriginal = imgOriginal.rotate(270, expand=True)
+            elif orientacion == 8:
+                imgOriginal = imgOriginal.rotate(90, expand=True)
         anchoOriginal = imgOriginal.width  # OBTENER ANCHO DE IMAGEN
         altoOriginal = imgOriginal.height  # OBTENER ALTO DE IMAGEN
         self.horizontal = anchoOriginal > altoOriginal
@@ -239,7 +247,7 @@ class Segmentador:
         # print("CABECERA: ******************************************")
         # print(cabeceraTexto)
         # print("FIN CABECERA: ******************************************")
-        cv2.imwrite("cabecera " + self.__imagen.get_nombre() + ".jpg", cabecera)
+        # cv2.imwrite("cabecera " + self.__imagen.get_nombre() + ".jpg", cabecera)
         # cv2.imshow("cabecera", cabecera)
         # cv2.waitKey(0)
         return cabeceraTexto

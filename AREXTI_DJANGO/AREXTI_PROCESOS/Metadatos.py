@@ -46,10 +46,9 @@ def metadata_extraer(imagen_procesar):
                 if TAGS[key] == 'GPSInfo':
                     gpsinfo = metadata_gps(val)
                     gpsinfo = coordenadas_decimal(gpsinfo)
+                    # agrego la información de GPS a los metadatos
+                    metadatos_dict.update(gpsinfo)
                 elif TAGS[key] != 'MakerNote':
                     metadatos_dict.update({TAGS[key]: repr(val)})
-
-        # agrego la información de GPS a los metadatos
-        metadatos_dict.update(gpsinfo)  # HAY IMAGENES SIN GPSINFO, TIRA ERROR DE REFERENCIA. CONTROLAR CON IF?
 
     return metadatos_dict

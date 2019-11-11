@@ -88,7 +88,6 @@ class PericiaFilter(django_filters.FilterSet):
     descripcion = django_filters.CharFilter(lookup_expr='icontains', label='Descripción')
     tipoPericia = django_filters.ChoiceFilter(choices=Pericia.tiposPericia, label='Tipo Pericia')
 
-
     def __init__(self, data, *args, **kwargs):
         data = data.copy()
         # data.setdefault('IPP', '111')
