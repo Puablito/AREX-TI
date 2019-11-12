@@ -1,4 +1,4 @@
-from .models import Proyecto, Pericia, Imagen, TipoImagen, ImagenHash, ImagenDetalle
+from .models import Proyecto, Pericia, Imagen, TipoImagen, ImagenHash, ImagenDetalle, TipoDetalle
 import django_filters
 from django.db.models import Count, Sum
 from django import forms
@@ -132,19 +132,31 @@ class ReporteFilter(django_filters.FilterSet):
     extension = django_filters.CharFilter(lookup_expr='icontains', label='Extensión')
     tipoImagen = django_filters.ModelChoiceFilter(queryset=TipoImagen.objects.filter(activo=1), label='Tipo Imagen')
     texto = django_filters.CharFilter(method='filter_texto', label='Palabra')
+    tipoDetalle = django_filters.ModelChoiceFilter(queryset=TipoDetalle.objects, label='Tipo Detalle')
 
     class Meta:
         model = Imagen
-        fields = ['texto']
+        fields = ['texto', 'pericia']
 
     def __init__(self, *args, **kwargs):
         super(ReporteFilter, self).__init__(*args, **kwargs)
         self.filters['tipoImagen'].extra.update(
             {'empty_label': 'Todas'})
+        self.filters['pericia'].extra.update(
+            {'empty_label': 'Todas'})
+        self.filters['tipoDetalle'].extra.update(
+            {'empty_label': 'Todos'})
 
     def filter_texto(self, queryset, name, value):
         if value:
-            queryset = Imagen.objects.filter(imagendetalle__texto__icontains=value).\
-                annotate(num_ocurrencias=Count('id')).annotate(suma_ocurrencias=Sum('id'))
-            # queryset = queryset.annotate(suma_ocurrencias=('num_ocurrencias'))
+            # suma = Imagen.objects.filter(imagendetalle__texto__icontains=value).\
+            #     annotate(num_ocurrencias=Count('id')).aggregate(suma_ocurrencias=Sum('num_ocurrencias'))['suma_ocurrencias']
+            queryset = Imagen.objects.filter(imagendetalle__texto__icontains=value). \
+                annotate(num_ocurrencias=Count('id')). \
+                extra(
+                select={
+                    'suma_ocurrencias': """SELECT COUNT(*) FROM "AREXTI_APP_imagendetalle" WHERE texto like %s"""
+                }, select_params=['%'+value+'%'])
+
+        # , select_params=value   LIKE '%Pablito%'
         return queryset

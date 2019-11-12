@@ -39,18 +39,18 @@
                 {{ filterset.form.texto.label_tag }}
                 {% render_field filterset.form.texto class="form-control" %}
             </div>
-            <!--<div class="form-group col-md-3">-->
-                <!--{{ filterset.form.extension.label_tag }}-->
-                <!--{% render_field filterset.form.extension class="form-control" %}-->
-            <!--</div>-->
-            <!--<div class="form-group col-md-3">-->
-                <!--{{ filterset.form.tipoImagen.label_tag }}-->
-                <!--{% render_field filterset.form.tipoImagen class="form-control" %}-->
-            <!--</div>-->
-            <!--<div class="form-group col-md-3">-->
-                <!--{{ filterset.form.hash.label_tag }}-->
-                <!--{% render_field filterset.form.hash class="form-control" %}-->
-            <!--</div>-->
+            <div class="form-group col-md-3">
+                {{ filterset.form.pericia.label_tag }}
+                {% render_field filterset.form.pericia class="form-control" %}
+            </div>
+            <div class="form-group col-md-3">
+                {{ filterset.form.tipoImagen.label_tag }}
+                {% render_field filterset.form.tipoImagen class="form-control" %}
+            </div>
+            <div class="form-group col-md-3">
+                {{ filterset.form.tipoDetalle.label_tag }}
+                {% render_field filterset.form.tipoDetalle class="form-control" %}
+            </div>
         </div>
         <div class="form-group col-md-4">
             <button type="submit" class="btn btn-primary">Generar</button>
@@ -64,6 +64,7 @@
 {% block tabla_contenido %}
 
 <a class="btn btn-success" href="#">Exportar</a>
+# total de ocurrencias: {{object_list.0.suma_ocurrencias}}
 <thead class="thead-dark" >
     <tr>
         <th># Ocurrencias</th>
@@ -80,7 +81,7 @@
         <td>{{imagen.num_ocurrencias}}</td>
         <td>{{imagen.nombre}}</td>
         <td>{{imagen.extension}}</td>
-        <td>{{imagen.suma_ocurrencias}}</td>
+        <!--<td>{{imagen.suma_ocurrencias}}</td>-->
         <td>{{imagen.tipoImagen.id}}</td>
         <td>
             <table>
