@@ -15,4 +15,5 @@ urlpatterns = [
     path('ImagenCrear/<int:pericia>/', views.ImagenCrear.as_view(), name='ImagenCrear'),
     path('ImagenEditar/<int:pk>/', views.ImagenEditar.as_view(), name='ImagenEditar'),
     path('ImagenEliminar/<int:Imagenid>/', views.ImagenEliminar, name='ImagenEliminar'),
+    path('ReporteOcurrencia/', views.ReporteOcurrencia.as_view(), name='ReporteOcurrencia'),
 ]

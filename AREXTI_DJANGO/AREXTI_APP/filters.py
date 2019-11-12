@@ -1,6 +1,6 @@
-from AREXTI_APP.models import Proyecto, Pericia, Imagen, TipoImagen, ImagenHash
+from .models import Proyecto, Pericia, Imagen, TipoImagen, ImagenHash, ImagenDetalle
 import django_filters
-from django.db import models
+from django.db.models import Count, Sum
 from django import forms
 from django_filters import widgets, filters
 
@@ -125,4 +125,26 @@ class ImagenFilter(django_filters.FilterSet):
     def filter_hash(self, queryset, name, value):
         if value:
             queryset = Imagen.objects.filter(imagenhash__valor__contains=value)
+        return queryset
+
+class ReporteFilter(django_filters.FilterSet):
+    # nombre = django_filters.CharFilter(lookup_expr='icontains', label='Nombre')
+    extension = django_filters.CharFilter(lookup_expr='icontains', label='Extensión')
+    tipoImagen = django_filters.ModelChoiceFilter(queryset=TipoImagen.objects.filter(activo=1), label='Tipo Imagen')
+    texto = django_filters.CharFilter(method='filter_texto', label='Palabra')
+
+    class Meta:
+        model = Imagen
+        fields = ['texto']
+
+    def __init__(self, *args, **kwargs):
+        super(ReporteFilter, self).__init__(*args, **kwargs)
+        self.filters['tipoImagen'].extra.update(
+            {'empty_label': 'Todas'})
+
+    def filter_texto(self, queryset, name, value):
+        if value:
+            queryset = Imagen.objects.filter(imagendetalle__texto__icontains=value).\
+                annotate(num_ocurrencias=Count('id')).annotate(suma_ocurrencias=Sum('id'))
+            # queryset = queryset.annotate(suma_ocurrencias=('num_ocurrencias'))
         return queryset

@@ -36,21 +36,21 @@
 <form>
         <div class="form-row">
             <div class="form-group col-md-3">
-                {{ filterset.form.nombre.label_tag }}
-                {% render_field filterset.form.nombre class="form-control" %}
+                {{ filterset.form.texto.label_tag }}
+                {% render_field filterset.form.texto class="form-control" %}
             </div>
-            <div class="form-group col-md-3">
-                {{ filterset.form.extension.label_tag }}
-                {% render_field filterset.form.extension class="form-control" %}
-            </div>
-            <div class="form-group col-md-3">
-                {{ filterset.form.tipoImagen.label_tag }}
-                {% render_field filterset.form.tipoImagen class="form-control" %}
-            </div>
-            <div class="form-group col-md-3">
-                {{ filterset.form.hash.label_tag }}
-                {% render_field filterset.form.hash class="form-control" %}
-            </div>
+            <!--<div class="form-group col-md-3">-->
+                <!--{{ filterset.form.extension.label_tag }}-->
+                <!--{% render_field filterset.form.extension class="form-control" %}-->
+            <!--</div>-->
+            <!--<div class="form-group col-md-3">-->
+                <!--{{ filterset.form.tipoImagen.label_tag }}-->
+                <!--{% render_field filterset.form.tipoImagen class="form-control" %}-->
+            <!--</div>-->
+            <!--<div class="form-group col-md-3">-->
+                <!--{{ filterset.form.hash.label_tag }}-->
+                <!--{% render_field filterset.form.hash class="form-control" %}-->
+            <!--</div>-->
         </div>
         <div class="form-group col-md-4">
             <button type="submit" class="btn btn-primary">Generar</button>
@@ -66,10 +66,8 @@
 <a class="btn btn-success" href="#">Exportar</a>
 <thead class="thead-dark" >
     <tr>
-        <th style="width: 10px"></th>
-        <th style="width: 10px"></th>
-        <th style="width: 10px"></th>
-        <th>Nombre</th>
+        <th># Ocurrencias</th>
+        <th>Imagen</th>
         <th style="width: 100px">Extensión</th>
         <th style="width: 120px">Tipo Imagen</th>
         <th>Hash</th>
@@ -78,26 +76,11 @@
 <tbody>
     {% for imagen in object_list %}
     <tr>
-        <td>
-            <a href="{% url 'ImagenEditar' imagen.id %}">
-                <img src="../../static/image/editar.png" alt="Modificar" title="Modificar" style="width: 20px;">
-            </a>
-        </td>
-        <td>
-            <a href="#Eliminar{{ imagen.id }}" data-toggle="modal">
-                <img src="../../static/image/eliminar.png" alt="Eliminar" title="Eliminar" style="width: 20px;">
-            </a>
-        </td>
         <td style="display:none;">{{imagen.id}}</td>
-        <td>{{imagen.miniatura}}</td>
-        <td>
-            <div class="cl-effect-1">
-                <a class="link" href="{% url 'ImagenEditar' imagen.id %}">
-                    {{imagen.nombre}}
-                </a>
-            </div>
-        </td>
+        <td>{{imagen.num_ocurrencias}}</td>
+        <td>{{imagen.nombre}}</td>
         <td>{{imagen.extension}}</td>
+        <td>{{imagen.suma_ocurrencias}}</td>
         <td>{{imagen.tipoImagen.id}}</td>
         <td>
             <table>
@@ -151,7 +134,7 @@
     </div>
     {% empty %}
         <tr>
-          <td colspan="5"><h1>No hay imagenes</h1></td>
+          <td colspan="5"><h1></h1></td>
         </tr>
     {% endfor %}
 
