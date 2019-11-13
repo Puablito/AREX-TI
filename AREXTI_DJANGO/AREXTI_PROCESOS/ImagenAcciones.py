@@ -1,15 +1,11 @@
-import RedesNeuronales
-import Hashes
-import Metadatos
-import ImagenProcesar
-import Segmentacion
-import logging
-import sys
 import os
-import Herramientas
 import shutil
 import imghdr
 import datetime
+import sys
+import logging
+import RedesNeuronales, ImagenProcesar, Segmentacion, Herramientas
+import Hashes, Metadatos, BaseDatos
 
 
 def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tipoProceso, DirPrincipal):
@@ -204,3 +200,98 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
 
                 # Guarda en Cola para guardar en BD
                 imagenes_guardar.put(imagen_procesada)
+
+
+def cambiar_tipoimagen(imagenid, imagentipo):
+    # Configuración del Log
+    logging.basicConfig(handlers=[logging.FileHandler('Logs/TipoImagenCambio.csv', 'a', 'utf-8')],
+                        format='%(asctime)s; %(levelname)s; %(message)s',
+                        level=logging.DEBUG,
+                        datefmt='%d-%b-%y %H:%M:%S')
+
+    logging.info("----- Inicio del proceso canbio de tipo de imagen -----")
+    logging.info("---- Parametros del proceso ----")
+    logging.info("-- Id Imagen: {0}".format(imagenid))
+    logging.info("-- Nuevo tipo de imagen : {0}".format(imagentipo))
+
+    # Realizo la conexión a la BD
+    conexionBD = BaseDatos.Conexion()
+    Is_OK = conexionBD.conectar()
+    if not Is_OK:
+        logging.error(conexionBD.error)
+    else:
+        # Si se pudo conectar a la base de datos
+        RtaBD = Herramientas.parametro_get(conexionBD, 'TESSERACTPATH')
+        if RtaBD[0] == "OK":
+            tesseract_cmd = RtaBD[1][0]["valorTexto"]
+            logging.info("-- Ruta Tesseract: {0}".format(tesseract_cmd))
+        else:
+            Is_OK = False
+            logging.error("Error en parametro: TESSERACTPATH (" + RtaBD[1] + ")")
+
+    if Is_OK:
+        # recupero la imagen a procesar
+        imagen_procesar = ImagenProcesar.Imagen()
+        query = """ SELECT "nombre","extension","path" 
+                    FROM "AREXTI_APP_imagen"
+                    WHERE "id"=%s;"""
+        data = (imagenid,)
+        resultado = conexionBD.consulta(query, data)
+        logging.info("recupero la imagen a procesar")
+
+        if resultado:
+            # Creo el objeto Imagen para usarlo en el segmentador
+            nombreImagen = resultado[0]["nombre"]
+            imagen_procesar.set_nombre(nombreImagen)
+            imagen_procesar.set_extension(resultado[0]["extension"])
+            imagen_procesar.set_path(resultado[0]["path"])
+
+            # instancio el segmentador
+            try:
+                segmentador = Segmentacion.Segmentador(tesseract_cmd)
+            except:
+                Is_OK = False
+                logging.error('Error al instanciar el segmentador - ({0} - {1})'.format(sys.exc_info()[0],
+                                                                                        sys.exc_info()[1]))
+
+            if Is_OK:
+                try:
+                    # ejecuto el tipo de segmentación pasado por parametro
+                    segmentador.set_imagen(imagen_procesar)
+
+                    logging.info("Ejecuto el segmentador")
+
+                    if imagentipo == "CHAT":
+                        imagen_procesar.set_detalles(segmentador.segmentarChat())
+                    elif imagentipo == "MAIL":
+                        imagen_procesar.set_detalles(segmentador.segmentarMail())
+                    elif imagentipo == "OTRO":
+                        imagen_procesar.set_detalles(segmentador.segmentarOtro())
+                except:
+                    Is_OK = False
+                    logging.error('Error ejecutando la segmentación - ({0} - {1})'.format(sys.exc_info()[0],
+                                                                                          sys.exc_info()[1]))
+
+            if Is_OK:
+                # Elimino el detalle actual
+                RtaElimina = Herramientas.imagenDetalleEliminar(conexionBD, imagenid)
+
+                logging.info("Elimino el detalle de la imagen anterior")
+
+                if RtaElimina[0] == "OK":
+                    # Recupero y guardo el detalle nuevo, y actualizo el tipo de imagen
+                    detalles = imagen_procesar.get_detalles()
+                    RtaActualiza = Herramientas.imagenTipoActualizar(conexionBD, imagenid, imagentipo, detalles)
+
+                    if RtaActualiza[0] == "OK":
+                        logging.info("Cambio de tipo de la imagen {0}-{1} realizado correctamente".format(imagenid,
+                                                                                                          nombreImagen))
+                    else:
+                        logging.error("Error al actualizar el detalle de la imagen {0}-{1} ({2})".format(imagenid,
+                                                                                                         nombreImagen,
+                                                                                                         RtaActualiza[1]))
+                else:
+                    logging.error("Error al eliminar el detalle de la imagen {0}-{1} ({2})".format(imagenid,
+                                                                                                   nombreImagen,
+                                                                                                   RtaElimina[1]))
+    logging.info("----- Fin del proceso canbio de tipo de imagen -----")

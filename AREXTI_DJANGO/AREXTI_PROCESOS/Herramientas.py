@@ -55,8 +55,8 @@ def imagenInsertar(conexion, periciaid,  imagen):
 
 def hashesInsertar(hashes, imagenId, conexion):
     query = """ INSERT INTO "AREXTI_APP_imagenhash" 
-                    (valor, imagen_id, "tipoHash_id")
-                    VALUES (%s, %s, %s)"""
+                (valor, imagen_id, "tipoHash_id")
+                VALUES (%s, %s, %s)"""
     if hashes:
         for hash in hashes:
             tipoHash = hash
@@ -65,12 +65,10 @@ def hashesInsertar(hashes, imagenId, conexion):
             conexion.consulta(query, data, False)
 
 
-
-
 def metadatosInsertar(metadatos, imagenId, conexion):
     query = """ INSERT INTO "AREXTI_APP_imagenmetadatos" 
-                        ("idMetadato", valor, imagen_id)
-                        VALUES (%s, %s, %s)"""
+                ("idMetadato", valor, imagen_id)
+                VALUES (%s, %s, %s)"""
     if metadatos:
         for metadato in metadatos:
             idMetadato = metadato
@@ -79,18 +77,16 @@ def metadatosInsertar(metadatos, imagenId, conexion):
             conexion.consulta(query, data, False)
 
 
-
 def detallesInsertar(detalles, imagenId, conexion):
     query = """ INSERT INTO "AREXTI_APP_imagendetalle" 
-                            (texto, imagen_id, "tipoDetalle_id")
-                            VALUES (%s, %s, %s)"""
+                (texto, imagen_id, "tipoDetalle_id")
+                VALUES (%s, %s, %s)"""
     if detalles:
         for detalle in detalles:
             texto = detalle.get_texto()
             tipoDetalle = detalle.get_tipoDetalle()
             data = (texto, imagenId, tipoDetalle)
             conexion.consulta(query, data, False)
-
 
 
 def miniaturaCrea(imagen, ext):
@@ -109,13 +105,32 @@ def miniaturaCrea(imagen, ext):
     return buf
 
 
-def log_graba(conexion, parametro_id):
-    query = """ INSERT INTO "AREXTI_APP_log" 
-                        (periciaId, tipo, "descripcion", "imagenPath", "imagenNombre")
-                        VALUES (%s, %s, %s, %s, %s)"""
-    data = (parametro_id,)
-    resultado = conexion.consulta(query, data)
-    # return es una lista con 2 elementos [0]e[1], en cada elemento [1] es una lista de registros
+def imagenTipoActualizar(conexion, imagenId, imagentipo, detalles):
+    # actualiza el tipo de imagen en tabla IMAGEN
+    query = """ UPDATE "AREXTI_APP_imagen" 
+                SET "tipoImagen_id" = %s
+                WHERE id = %s;"""
+
+    data = (imagentipo, imagenId)
+    conexion.consulta(query, data, False)
+
+    # Guarda el nuevo detalle de la Imagen
+    detallesInsertar(detalles, imagenId, conexion)
+
+    resultado = conexion.conexionCommitRoll()
+    if resultado:
+        return ["OK", resultado]
+    else:
+        return ["ERROR", conexion.error]
+
+
+def imagenDetalleEliminar(conexion, imagenId):
+    # Elimina el detalle de la imagen
+    query = """ DELETE FROM "AREXTI_APP_imagendetalle" 
+                WHERE id = %s;"""
+    data = (imagenId,)
+    conexion.consulta(query, data, False)
+    resultado = conexion.conexionCommitRoll()
     if resultado:
         return ["OK", resultado]
     else:

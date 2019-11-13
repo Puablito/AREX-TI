@@ -1,6 +1,3 @@
-import Segmentacion
-
-
 class Imagen:
 
     def __init__(self):
@@ -12,25 +9,7 @@ class Imagen:
         self.__metadatos = dict()
         self.__thumbnail = ""
         self.__detalles = []
-        # self.__segmentador = Segmentacion(self, 720)
 
-    # Listar Atributos
-    def imprimir(self):
-        print("Nombre: {0}".format(self.get_nombre()))
-        print("Extension: {0}".format(self.get_extension()))
-        print("Path: {0}".format(self.get_path()))
-        print("Tipo de Imagen: {0}".format(self.get_imagentipo()))
-        print("Hashes: {0}".format(self.get_hashes()))
-        print("Metadatos: {0}".format(self.get_metadatos()))
-
-    # def procesarImagen(self):
-    #     if self.__imagentipo == 'C':
-    #         self.__detalles = self.__segmentador.segmentarChat()
-    #     else:
-    #         if self.tipoImagen == 'M':
-    #             self.__detalles = self.__segmentador.segmentarMail()
-    #         else:
-    #             self.__detalles = self.__segmentador.segmentarOtro()
 
     # getters
     def get_nombre(self):
