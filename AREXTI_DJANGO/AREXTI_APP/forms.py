@@ -23,10 +23,10 @@ class ProyectoForm(forms.ModelForm):
         ]
 
         labels = {
-            'IPP':'IPP',
-            'descripcion':'Descripcion',
-            'fiscalia':'Fiscalia',
-            'responsable':'Responsable',
+            'IPP': 'IPP',
+            'descripcion': 'Descripcion',
+            'fiscalia': 'Fiscalia',
+            'responsable': 'Responsable',
             'defensoria': 'Defensoria',
             'juzgado': 'Juzgado',
         }

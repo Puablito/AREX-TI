@@ -1,6 +1,6 @@
-from AREXTI_APP.models import Proyecto, Pericia, Imagen, TipoImagen, ImagenHash
+from .models import Proyecto, Pericia, Imagen, TipoImagen, ImagenHash, ImagenDetalle, TipoDetalle
 import django_filters
-from django.db import models
+from django.db.models import Count, Sum
 from django import forms
 from django_filters import widgets, filters
 
@@ -88,7 +88,6 @@ class PericiaFilter(django_filters.FilterSet):
     descripcion = django_filters.CharFilter(lookup_expr='icontains', label='Descripción')
     tipoPericia = django_filters.ChoiceFilter(choices=Pericia.tiposPericia, label='Tipo Pericia')
 
-
     def __init__(self, data, *args, **kwargs):
         data = data.copy()
         # data.setdefault('IPP', '111')
@@ -126,4 +125,38 @@ class ImagenFilter(django_filters.FilterSet):
     def filter_hash(self, queryset, name, value):
         if value:
             queryset = Imagen.objects.filter(imagenhash__valor__contains=value)
+        return queryset
+
+class ReporteFilter(django_filters.FilterSet):
+    # nombre = django_filters.CharFilter(lookup_expr='icontains', label='Nombre')
+    extension = django_filters.CharFilter(lookup_expr='icontains', label='Extensión')
+    tipoImagen = django_filters.ModelChoiceFilter(queryset=TipoImagen.objects.filter(activo=1), label='Tipo Imagen')
+    texto = django_filters.CharFilter(method='filter_texto', label='Palabra')
+    tipoDetalle = django_filters.ModelChoiceFilter(queryset=TipoDetalle.objects, label='Tipo Detalle')
+
+    class Meta:
+        model = Imagen
+        fields = ['texto', 'pericia']
+
+    def __init__(self, *args, **kwargs):
+        super(ReporteFilter, self).__init__(*args, **kwargs)
+        self.filters['tipoImagen'].extra.update(
+            {'empty_label': 'Todas'})
+        self.filters['pericia'].extra.update(
+            {'empty_label': 'Todas'})
+        self.filters['tipoDetalle'].extra.update(
+            {'empty_label': 'Todos'})
+
+    def filter_texto(self, queryset, name, value):
+        if value:
+            # suma = Imagen.objects.filter(imagendetalle__texto__icontains=value).\
+            #     annotate(num_ocurrencias=Count('id')).aggregate(suma_ocurrencias=Sum('num_ocurrencias'))['suma_ocurrencias']
+            queryset = Imagen.objects.filter(imagendetalle__texto__icontains=value). \
+                annotate(num_ocurrencias=Count('id')). \
+                extra(
+                select={
+                    'suma_ocurrencias': """SELECT COUNT(*) FROM "AREXTI_APP_imagendetalle" WHERE texto like %s"""
+                }, select_params=['%'+value+'%'])
+
+        # , select_params=value   LIKE '%Pablito%'
         return queryset

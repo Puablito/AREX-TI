@@ -97,7 +97,8 @@ class ImagenHash(models.Model):
 class TipoDetalle(models.Model):
     id = models.CharField(max_length=60, primary_key=True)
     descripcion = models.CharField(max_length=100)
-
+    def __str__(self):
+        return self.id
 
 class ImagenDetalle(models.Model):
     imagen = models.ForeignKey(Imagen, on_delete=models.CASCADE)

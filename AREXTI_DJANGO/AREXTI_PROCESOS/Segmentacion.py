@@ -20,14 +20,14 @@ class Segmentador:
         self.__imagen = None
         self.ancho = 0
         self.alto = 0  # math.trunc(ancho * (16 / 9))
-        self.areaMinima = (self.ancho * self.alto) * 0.6 / 100              # area minima que debe cumplir un contorno para ser considerado globo de chat
+        self.areaMinima = (self.ancho * self.alto) * 0.6 / 100  # area minima que debe cumplir un contorno para ser considerado globo de chat
         self.gris = None
         self.imgEscalada = None
         self.canny = None
         self.difRango = 20          # PARAMETRO PARA MARCAR UMBRAL DE DIFERENCIA MAXIMA ENTRE IZQ Y DERECHA PARA CLASIFICAR GLOBO INDEFINIDO
         self.horizontal = False
         self.tesseract_cmd = tesseract_cmd
-
+        self.extractor = None
 
     def get_imagen(self):
         return self.__imagen
@@ -38,7 +38,17 @@ class Segmentador:
     def configurarImagen(self):
         imgPath = self.__imagen.get_path() + os.sep + self.__imagen.get_nombre()
 
+        metadatos = self.__imagen.get_metadatos()
+
         imgOriginal = Image.open(imgPath)
+        if 'Orientation' in metadatos:
+            orientacion = int(metadatos['Orientation'])
+            if orientacion == 3:
+                imgOriginal = imgOriginal.rotate(180, expand=True)
+            elif orientacion == 6:
+                imgOriginal = imgOriginal.rotate(270, expand=True)
+            elif orientacion == 8:
+                imgOriginal = imgOriginal.rotate(90, expand=True)
         anchoOriginal = imgOriginal.width  # OBTENER ANCHO DE IMAGEN
         altoOriginal = imgOriginal.height  # OBTENER ALTO DE IMAGEN
         self.horizontal = anchoOriginal > altoOriginal
@@ -102,7 +112,7 @@ class Segmentador:
         cabeceraDetalle = ImagenProcesar.ImagenDetalle()
         textoCabecera = self.extraerCabecera(self.canny)
 
-        # SI EL GLOBO NO TIENE TEXTO O NO SE DETECTA NO SE GUARDA
+        # SI LA CABECERA NO TIENE TEXTO O NO SE DETECTA NO SE GUARDA
         if textoCabecera.strip():
             cabeceraDetalle.set_tipoDetalle('CABECERA')
             cabeceraDetalle.set_texto(textoCabecera)
@@ -153,8 +163,9 @@ class Segmentador:
         return globos
 
     def extraerTextoImagen(self, img):
-        extractor = ExtraccionTexto(self.tesseract_cmd)  # pasar paths por parametro en inicializacion?
-        texto = extractor.extraerTexto(img)
+        if not self.extractor:
+            self.extractor = ExtraccionTexto(self.tesseract_cmd)
+        texto = self.extractor.extraerTexto(img)
         texto = texto.strip()
         texto = texto.replace('"', "")
         texto = texto.replace("'", "")
@@ -199,8 +210,6 @@ class Segmentador:
 
         cabecera = self.imgEscalada[lineaBarraInfo:lineaCabecera, 0:self.ancho]
         cabeceraTexto = self.extraerTextoImagen(cabecera)
-
-        cv2.imwrite("cabeceras\cabecera " + self.__imagen.get_nombre() + ".jpg", cabecera)      ############################# Esta linea tieen que IR ???
 
         return cabeceraTexto
 
@@ -255,7 +264,7 @@ class Segmentador:
 class ExtraccionTexto:
     def __init__(self, tesseract_cmd):
         # self.imagen = img
-        pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
+        pytesseract.pytesseract.tesseract_cmd = tesseract_cmd  # Cachear excepcion
 
     def extraerTexto(self, img):
         texto = pytesseract.image_to_string(img)

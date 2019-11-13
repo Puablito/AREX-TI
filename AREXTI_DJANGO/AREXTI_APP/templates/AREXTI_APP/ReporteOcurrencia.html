@@ -1,0 +1,157 @@
+{% extends 'base/ListadoBase.html' %}
+{% load widget_tweaks %}
+
+{% block ListadoBaseScripts %}
+<script>
+
+    function create_button(color, title, value, id, imagenId)
+    {
+        var btn = document.createElement('input');
+        btn.type = "button";
+        btn.className = "btn btn-hash";
+        btn.style = "background-color:{{color}}; border-color:color";
+
+        btn.title= title;
+
+        btn.value = value;
+        var td = $('#tipoHash_'+imagenId+id)
+        $(td).append(btn);
+    }
+
+    $(function () {
+        $('[data-toggle="tooltipHash"]').tooltip()
+    })
+</script>
+{% endblock %}
+
+{% block icon %}
+<i class="fa fa-image"></i>
+{% endblock %}
+
+{% block titulo %}
+ Reporte: Ocurrencias por palabra
+{% endblock %}
+
+{% block filtros %}
+<form>
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                {{ filterset.form.texto.label_tag }}
+                {% render_field filterset.form.texto class="form-control" %}
+            </div>
+            <div class="form-group col-md-3">
+                {{ filterset.form.pericia.label_tag }}
+                {% render_field filterset.form.pericia class="form-control" %}
+            </div>
+            <div class="form-group col-md-3">
+                {{ filterset.form.tipoImagen.label_tag }}
+                {% render_field filterset.form.tipoImagen class="form-control" %}
+            </div>
+            <div class="form-group col-md-3">
+                {{ filterset.form.tipoDetalle.label_tag }}
+                {% render_field filterset.form.tipoDetalle class="form-control" %}
+            </div>
+        </div>
+        <div class="form-group col-md-4">
+            <button type="submit" class="btn btn-primary">Generar</button>
+        </div>
+    </form>
+{% endblock %}
+
+{% block acciones %}
+{% endblock %}
+
+{% block tabla_contenido %}
+
+<a class="btn btn-success" href="#">Exportar</a>
+# total de ocurrencias: {{object_list.0.suma_ocurrencias}}
+<thead class="thead-dark" >
+    <tr>
+        <th># Ocurrencias</th>
+        <th>Imagen</th>
+        <th style="width: 100px">Extensión</th>
+        <th style="width: 120px">Tipo Imagen</th>
+        <th>Hash</th>
+    </tr>
+</thead>
+<tbody>
+    {% for imagen in object_list %}
+    <tr>
+        <td style="display:none;">{{imagen.id}}</td>
+        <td>{{imagen.num_ocurrencias}}</td>
+        <td>{{imagen.nombre}}</td>
+        <td>{{imagen.extension}}</td>
+        <!--<td>{{imagen.suma_ocurrencias}}</td>-->
+        <td>{{imagen.tipoImagen.id}}</td>
+        <td>
+            <table>
+                <tr>
+
+                    {% for tipoHash in tipoHashes %}
+
+                    <td class="child" id="tipoHash_{{imagen.id}}{{tipoHash.id}}">
+                        {% if  imagen.get_datos  %}
+                            <a type="button" class="btn btn-hash" style="background-color:{{obj_hash.tipoHash.color}}; border-color:{{obj_hash.tipoHash.color}};" data-toggle="tooltipHash" data-original-title="{{obj_hash.valor}}" data-trigger="click">
+                                {{obj_hash.tipoHash.id}}
+                            </a>
+                        {% else %}
+                            <span></span>
+                        {% endif %}
+                    </td>
+
+                    {% endfor %}
+
+
+
+                    <!--{% for obj_hash in imagen.imagenhash_set.all %}-->
+                            <!--<a type="button" class="btn btn-hash" style="background-color:{{obj_hash.tipoHash.color}}; border-color:{{obj_hash.tipoHash.color}};" data-toggle="tooltipHash" data-original-title="{{obj_hash.valor}}" data-trigger="click">-->
+                                <!--{{obj_hash.tipoHash.nombre}}-->
+                            <!--</a>-->
+                    <!--{% endfor %}-->
+                </tr>
+            </table>
+        </td>
+
+    </tr>
+    <div id="Eliminar{{ imagen.id }}" class="modal fade">
+        <div class="modal-dialog modal-confirm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="icon-box">
+                        <i class="material-icons">&#xE5CD;</i>
+                    </div>
+                    <h4 class="modal-title">Atención!</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Seguro que desea eliminar la imagen {{ imagen.descripcion }}?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-info" data-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-danger" onclick="window.location.href='{% url 'ImagenEliminar' imagen.id %}'">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+        <tr>
+          <td colspan="5"><h1></h1></td>
+        </tr>
+    {% endfor %}
+
+</tbody>
+
+{% endblock %}
+
+{% block tabla_paginacion %}
+<li class="page-item disabled">
+    <span class="page-link">Previous</span>
+</li>
+<li class="page-item"><a class="page-link" href="#">1</a></li>
+<li class="page-item active" aria-current="page">
+    <span class="page-link">2<span class="sr-only">(current)</span></span></li>
+<li class="page-item"><a class="page-link" href="#">3</a></li>
+<li class="page-item">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+{% endblock %}

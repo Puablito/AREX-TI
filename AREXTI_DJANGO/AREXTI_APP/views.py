@@ -10,9 +10,9 @@ from django.template import loader
 from django.views.generic import TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic import ListView, CreateView, UpdateView, DetailView
-from AREXTI_APP.models import Proyecto, Pericia, Imagen, TipoHash, ImagenHash, ImagenDetalle, ImagenFile
-from AREXTI_APP.forms import ProyectoForm, PericiaForm, ImagenForm, ImagenEditForm
-from .filters import ProyectoFilter, PericiaFilter, ImagenFilter
+from .models import Proyecto, Pericia, Imagen, TipoHash, ImagenHash, ImagenDetalle, ImagenFile
+from .forms import ProyectoForm, PericiaForm, ImagenForm, ImagenEditForm
+from .filters import ProyectoFilter, PericiaFilter, ImagenFilter, ReporteFilter
 
 import os
 from django.conf import settings
@@ -27,7 +27,6 @@ import subprocess
 class messageTitle(Enum):
     Alta = "Alta exitosa"
     Modificacion = "Modificación exitosa"
-
 
 
 class FilteredListView(ListView):
@@ -214,6 +213,14 @@ class PericiaEditar(UpdateView):
     def get_success_url(self):
         return reverse_lazy('PericiaListar', kwargs={'Proyectoid': self.object.proyecto.id})
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        proid = self.kwargs.get("Proyectoid")
+        if proid is None:
+            proid = 0
+        context['proyectoId'] = proid
+        return context
+
 
 def PericiaEliminar(request, Periciaid):
     # model = Proyecto
@@ -334,6 +341,31 @@ def ImagenEliminar(request, Imagenid):
         img.activo = 0
         img.save()
     return redirect('ImagenListar', img.pericia.id)
+
+class ReporteOcurrencia(FilteredListView):
+    filterset_class = ReporteFilter
+    def get_queryset(self):
+        perid = self.kwargs.get("pericia")
+        # queryset = super().get_queryset()
+        # if perid != 0:
+        #     queryset = Imagen.objects.filter(activo=1, pericia=perid).order_by('-id')
+        # else:
+        #     queryset = Imagen.objects.filter(activo=1).order_by('-id')
+        queryset = Imagen.objects.order_by('-id')
+        self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
+
+        return self.filterset.qs.distinct()
+    # queryset = Imagen.objects.filter(activo=1).order_by('-id')
+
+    #Agrego al contexto la periciaId sobre el cual se obtuvo el conjunto de imagenes
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['periciaId'] = self.kwargs.get("pericia")
+        context['tipoHashes'] = TipoHash.objects.filter(activo=1)
+        return context
+
+    paginate_by = 10
+    template_name = 'AREXTI_APP/ReporteOcurrencia.html'
 
 
 

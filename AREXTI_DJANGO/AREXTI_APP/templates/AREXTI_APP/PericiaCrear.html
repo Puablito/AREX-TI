@@ -11,11 +11,11 @@
 {% endblock %}
 
 {% block titulo %}
-   Pericia {{ proyectoId }}
+   Pericia
 {% endblock %}
 
 {% block linkVolver %}
-  <a type="" href="{% url 'PericiaListar' 0 %}" style="color:black"> &laquo; Volver a Pericias</a>
+  <a type="" href="{% url 'PericiaListar' proyectoId %}" style="color:black"> &laquo; Volver a Pericias</a>
 {% endblock %}
 
 {% block body %}
@@ -24,7 +24,7 @@
 
 {% block btnCancelar %}
   <!--<button class="btn btn-default" onclick="location.href={% url 'PericiaListar' 0 %}">Cancelar</button>-->
-    <a type="" href="{% url 'PericiaListar' 0 %}" class="btn btn-default">Cancelar</a>
+    <a type="" href="{% url 'PericiaListar' proyectoId %}" class="btn btn-default">Cancelar</a>
 {% endblock %}
 {% block btnListar %}
   <!--<button type="button" onclick="location.href={% url 'PericiaListar' 0 %}" class="btn btn-success pull-right">Ver Imagenes</button>-->
