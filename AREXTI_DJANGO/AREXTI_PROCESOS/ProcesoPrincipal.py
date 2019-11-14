@@ -32,7 +32,6 @@ def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
         if not Is_OK:
             logging.error(conexionBD.error)
         else:
-            # Si se pudo conectar a la base de datos
             # Recupero parametros necesarios para ejecurar el proceso
             """
             RtaBD[0] indica si la consulta se realizó OK o con "ERROR"
@@ -122,6 +121,7 @@ def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
             else:
                 RNTexto_procesa = False
 
+            mensajes_Cola = Queue()
             procesos_ejecucion = []  # cantidad de procesos en ejecución
             indiceProceso = 1
 
@@ -130,7 +130,7 @@ def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
                 p = Process(name="Proceso {0}".format(indiceProceso),
                             target=ImagenAcciones.procesar_imagen,
                             args=(indiceProceso, ImagenesCola, ImagenesGuardar_Cola, imagenesNoTexto_Cola,
-                                  listaHash, tesseract_cmd, RNTexto_procesa,)
+                                  listaHash, tesseract_cmd, RNTexto_procesa, mensajes_Cola,)
                             )
                 p.start()
                 procesos_ejecucion.append(p)
@@ -153,19 +153,26 @@ def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
                 if not imagenesNoTexto_Cola.empty():
                     with open("Logs/Log_imagenesSinTexto.txt", "a") as archivo_notexto:
                         while not imagenesNoTexto_Cola.empty():
-                            archivo_notexto.write(imagenesNoTexto_Cola.get() + "\n")
+                            fecha = time.strftime("%d-%m-%Y %H:%M:%S")
+                            archivo_notexto.write("{0}; {1}; \n".format(fecha, imagenesNoTexto_Cola.get()))
+
+                # Guarda los mensajes en log
+                while not mensajes_Cola.empty():
+                    mensaje = mensajes_Cola.get()
+                    if mensaje[0] == "INFO":
+                        logging.info(mensaje[1])
+                    elif mensaje[0] == "ERROR":
+                        logging.error(mensaje[1])
 
                 # Guarda las Imagenes ya procesadas en la BD
-                # Realizar mas pruebas (si la cola "ImagenesGuardar_Cola" se llena los procesos no terminan)
-
                 while not ImagenesGuardar_Cola.empty():
                     img_guardar = ImagenesGuardar_Cola.get()
-        # Guarda de a una imagen, ver de guardar por bloque de ser posible
+                    # Guarda de a una imagen
                     RtaBD = Herramientas.imagenInsertar(conexionBD, pericia, img_guardar)
                     if RtaBD[0] == "ERROR":
                         mjeError = RtaBD[1].replace("\n", ",")
-                        logging.error('Error al guardar la imagen, nombre: {0} - ({1})'.format(img_guardar.get_nombre(), mjeError))
-                        # print(RtaBD[1])
+                        logging.error('Error al guardar la imagen, nombre: {0} - ({1})'.format(img_guardar.get_nombre(),
+                                                                                               mjeError))
 
                     print("Imagen: {0} - {1}".format(img_guardar.get_nombre(), img_guardar.get_imagentipo()))
                 # Para no saturar el cpu, dormimos el ciclo durante 1 segundo
