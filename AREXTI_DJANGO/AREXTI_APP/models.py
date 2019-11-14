@@ -87,6 +87,9 @@ class Imagen(models.Model):
     def get_datos(self, tipoHashId):
         return self.imagenhash_set.filter(tipoHash=tipoHashId)
 
+    def get_detalle(self, imagen):
+        return self.imagendetalle_set.filter(imagen=imagen)
+
 
 class ImagenHash(models.Model):
     imagen = models.ForeignKey(Imagen, on_delete=models.CASCADE)

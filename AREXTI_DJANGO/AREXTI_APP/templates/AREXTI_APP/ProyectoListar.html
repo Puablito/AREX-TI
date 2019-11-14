@@ -96,7 +96,14 @@ Proyectos
         </td>
         <td style="display:none;">{{proyecto.id}}</td>
         <td>{{proyecto.IPP}}</td>
-        <td>{{proyecto.descripcion}}</td>
+        <td>
+            <div class="cl-effect-1">
+                <a class="link" href="{% url 'ProyectoConsultar' proyecto.id %}">
+                    {{proyecto.descripcion}}
+                </a>
+            </div>
+        </td>
+        <!--<td>{{proyecto.descripcion}}</td>-->
         <td>{{proyecto.fiscalia}}</td>
         <td>{{proyecto.responsable}}</td>
         <td>{{proyecto.defensoria}}</td>

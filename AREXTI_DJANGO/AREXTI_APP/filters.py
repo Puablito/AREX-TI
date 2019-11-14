@@ -127,12 +127,18 @@ class ImagenFilter(django_filters.FilterSet):
             queryset = Imagen.objects.filter(imagenhash__valor__contains=value)
         return queryset
 
+
+def filter_not_empty(queryset, name, value):
+    lookup = '__'.join([name, 'isnull'])
+    return queryset.filter(**{lookup: False})
+
+
 class ReporteFilter(django_filters.FilterSet):
     # nombre = django_filters.CharFilter(lookup_expr='icontains', label='Nombre')
-    extension = django_filters.CharFilter(lookup_expr='icontains', label='Extensión')
+    # extension = django_filters.CharFilter(lookup_expr='icontains', label='Extensión')
     tipoImagen = django_filters.ModelChoiceFilter(queryset=TipoImagen.objects.filter(activo=1), label='Tipo Imagen')
     texto = django_filters.CharFilter(method='filter_texto', label='Palabra')
-    tipoDetalle = django_filters.ModelChoiceFilter(queryset=TipoDetalle.objects, label='Tipo Detalle')
+    tipoDetalle = django_filters.ModelChoiceFilter(method='filter_detalle',queryset=TipoDetalle.objects, label='Tipo Detalle')
 
     class Meta:
         model = Imagen
@@ -147,6 +153,11 @@ class ReporteFilter(django_filters.FilterSet):
         self.filters['tipoDetalle'].extra.update(
             {'empty_label': 'Todos'})
 
+    def filter_detalle(self, queryset, name, value):
+        if value:
+            queryset = Imagen.objects.filter(imagendetalle__id__icontains=value)
+        return queryset
+
     def filter_texto(self, queryset, name, value):
         if value:
             # suma = Imagen.objects.filter(imagendetalle__texto__icontains=value).\
@@ -155,8 +166,13 @@ class ReporteFilter(django_filters.FilterSet):
                 annotate(num_ocurrencias=Count('id')). \
                 extra(
                 select={
-                    'suma_ocurrencias': """SELECT COUNT(*) FROM "AREXTI_APP_imagendetalle" WHERE texto like %s"""
+                    'suma_ocurrencias': """SELECT COUNT(*) FROM "AREXTI_APP_imagendetalle" WHERE texto ilike %s"""
                 }, select_params=['%'+value+'%'])
 
         # , select_params=value   LIKE '%Pablito%'
         return queryset
+
+    # def filter_queryset(self, queryset):
+    #     queryset = queryset. \
+    #             annotate(suma_ocurrencias=Sum('num_ocurrencias'))
+    #     return queryset

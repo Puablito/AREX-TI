@@ -62,9 +62,10 @@
 {% endblock %}
 
 {% block tabla_contenido %}
-
+<div class="form-group col-md-3">
 <a class="btn btn-success" href="#">Exportar</a>
-# total de ocurrencias: {{object_list.0.suma_ocurrencias}}
+    </div>
+<div class="form-group col-md-3"> # total de ocurrencias: {{object_list.0.suma_ocurrencias}}</div>
 <thead class="thead-dark" >
     <tr>
         <th># Ocurrencias</th>
@@ -79,10 +80,23 @@
     <tr>
         <td style="display:none;">{{imagen.id}}</td>
         <td>{{imagen.num_ocurrencias}}</td>
-        <td>{{imagen.nombre}}</td>
+        <td>
+            <div class="cl-effect-1">
+                <a class="link" href="{% url 'ImagenEditar' imagen.id %}">
+                    {{imagen.nombre}}
+                </a>
+            </div>
+        </td>
         <td>{{imagen.extension}}</td>
         <!--<td>{{imagen.suma_ocurrencias}}</td>-->
         <td>{{imagen.tipoImagen.id}}</td>
+        <td>
+            {% if  imagen.get_detalle %}
+                    {{obj_hash.tipoDetalle.id}}
+            {% else %}
+                <span>aa</span>
+            {% endif %}
+        </td>
         <td>
             <table>
                 <tr>
