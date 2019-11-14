@@ -1,10 +1,8 @@
 import os
 import datetime
 import time
-import ImagenAcciones
-import Herramientas
-import BaseDatos
 import logging
+import ImagenAcciones, Herramientas, BaseDatos
 from multiprocessing import Process, Queue
 
 
@@ -17,14 +15,13 @@ def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
             pass
 
         # Configuración del Log
-        logging.basicConfig(filename='Logs/ProcesoPrincipal.csv',
-                            filemode='a',
+        logging.basicConfig(handlers=[logging.FileHandler('Logs/ProcesoPrincipal.csv', 'a', 'utf-8')],
                             format='%(asctime)s; %(levelname)s; %(message)s',
                             level=logging.DEBUG,
                             datefmt='%d-%b-%y %H:%M:%S')
 
         logging.info("----- Inicio del proceso priincipal -----")
-        logging.info("--- Parametros del proceso ---")
+        logging.info("---- Parametros del proceso ----")
         logging.info("-- Pericia: {0}".format(pericia))
         logging.info("-- Tipo de proceso: {0}".format(tipoProceso))
         logging.info("-- Hashes a aplicar: {0}".format(listaHash))
@@ -35,15 +32,16 @@ def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
         if not Is_OK:
             logging.error(conexionBD.error)
         else:
-            # Si se pudo conectar a la base de datos
             # Recupero parametros necesarios para ejecurar el proceso
             """
             RtaBD[0] indica si la consulta se realizó OK o con "ERROR"
             RtaBD[1] si RtaBD[0] = "OK" contiene la respuesta de la consulta, caso contrario contiene el error obtenido
             """
+            logging.info("---- Parametros generales ----")
             RtaBD = Herramientas.parametro_get(conexionBD, 'DIRECTORIOIMAGEN')
             if RtaBD[0] == "OK":
                 DirBase = RtaBD[1][0]["valorTexto"]
+                logging.info("-- Directorio Base: {0}".format(DirBase))
             else:
                 Is_OK = False
                 logging.error("Error en parametro: DIRECTORIOIMAGEN ("+RtaBD[1]+")")
@@ -51,6 +49,7 @@ def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
             RtaBD = Herramientas.parametro_get(conexionBD, 'LISTAEXTENSIONES')
             if RtaBD[0] == "OK":
                 ListadoExtensiones = RtaBD[1][0]["valorTexto"]
+                logging.info("-- Lista de Extensiones validas: {0}".format(ListadoExtensiones))
             else:
                 Is_OK = False
                 logging.error("Error en parametro: LISTAEXTENSIONES (" + RtaBD[1] + ")")
@@ -58,6 +57,7 @@ def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
             RtaBD = Herramientas.parametro_get(conexionBD, 'TESSERACTPATH')
             if RtaBD[0] == "OK":
                 tesseract_cmd = RtaBD[1][0]["valorTexto"]
+                logging.info("-- Ruta Tesseract: {0}".format(tesseract_cmd))
             else:
                 Is_OK = False
                 logging.error("Error en parametro: TESSERACTPATH (" + RtaBD[1] + ")")
@@ -65,6 +65,7 @@ def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
             RtaBD = Herramientas.parametro_get(conexionBD, 'PROCESOSPARALELOS')
             if RtaBD[0] == "OK":
                 procesos_paralelos = RtaBD[1][0]["valorNumero"]
+                logging.info("-- Cantidad Procesos paralelos: {0}".format(procesos_paralelos))
             else:
                 Is_OK = False
                 logging.error("Error en parametro: PROCESOSPARALELOS (" + RtaBD[1] + ")")
@@ -74,18 +75,12 @@ def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
                 RtaBD = Herramientas.parametro_get(conexionBD, 'DIRECTORIOIMAGENTEMP')
                 if RtaBD[0] == "OK":
                     DirTemp = RtaBD[1][0]["valorTexto"]
+                    logging.info("-- Directorio Temporal: {0}".format(DirTemp))
                 else:
                     Is_OK = False
                     logging.error("Error en parametro: DIRECTORIOIMAGENTEMP (" + RtaBD[1] + ")")
 
         if Is_OK:
-            # Parametros a usar
-            logging.info("--- Parametros generales ---")
-            logging.info("-- Directorio Base: {0}".format(DirBase))
-            logging.info("-- Directorio Temporal: {0}".format(DirTemp))
-            logging.info("-- Lista de Extensiones validas: {0}".format(ListadoExtensiones))
-            logging.info("-- Cantidad Procesos paralelos: {0}".format(procesos_paralelos))
-
             # Si no hay error en los parametros
             # Inicializo colas de trabajo multiproceso
             ImagenesCola = Queue()          # cola de imagenes a procesar
@@ -126,6 +121,7 @@ def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
             else:
                 RNTexto_procesa = False
 
+            mensajes_Cola = Queue()
             procesos_ejecucion = []  # cantidad de procesos en ejecución
             indiceProceso = 1
 
@@ -134,7 +130,7 @@ def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
                 p = Process(name="Proceso {0}".format(indiceProceso),
                             target=ImagenAcciones.procesar_imagen,
                             args=(indiceProceso, ImagenesCola, ImagenesGuardar_Cola, imagenesNoTexto_Cola,
-                                  listaHash, tesseract_cmd, RNTexto_procesa,)
+                                  listaHash, tesseract_cmd, RNTexto_procesa, mensajes_Cola,)
                             )
                 p.start()
                 procesos_ejecucion.append(p)
@@ -157,18 +153,26 @@ def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
                 if not imagenesNoTexto_Cola.empty():
                     with open("Logs/Log_imagenesSinTexto.txt", "a") as archivo_notexto:
                         while not imagenesNoTexto_Cola.empty():
-                            archivo_notexto.write(imagenesNoTexto_Cola.get() + "\n")
+                            fecha = time.strftime("%d-%m-%Y %H:%M:%S")
+                            archivo_notexto.write("{0}; {1}; \n".format(fecha, imagenesNoTexto_Cola.get()))
+
+                # Guarda los mensajes en log
+                while not mensajes_Cola.empty():
+                    mensaje = mensajes_Cola.get()
+                    if mensaje[0] == "INFO":
+                        logging.info(mensaje[1])
+                    elif mensaje[0] == "ERROR":
+                        logging.error(mensaje[1])
 
                 # Guarda las Imagenes ya procesadas en la BD
-                # Realizar mas pruebas (si la cola "ImagenesGuardar_Cola" se llena los procesos no terminan)
-
                 while not ImagenesGuardar_Cola.empty():
                     img_guardar = ImagenesGuardar_Cola.get()
-        # Guarda de a una imagen, ver de guardar por bloque de ser posible
+                    # Guarda de a una imagen
                     RtaBD = Herramientas.imagenInsertar(conexionBD, pericia, img_guardar)
                     if RtaBD[0] == "ERROR":
-                        logging.error('Error al guardar la imagen, nombre: {0}'.format(img_guardar.get_nombre()))
-                        # print(RtaBD[1])
+                        mjeError = RtaBD[1].replace("\n", ",")
+                        logging.error('Error al guardar la imagen, nombre: {0} - ({1})'.format(img_guardar.get_nombre(),
+                                                                                               mjeError))
 
                     print("Imagen: {0} - {1}".format(img_guardar.get_nombre(), img_guardar.get_imagentipo()))
                 # Para no saturar el cpu, dormimos el ciclo durante 1 segundo
@@ -186,15 +190,15 @@ def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
             print("Todos los procesos han terminado")
 
 
-# para ejecutarlo desde consola descomentar
-# pericia = 1
-# tipoProceso = "D"
-# listaHash = {"md5": "", "sha1": "", "sha256": ""}
-#
-# #Mariano
-# #DirPrincipal = "Todas"
-#
-# #Pablo
-# DirPrincipal = "PericiaPrueba"
-#
-# proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash)
+## para ejecutarlo desde consola descomentar
+pericia = 1
+tipoProceso = "D"
+listaHash = {"MD5": "", "SHA1": "", "SHA256": ""}
+
+#Mariano
+#DirPrincipal = "Todas"
+
+#Pablo
+DirPrincipal = r"PericiaPrueba\Dir2"
+
+proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash)

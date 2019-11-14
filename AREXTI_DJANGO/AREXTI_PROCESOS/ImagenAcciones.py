@@ -1,15 +1,11 @@
-import RedesNeuronales
-import Hashes
-import Metadatos
-import ImagenProcesar
-import Segmentacion
-import logging
-import sys
 import os
-import Herramientas
 import shutil
 import imghdr
 import datetime
+import sys
+import logging
+import RedesNeuronales, ImagenProcesar, Segmentacion, Herramientas
+import Hashes, Metadatos, BaseDatos
 
 
 def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tipoProceso, DirPrincipal):
@@ -85,7 +81,7 @@ def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tip
 
 
 # Funcion que procesa la imagen recibida por paramentro
-def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto, listado_hashes, tesseract_cmd, RNTexto_procesa, ):
+def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto, listado_hashes, tesseract_cmd, RNTexto_procesa, mensajes_Cola):
     Is_OK = True
     # instancio las RN
     if RNTexto_procesa:
@@ -93,26 +89,30 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
             rn_txt = RedesNeuronales.RedNeuronalTexto()
         except:
             Is_OK = False
-            logging.error('Error al instanciar la RN de Texto - ' + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]))
-
+            mensaje = ["ERROR", 'Error al instanciar la RN de Texto - {0} {1}'.format(sys.exc_info()[0],
+                                                                                      sys.exc_info()[1])]
+            mensajes_Cola.put(mensaje)
     try:
         rn_chat = RedesNeuronales.RedNeuronalChat()
     except:
         Is_OK = False
-        logging.error('Error al instanciar la RN de Chat - ' + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]))
+        mensaje = ["ERROR", 'Error al instanciar la RN de Chat - {0} {1}'.format(sys.exc_info()[0], sys.exc_info()[1])]
+        mensajes_Cola.put(mensaje)
 
     try:
         rn_mail = RedesNeuronales.RedNeuronalEmail()
     except:
         Is_OK = False
-        logging.error('Error al instanciar la RN de Email - ' + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]))
+        mensaje = ["ERROR", 'Error al instanciar la RN de Email - {0} {1}'.format(sys.exc_info()[0], sys.exc_info()[1])]
+        mensajes_Cola.put(mensaje)
 
     # instancio el segmentador
     try:
         segmentador = Segmentacion.Segmentador(tesseract_cmd)
     except:
         Is_OK = False
-        logging.error('Error al instanciar el segmentador - ' + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]))
+        mensaje = ["ERROR", 'Error al instanciar el segmentador - {0} {1}'.format(sys.exc_info()[0], sys.exc_info()[1])]
+        mensajes_Cola.put(mensaje)
 
     if Is_OK:
         while not imagenes_cola.empty():
@@ -132,14 +132,17 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
                 try:
                     tiene_texto = rn_txt.imagen_tiene_texto(img_path, img_nombre)
                 except:
-                    msgerror = 'Error en RN Texto, al predecir la imagen: ' + imagen_with_path + " ("
-                    logging.error(msgerror + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]) + ")")
+                    mensaje = ["ERROR",
+                               'Error en RN Texto, al predecir la imagen: {0} ({1} {2})'.format(imagen_with_path,
+                                                                                                sys.exc_info()[0],
+                                                                                                sys.exc_info()[1])]
+                    mensajes_Cola.put(mensaje)
                     continue
             else:
                 tiene_texto = True
 
             if not tiene_texto:  # Si la imagen NO posee texto
-                imagenes_notexto.put(img_path + img_nombre)
+                imagenes_notexto.put(imagen_with_path)
             else:  # Si la imagen posee texto
 
                 # Calcula Hashes
@@ -147,12 +150,17 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
                     listado_hashes = Hashes.calcular_hashes(listado_hashes, imagen_with_path)
                     imagen_procesada.set_hashes(listado_hashes)
                 except ValueError:
-                    msgerror = 'Error en los tipos de hash, verifiquelos e intente nuevamente. ('
-                    logging.error(msgerror + str(sys.exc_info()[0]) + " - " + str(sys.exc_info()[1]) + ")")
+                    mensaje = ["ERROR", 'Error en los tipos de hash. ({0} - {1})'.format(sys.exc_info()[0],
+                                                                                         sys.exc_info()[1])]
+                    mensajes_Cola.put(mensaje)
                     break
+
                 except:
-                    msgerror = 'Error al calcular los hash de la imagen: ' + imagen_with_path + " ("
-                    logging.error(msgerror + str(sys.exc_info()[0]) + " - " + str(sys.exc_info()[1]) + ")")
+                    mensaje = ["ERROR",
+                               'Error al calcular los hash de la imagen: {0} ({1} - {2})'.format(imagen_with_path,
+                                                                                                 sys.exc_info()[0],
+                                                                                                 sys.exc_info()[1])]
+                    mensajes_Cola.put(mensaje)
                     continue
 
                 # Extrae metadatos
@@ -160,24 +168,32 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
                     listado_metadatos = Metadatos.metadata_extraer(imagen_with_path)
                     imagen_procesada.set_metadatos(listado_metadatos)
                 except:
-                    msgerror = 'Error al extraer los metadatos de la imagen: ' + imagen_with_path + " ("
-                    logging.error(msgerror + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]) + ")")
+                    mensaje = ["ERROR",
+                               'Error al extraer los metadatos de la imagen: {0} ({1} - {2})'.format(imagen_with_path,
+                                                                                                     sys.exc_info()[0],
+                                                                                                     sys.exc_info()[1])]
+                    mensajes_Cola.put(mensaje)
 
                 # Crea la miniatura
                 try:
                     thumbnail = Herramientas.miniaturaCrea(imagen_with_path, img_extension)
                     imagen_procesada.set_thumbnail(thumbnail)
                 except:
-                    msgerror = 'Error al crear la miniatura: ' + imagen_with_path + " ("
-                    logging.error(msgerror + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]) + ")")
+                    mensaje = ["ERROR", 'Error al crear la miniatura: {0} ({1} - {2})'.format(imagen_with_path,
+                                                                                              sys.exc_info()[0],
+                                                                                              sys.exc_info()[1])]
+                    mensajes_Cola.put(mensaje)
 
                 # Verifica si es de chat o no
                 try:
                     img_path = img_path + os.sep
                     es_chat = rn_chat.imagen_es_chat(img_path, img_nombre)
                 except:
-                    msgerror = 'Error en RN Chat, al intentar predecir la imagen: ' + imagen_with_path + " ("
-                    logging.error(msgerror + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]) + ")")
+                    mensaje = ["ERROR",
+                               'Error en RN Chat, al predecir la imagen: {0} ({1} - {2})'.format(imagen_with_path,
+                                                                                                 sys.exc_info()[0],
+                                                                                                 sys.exc_info()[1])]
+                    mensajes_Cola.put(mensaje)
                     continue
 
                 segmentador.set_imagen(imagen_procesada)
@@ -191,8 +207,11 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
                         img_path = img_path + os.sep
                         es_mail = rn_mail.imagen_es_email(img_path, img_nombre)
                     except:
-                        msgerror = 'Error en RN Mail, al intentar predecir la imagen: ' + imagen_with_path + " ("
-                        logging.error(msgerror + str(sys.exc_info()[0]) + " " + str(sys.exc_info()[1]) + ")")
+                        mensaje = ["ERROR",
+                                   'Error en RN Mail, al predecir la imagen: {0} ({1} - {2})'.format(imagen_with_path,
+                                                                                                     sys.exc_info()[0],
+                                                                                                     sys.exc_info()[1])]
+                        mensajes_Cola.put(mensaje)
                         continue
 
                     if es_mail:
@@ -202,5 +221,102 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
                         imagen_procesada.set_imagentipo("OTRO")  # Segmenta la imagen y extraer texto DE OTROS
                         imagen_procesada.set_detalles(segmentador.segmentarOtro())
 
+                mensaje = ["INFO", 'Imagen: {0} procesada correctamente'.format(imagen_with_path) ]
+                mensajes_Cola.put(mensaje)
                 # Guarda en Cola para guardar en BD
                 imagenes_guardar.put(imagen_procesada)
+
+
+def cambiar_tipoimagen(imagenid, imagentipo):
+    # Configuración del Log
+    logging.basicConfig(handlers=[logging.FileHandler('Logs/TipoImagenCambio.csv', 'a', 'utf-8')],
+                        format='%(asctime)s; %(levelname)s; %(message)s',
+                        level=logging.DEBUG,
+                        datefmt='%d-%b-%y %H:%M:%S')
+
+    logging.info("----- Inicio del proceso canbio de tipo de imagen -----")
+    logging.info("---- Parametros del proceso ----")
+    logging.info("-- Id Imagen: {0}".format(imagenid))
+    logging.info("-- Nuevo tipo de imagen : {0}".format(imagentipo))
+
+    # Realizo la conexión a la BD
+    conexionBD = BaseDatos.Conexion()
+    Is_OK = conexionBD.conectar()
+    if not Is_OK:
+        logging.error(conexionBD.error)
+    else:
+        # Si se pudo conectar a la base de datos
+        RtaBD = Herramientas.parametro_get(conexionBD, 'TESSERACTPATH')
+        if RtaBD[0] == "OK":
+            tesseract_cmd = RtaBD[1][0]["valorTexto"]
+            logging.info("-- Ruta Tesseract: {0}".format(tesseract_cmd))
+        else:
+            Is_OK = False
+            logging.error("Error en parametro: TESSERACTPATH (" + RtaBD[1] + ")")
+
+    if Is_OK:
+        # recupero la imagen a procesar
+        imagen_procesar = ImagenProcesar.Imagen()
+        query = """ SELECT "nombre","extension","path" 
+                    FROM "AREXTI_APP_imagen"
+                    WHERE "id"=%s;"""
+        data = (imagenid,)
+        resultado = conexionBD.consulta(query, data)
+        logging.info("recupero la imagen a procesar")
+
+        if resultado:
+            # Creo el objeto Imagen para usarlo en el segmentador
+            nombreImagen = resultado[0]["nombre"]
+            imagen_procesar.set_nombre(nombreImagen)
+            imagen_procesar.set_extension(resultado[0]["extension"])
+            imagen_procesar.set_path(resultado[0]["path"])
+
+            # instancio el segmentador
+            try:
+                segmentador = Segmentacion.Segmentador(tesseract_cmd)
+            except:
+                Is_OK = False
+                logging.error('Error al instanciar el segmentador - ({0} - {1})'.format(sys.exc_info()[0],
+                                                                                        sys.exc_info()[1]))
+
+            if Is_OK:
+                try:
+                    # ejecuto el tipo de segmentación pasado por parametro
+                    segmentador.set_imagen(imagen_procesar)
+
+                    logging.info("Ejecuto el segmentador")
+
+                    if imagentipo == "CHAT":
+                        imagen_procesar.set_detalles(segmentador.segmentarChat())
+                    elif imagentipo == "MAIL":
+                        imagen_procesar.set_detalles(segmentador.segmentarMail())
+                    elif imagentipo == "OTRO":
+                        imagen_procesar.set_detalles(segmentador.segmentarOtro())
+                except:
+                    Is_OK = False
+                    logging.error('Error ejecutando la segmentación - ({0} - {1})'.format(sys.exc_info()[0],
+                                                                                          sys.exc_info()[1]))
+
+            if Is_OK:
+                # Elimino el detalle actual
+                RtaElimina = Herramientas.imagenDetalleEliminar(conexionBD, imagenid)
+
+                logging.info("Elimino el detalle de la imagen anterior")
+
+                if RtaElimina[0] == "OK":
+                    # Recupero y guardo el detalle nuevo, y actualizo el tipo de imagen
+                    detalles = imagen_procesar.get_detalles()
+                    RtaActualiza = Herramientas.imagenTipoActualizar(conexionBD, imagenid, imagentipo, detalles)
+
+                    if RtaActualiza[0] == "OK":
+                        logging.info("Cambio de tipo de la imagen {0}-{1} realizado correctamente".format(imagenid,
+                                                                                                          nombreImagen))
+                    else:
+                        logging.error("Error al actualizar el detalle de la imagen {0}-{1} ({2})".format(imagenid,
+                                                                                                         nombreImagen,
+                                                                                                         RtaActualiza[1]))
+                else:
+                    logging.error("Error al eliminar el detalle de la imagen {0}-{1} ({2})".format(imagenid,
+                                                                                                   nombreImagen,
+                                                                                                   RtaElimina[1]))
+    logging.info("----- Fin del proceso canbio de tipo de imagen -----")

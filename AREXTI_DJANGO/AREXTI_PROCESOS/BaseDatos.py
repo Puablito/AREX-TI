@@ -74,17 +74,22 @@ class Conexion:
                         result.append(dict(zip(columns, row)))
                     return result
                 return True
-            except (Exception, psycopg2.Error) as e:
+            except psycopg2.Error as e:
                 self.error = "Error: {0} - {1}".format(e.pgerror, e.diag.message_detail)
+            except Exception as e:
+                self.error = "Error: {0}".format(e)
         return False
 
     def conexionCommitRoll(self):
         try:
             self.miconexion.commit()
             return True
-        except(Exception, psycopg2.Error) as e:
+        except psycopg2.Error as e:
             self.miconexion.rollback()
             self.error = "Error: {0} - {1}".format(e.pgerror, e.diag.message_detail)
+            return False
+        except Exception as e:
+            self.error = "Error: {0}".format(e)
             return False
 
     def lastId(self):
