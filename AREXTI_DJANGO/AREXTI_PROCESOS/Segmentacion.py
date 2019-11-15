@@ -175,10 +175,11 @@ class Segmentador:
 
     def extraerCabecera(self, canny):
         if self.horizontal:
-            minLargoLinea = math.trunc(self.alto * (125 / 3) / 100)  # PARAMETRO PARA LA FUNCION cv2.HoughLinesP 200
+            # PARAMETRO PARA LA FUNCION cv2.HoughLinesP 200
+            minLargoLinea = math.trunc(self.alto * (125 / 3) / 100)
             maxEspacioLinea = math.trunc(self.alto * (125 / 3) / 100)  # PARAMETRO PARA LA FUNCION cv2.HoughLinesP 200
-            altoMaxCabecera = math.trunc(self.ancho * (
-                    128 / 8) / 100)  # PARAMETRO PARA DEFINIR ALTO MAXIMO DE CABECERA EN CASO DE NO ENCONTRAR LINEAS POR DEBAJO DE ESE VALOR 260
+            # PARAMETRO PARA DEFINIR ALTO MAXIMO DE CABECERA EN CASO DE NO ENCONTRAR LINEAS POR DEBAJO DE ESE VALOR 260
+            altoMaxCabecera = math.trunc(self.ancho * (128 / 8) / 100)
             altoMinCabecera = math.trunc(self.ancho * (
                     75 / 16) / 100)  # PARAMETRO PARA DEFINIR ALTO MINIMO DE CABECERA EN CASO DE ENCONTRAR LINEAS POR DEBAJO DE ESE VALOR 60
             lineaBarraInfo = math.trunc(self.ancho * (105 / 32) / 100)

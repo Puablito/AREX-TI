@@ -221,7 +221,7 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
                         imagen_procesada.set_imagentipo("OTRO")  # Segmenta la imagen y extraer texto DE OTROS
                         imagen_procesada.set_detalles(segmentador.segmentarOtro())
 
-                mensaje = ["INFO", 'Imagen: {0} procesada correctamente'.format(imagen_with_path) ]
+                mensaje = ["INFO", 'Se procesó correctamente la imagen: {0}'.format(imagen_with_path)]
                 mensajes_Cola.put(mensaje)
                 # Guarda en Cola para guardar en BD
                 imagenes_guardar.put(imagen_procesada)

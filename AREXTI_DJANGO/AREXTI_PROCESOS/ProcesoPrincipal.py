@@ -20,6 +20,12 @@ def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
                             level=logging.DEBUG,
                             datefmt='%d-%b-%y %H:%M:%S')
 
+        # Creo diccionario de hashes
+        dic = dict()
+        for hashTipo in listaHash:
+            dic.update({hashTipo:""})
+        listaHash = dic
+
         logging.info("----- Inicio del proceso priincipal -----")
         logging.info("---- Parametros del proceso ----")
         logging.info("-- Pericia: {0}".format(pericia))
@@ -171,8 +177,8 @@ def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
                     RtaBD = Herramientas.imagenInsertar(conexionBD, pericia, img_guardar)
                     if RtaBD[0] == "ERROR":
                         mjeError = RtaBD[1].replace("\n", ",")
-                        logging.error('Error al guardar la imagen, nombre: {0} - ({1})'.format(img_guardar.get_nombre(),
-                                                                                               mjeError))
+                        logging.error('Error al guardar la imagen en la Base de Datos, nombre: {0} - ({1})'.format(img_guardar.get_nombre(),
+                                                                                                                   mjeError))
 
                     print("Imagen: {0} - {1}".format(img_guardar.get_nombre(), img_guardar.get_imagentipo()))
                 # Para no saturar el cpu, dormimos el ciclo durante 1 segundo
@@ -193,12 +199,12 @@ def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
 ## para ejecutarlo desde consola descomentar
 pericia = 1
 tipoProceso = "D"
-listaHash = {"MD5": "", "SHA1": "", "SHA256": ""}
+listaHash = ['SHA1', 'MD5', 'SHA256'] #{"MD5": "", "SHA1": "", "SHA256": ""}
 
 #Mariano
 #DirPrincipal = "Todas"
 
 #Pablo
-DirPrincipal = r"PericiaPrueba\Dir2"
-
+# DirPrincipal = r"PericiaPrueba\Dir2"
+DirPrincipal = r"CapturasPablo"
 proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash)
