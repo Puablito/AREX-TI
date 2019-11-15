@@ -196,7 +196,7 @@ tipoProceso = "D"
 listaHash = {"MD5": "", "SHA1": "", "SHA256": ""}
 
 #Mariano
-DirPrincipal = "Todas"
+DirPrincipal = "Nueva"
 
 #Pablo
 # DirPrincipal = r"PericiaPrueba\Dir2"

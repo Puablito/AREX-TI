@@ -346,7 +346,7 @@ class ImagenEditar(UpdateView):
     def get_context_data(self, *args, **kwargs):
         imagen = self.get_object()
         context = super().get_context_data(*args, **kwargs)
-        context['detalles'] = ImagenDetalle.objects.filter(imagen=imagen)
+        context['detalles'] = ImagenDetalle.objects.filter(imagen=imagen).order_by('id')
         return context
 
     def get_success_url(self):
@@ -361,7 +361,7 @@ class ImagenConsultar(DetailView):
     def get_context_data(self, *args, **kwargs):
         imagen = self.get_object()
         context = super().get_context_data(*args, **kwargs)
-        context['detalles'] = ImagenDetalle.objects.filter(imagen=imagen)
+        context['detalles'] = ImagenDetalle.objects.filter(imagen=imagen).order_by('id')
         return context
 
 
@@ -383,7 +383,7 @@ class ReporteOcurrencia(FilteredListView):
         #     queryset = Imagen.objects.filter(activo=1, pericia=perid).order_by('-id')
         # else:
         #     queryset = Imagen.objects.filter(activo=1).order_by('-id')
-        queryset = Imagen.objects.order_by('-id')
+        queryset = None  # Imagen.objects.order_by('-id')
         self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
 
         return self.filterset.qs.distinct()
