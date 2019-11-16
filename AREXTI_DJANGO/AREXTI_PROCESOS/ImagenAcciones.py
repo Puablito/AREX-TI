@@ -205,52 +205,76 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
                     if es_chat[0] == "ERROR":
                         mensaje = ["ERROR", 'Error en RN Chat ({0})'.format(es_chat[1])]
                         mensajes_Cola.put(mensaje)
+                        continue
                     else:
                         if es_chat[1]:
                             imagen_procesada.set_imagentipo("CHAT")
                             # Segmenta la imagen y extraer texto DE CHAT
-                            imagen_procesada.set_detalles(segmentador.segmentarChat())
-
-                    # Si no se pudo procesar con la RN de Chat o no es chat
-                    if es_chat[0] == "ERROR" or es_chat[1] == False:
-                        # Verifica si es de mail
-                        try:
-                            img_path = img_path + os.sep
-                            es_mail = rn_mail.imagen_es_email(img_path, img_nombre)
-                        except:
-                            mensaje = ["ERROR",
-                                       'Error en RN Mail, al predecir la imagen: {0} ({1} - {2})'.format(
-                                           imagen_with_path, sys.exc_info()[0], sys.exc_info()[1])]
-                            mensajes_Cola.put(mensaje)
-                            continue
-
-                        if es_mail[0] == "ERROR":
-                            mensaje = ["ERROR", 'Error en RN Mail ({0})'.format(es_mail[1])]
-                            mensajes_Cola.put(mensaje)
-                        else:
-                            if es_mail[1]:
-                                imagen_procesada.set_imagentipo("MAIL")  # Segmenta la imagen y extraer texto DE MAIL
-                                imagen_procesada.set_detalles(segmentador.segmentarMail())
+                            RtaSeg = segmentador.segmentarChat()
+                            if RtaSeg[0] == "ERROR":
+                                mensaje = ["ERROR", 'Error ejecutando la segmentación de Chat - ({0})'.format(RtaSeg[1])]
+                                mensajes_Cola.put(mensaje)
+                                continue
                             else:
-                                imagen_procesada.set_imagentipo("OTRO")  # Segmenta la imagen y extraer texto DE OTROS
-                                imagen_procesada.set_detalles(segmentador.segmentarOtro())
+                                imagen_procesada.set_detalles(RtaSeg[1])
+                        else:
+                            # Verifica si es de mail
+                            try:
+                                img_path = img_path + os.sep
+                                es_mail = rn_mail.imagen_es_email(img_path, img_nombre)
+                            except:
+                                mensaje = ["ERROR",
+                                           'Error en RN Mail, al predecir la imagen: {0} ({1} - {2})'.format(
+                                               imagen_with_path, sys.exc_info()[0], sys.exc_info()[1])]
+                                mensajes_Cola.put(mensaje)
+                                continue
 
-                    mensaje = ["INFO", 'Se procesó correctamente la imagen: {0}'.format(imagen_with_path)]
-                    mensajes_Cola.put(mensaje)
-                    # Guarda en Cola para guardar en BD
-                    imagenes_guardar.put(imagen_procesada)
+                            if es_mail[0] == "ERROR":
+                                mensaje = ["ERROR", 'Error en RN Mail ({0})'.format(es_mail[1])]
+                                mensajes_Cola.put(mensaje)
+                                continue
+                            else:
+                                if es_mail[1]:
+                                    imagen_procesada.set_imagentipo("MAIL")
+                                    # Segmenta la imagen y extraer texto DE MAIL
+                                    RtaSeg = segmentador.segmentarMail()
+                                    if RtaSeg[0] == "ERROR":
+                                        mensaje = ["ERROR",
+                                                   'Error ejecutando la segmentación de Mail - ({0})'.format(RtaSeg[1])]
+                                        mensajes_Cola.put(mensaje)
+                                        continue
+                                    else:
+                                        imagen_procesada.set_detalles(RtaSeg[1])
+
+                                else:
+                                    imagen_procesada.set_imagentipo("OTRO")
+                                    # Segmenta la imagen y extraer texto DE OTROS
+                                    RtaSeg = segmentador.segmentarOtro()
+                                    if RtaSeg[0] == "ERROR":
+                                        mensaje = ["ERROR",
+                                                   'Error ejecutando la segmentación de Otros - ({0})'.format(RtaSeg[1])]
+                                        mensajes_Cola.put(mensaje)
+                                        continue
+                                    else:
+                                        imagen_procesada.set_detalles(RtaSeg[1])
+
+                        mensaje = ["INFO", 'Fin del procesamiento de la imagen: {0}'.format(imagen_with_path)]
+                        mensajes_Cola.put(mensaje)
+                        # Guarda en Cola para guardar en BD
+                        imagenes_guardar.put(imagen_procesada)
 
 
-def cambiar_tipoimagen(imagenid, imagentipo):
+def cambiar_tipoimagen(imagenid,imagennombre, imagentipo):
     # Configuración del Log
-    logging.basicConfig(handlers=[logging.FileHandler('Logs/TipoImagenCambio.csv', 'a', 'utf-8')],
+    nombreArchivo = "CambioTipoImagen_{0}-{1}".format(imagenid, imagennombre)
+    logging.basicConfig(handlers=[logging.FileHandler('Logs/{0}.txt'.format(nombreArchivo), 'a', 'utf-8')],
                         format='%(asctime)s; %(levelname)s; %(message)s',
-                        level=logging.DEBUG,
+                        level=logging.INFO,
                         datefmt='%d-%b-%y %H:%M:%S')
 
     logging.info("----- Inicio del proceso canbio de tipo de imagen -----")
     logging.info("---- Parametros del proceso ----")
-    logging.info("-- Id Imagen: {0}".format(imagenid))
+    logging.info("-- Imagen: {0}-{1}".format(imagenid, imagennombre))
     logging.info("-- Nuevo tipo de imagen : {0}".format(imagentipo))
 
     # Realizo la conexión a la BD
@@ -301,11 +325,28 @@ def cambiar_tipoimagen(imagenid, imagentipo):
                     logging.info("Ejecuto el segmentador")
 
                     if imagentipo == "CHAT":
-                        imagen_procesar.set_detalles(segmentador.segmentarChat())
+                        RtaSeg = segmentador.segmentarChat()
+                        if RtaSeg[0] == "OK":
+                            imagen_procesar.set_detalles(RtaSeg[1])
+                        else:
+                            logging.error('Error ejecutando la segmentación - ({0})'.format(RtaSeg[1]))
+                            Is_OK = False
+
                     elif imagentipo == "MAIL":
-                        imagen_procesar.set_detalles(segmentador.segmentarMail())
+                        RtaSeg = segmentador.segmentarMail()
+                        if RtaSeg[0] == "OK":
+                            imagen_procesar.set_detalles(RtaSeg[1])
+                        else:
+                            logging.error('Error ejecutando la segmentación - ({0})'.format(RtaSeg[1]))
+                            Is_OK = False
+
                     elif imagentipo == "OTRO":
-                        imagen_procesar.set_detalles(segmentador.segmentarOtro())
+                        RtaSeg = segmentador.segmentarOtro()
+                        if RtaSeg[0] == "OK":
+                            imagen_procesar.set_detalles(RtaSeg[1])
+                        else:
+                            logging.error('Error ejecutando la segmentación - ({0})'.format(RtaSeg[1]))
+                            Is_OK = False
                 except:
                     Is_OK = False
                     logging.error('Error ejecutando la segmentación - ({0} - {1})'.format(sys.exc_info()[0],
@@ -313,25 +354,21 @@ def cambiar_tipoimagen(imagenid, imagentipo):
 
             if Is_OK:
                 # Elimino el detalle actual
-                RtaElimina = Herramientas.imagenDetalleEliminar(conexionBD, imagenid)
+                Herramientas.imagenDetalleEliminar(conexionBD, imagenid)
 
-                logging.info("Elimino el detalle de la imagen anterior")
+                # Recupero y guardo el detalle nuevo, y actualizo el tipo de imagen
+                detalles = imagen_procesar.get_detalles()
+                Herramientas.imagenTipoActualizar(conexionBD, imagenid, imagentipo, detalles)
+                resultado = conexionBD.conexionCommitRoll()
 
-                if RtaElimina[0] == "OK":
-                    # Recupero y guardo el detalle nuevo, y actualizo el tipo de imagen
-                    detalles = imagen_procesar.get_detalles()
-                    RtaActualiza = Herramientas.imagenTipoActualizar(conexionBD, imagenid, imagentipo, detalles)
-
-                    if RtaActualiza[0] == "OK":
-                        logging.info("Cambio de tipo de la imagen {0}-{1} realizado correctamente".format(imagenid,
-                                                                                                          nombreImagen))
-                    else:
-                        logging.error("Error al actualizar el detalle de la imagen {0}-{1} ({2})".format(imagenid,
-                                                                                                         nombreImagen,
-                                                                                                         RtaActualiza[1]))
+                if resultado:
+                    logging.info("Cambio de tipo de la imagen {0}-{1} realizado correctamente".format(imagenid,
+                                                                                                      nombreImagen))
                 else:
-                    logging.error("Error al eliminar el detalle de la imagen {0}-{1} ({2})".format(imagenid,
-                                                                                                   nombreImagen,
-                                                                                                   RtaElimina[1]))
+                    logging.error("Error al cambiar el detalle de la imagen {0}-{1} ({2})".format(imagenid,
+                                                                                                  nombreImagen,
+                                                                                                  conexionBD.error))
     logging.info("----- Fin del proceso canbio de tipo de imagen -----")
-cambiar_tipoimagen(155,"OTRO")
+
+
+# cambiar_tipoimagen(155,"OTRO")

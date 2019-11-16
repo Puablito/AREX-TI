@@ -117,12 +117,6 @@ def imagenTipoActualizar(conexion, imagenId, imagentipo, detalles):
     # Guarda el nuevo detalle de la Imagen
     detallesInsertar(detalles, imagenId, conexion)
 
-    resultado = conexion.conexionCommitRoll()
-    if resultado:
-        return ["OK", resultado]
-    else:
-        return ["ERROR", conexion.error]
-
 
 def imagenDetalleEliminar(conexion, imagenId):
     # Elimina el detalle de la imagen
@@ -130,8 +124,3 @@ def imagenDetalleEliminar(conexion, imagenId):
                 WHERE imagen_id = %s;"""
     data = (imagenId,)
     conexion.consulta(query, data, False)
-    resultado = conexion.conexionCommitRoll()
-    if resultado:
-        return ["OK", resultado]
-    else:
-        return ["ERROR", conexion.error]
