@@ -33,6 +33,9 @@
 {% endblock %}
 
 {% block filtros %}
+
+{% load AREXTItemplatetag %}
+
 <form>
         <div class="form-row">
             <div class="form-group col-md-3">
@@ -58,7 +61,44 @@
     </form>
 {% endblock %}
 
-{% block acciones %}
+
+{% block TopBody %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-filter">
+                <div class="box-header with-border">
+                        <h3 class="box-title"><i class="fa fa-info-circle"></i>&nbsp;Informacion de la pericia</h3>
+                        <div class="box-tools pull-right">
+                            <button class="btn btn-box-tool" type="button" data-toggle="collapse" data-target="#collapsePericiaInfo" aria-expanded="true" aria-controls="collapsePericiaInfo">
+                                <i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                <div class="collapse in" id="collapsePericiaInfo">
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <b>IPP</b>
+                            <br/>
+                            {{pericia.proyecto.IPP}}
+                        </div>
+                        <div class="col-md-4">
+                            <b>Proyecto</b>
+                            <br/>
+                            {{pericia.proyecto.descripcion}}
+                        </div>
+                        <div class="col-md-4">
+                            <b>Pericia</b>
+                            <br/>
+                            {{pericia.descripcion}}
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
 
 {% block tabla_contenido %}
@@ -72,7 +112,7 @@
         <th>Nombre</th>
         <th style="width: 100px">Extensión</th>
         <th style="width: 120px">Tipo Imagen</th>
-        <th>Hash</th>
+        <th style="text-align:center;">Hash</th>
     </tr>
 </thead>
 <tbody>
@@ -102,28 +142,17 @@
         <td>
             <table>
                 <tr>
-
                     {% for tipoHash in tipoHashes %}
-
-                    <td class="child" id="tipoHash_{{imagen.id}}{{tipoHash.id}}">
-                        {% if  imagen.get_datos  %}
-                            <a type="button" class="btn btn-hash" style="background-color:{{obj_hash.tipoHash.color}}; border-color:{{obj_hash.tipoHash.color}};" data-toggle="tooltipHash" data-original-title="{{obj_hash.valor}}" data-trigger="click">
-                                {{obj_hash.tipoHash.id}}
-                            </a>
+                        {% if tipoHash|img_hash_tags:imagen.imagenhash_set.all is None %}
+                            <td class="td_hash">&nbsp;</td>
                         {% else %}
-                            <span></span>
+                            <td class="td_hash">
+                                <a type="button" class="btn btn-hash" style="background-color:{{tipoHash.color}}; border-color:{{tipoHash.color}};" data-toggle="tooltipHash" data-original-title="{{tipoHash|img_hash_tags:imagen.imagenhash_set.all}}" data-trigger="click">
+                                    {{tipoHash.id}}
+                                </a>
+                            </td>
                         {% endif %}
-                    </td>
-
                     {% endfor %}
-
-
-
-                    <!--{% for obj_hash in imagen.imagenhash_set.all %}-->
-                            <!--<a type="button" class="btn btn-hash" style="background-color:{{obj_hash.tipoHash.color}}; border-color:{{obj_hash.tipoHash.color}};" data-toggle="tooltipHash" data-original-title="{{obj_hash.valor}}" data-trigger="click">-->
-                                <!--{{obj_hash.tipoHash.nombre}}-->
-                            <!--</a>-->
-                    <!--{% endfor %}-->
                 </tr>
             </table>
         </td>

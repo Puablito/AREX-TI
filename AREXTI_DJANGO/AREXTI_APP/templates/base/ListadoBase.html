@@ -28,6 +28,10 @@
 </section>
 
 <section class="content">
+
+    {% block TopBody %}
+    {% endblock %}
+
     <!--<div class="col-md-12">-->
         <!-- Filtros -->
         <div class="row">
@@ -52,13 +56,7 @@
                 </div>
             </div>
         </div>
-        <!-- Boton Agregar -->
-        <div class="row">
-            <div class="col-md-12">
-                {% block acciones %}
-                {% endblock %}
-            </div>
-        </div>
+
         <!-- Contenedor Grilla -->
         <div class="row">
             <div class="col-md-12">

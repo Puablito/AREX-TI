@@ -2,6 +2,15 @@ from django import template
 
 register = template.Library()
 
+@register.filter
+def img_hash_tags(tipo_hash, hashes):
+    for hash in hashes:
+        if hash.tipoHash == tipo_hash:
+            return hash.valor
+            break
+    else:
+        return None
+
 
 @register.simple_tag(takes_context=True)
 def param_replace(context, **kwargs):

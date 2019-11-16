@@ -1,26 +1,13 @@
-from django.shortcuts import render, redirect
-import logging
-from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.contrib import messages
 from enum import Enum
-
-from django.template import loader
-
-from django.views.generic import TemplateView
-from django.views.generic.detail import SingleObjectMixin
-from django.views.generic import ListView, CreateView, UpdateView, DetailView
+from .tasks import getDirectories
+import os
+from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DetailView
 from AREXTI_APP.models import Proyecto, Pericia, Imagen, TipoHash, ImagenHash, ImagenDetalle, ImagenFile
 from AREXTI_APP.forms import ProyectoForm, PericiaForm, ImagenForm, ImagenEditForm
 from .filters import ProyectoFilter, PericiaFilter, ImagenFilter
-
-import os
-from django.conf import settings
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
-import json as simplejson
-from django.template import Context, loader
-from django.template.context_processors import csrf
-import subprocess
 
 
 #enumerables
@@ -236,8 +223,10 @@ class ImagenListar(FilteredListView):
     #Agrego al contexto la periciaId sobre el cual se obtuvo el conjunto de imagenes
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['periciaId'] = self.kwargs.get("pericia")
+        periciaId = self.kwargs.get("pericia")
+        context['periciaId'] = periciaId
         context['tipoHashes'] = TipoHash.objects.filter(activo=1)
+        context['pericia'] = Pericia.objects.get(pk=periciaId)
         return context
 
     paginate_by = 10
@@ -251,43 +240,74 @@ class ImagenCrear(CreateView):
     def get(self, request, *args, **kwargs):
         queryset = TipoHash.objects.filter(activo=1)
         activeTab = False
+
         perid = self.kwargs.get("pericia")
+
         if Imagen.objects.filter(pericia=perid).count() > 0:
             activeTab = True
 
+        pericia = get_object_or_404(Pericia, pk=perid)
+
+
+        path = os.path.join("C:\\Users\\javier\\Desktop\\BS\\AREXTI\\", pericia.directorio)
+        directorios = getDirectories(path, "")
         contexto = {
             'tipoHashes': queryset,
-            'activeTab': activeTab
+            'activeTab': activeTab,
+            'directorios': directorios
         }
 
         return render(request, self.template_name, contexto)
 
     def post(self, request, *args, **kwargs):
         hashesId = request.POST.getlist('inputHash')
+        perid = self.kwargs.get("pericia")
+        url = request.POST.get('urlFile', None)
+
+        isValid = True
+        stringList = list()
+
+        if not perid or perid == 0:
+            isValid = False
+            stringList.append('Debe existir una pericia para operar')
+
+        if not hashesId:
+            isValid = False
+            stringList.append('Seleccione uno o mas hashes a aplicar')
+
+        if not url:
+            isValid = False
+            stringList.append('Seleccione un directorio de cual se extraeran las imagenes')
+
+        if not isValid:
+            messages.error(self.request, 'Por favor corrija los errores', extra_tags='title')
+
+            for st in stringList:
+                messages.error(self.request, st)
+
+            queryset = TipoHash.objects.filter(activo=1)
+            activeTab = False
+            if Imagen.objects.filter(pericia=perid).count() > 0:
+                activeTab = True
+
+            pericia = get_object_or_404(Pericia, pk=perid)
+            path = os.path.join("C:\\Users\\javier\\Desktop\\BS\\AREXTI\\", pericia.directorio)
+            directorios = getDirectories(path, "")
+            contexto = {
+                'tipoHashes': queryset,
+                'activeTab': activeTab,
+                'directorios': directorios
+            }
+            return render(request, self.template_name, contexto)
+
+        # resultado = call_ImageProccess.delay(5, 10) aca proceso las imagenes (debo pasarle los parametros)
+
         hashes = TipoHash.objects.filter(id__in=hashesId)
-        jsonObject = {}
-        hashListObject = []
 
-        for hash in hashes:
-            hashObject = {"name": hash.nombre}
-            hashListObject.append(hashObject)
+        messages.success(self.request, 'Exito en la operacion', extra_tags='title')
+        messages.success(self.request, 'Inicia el procesamiento automatico de las imagenes')
 
-        jsonObject["hashes"] = hashListObject
-        jsonObject["pericia"] = 1
-        jsonObject["urlFile"] = "C:\\Users\\javier\\Desktop\\Capturas"
-
-        return render(request, self.template_name, {'pepe': jsonObject})
-
-
-# class ImagenCrear(View):
-#     model = ImagenFile
-#     template_name = 'AREXTI_APP/ImagenCrear.html'
-#     success_url = reverse_lazy('ImagenListar', 1)
-#
-#     def get_context_data(self, *args, **kwargs):
-#         context = super().get_context_data(*args, **kwargs)
-#         context['tipoHashes'] = TipoHash.objects.filter(activo=1)
-#         return context
+        return render(request, self.template_name, {'url2': url}) #deberia llamar al imagenListar
 
 
 class ImagenEditar(UpdateView):
@@ -323,7 +343,6 @@ def ImagenEliminar(request, Imagenid):
         img.activo = 0
         img.save()
     return redirect('ImagenListar', img.pericia.id)
-
 
 
 

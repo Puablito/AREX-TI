@@ -48,7 +48,7 @@ tbody>tr>td>span {
 .alert {
   position: relative;
   z-index: 999999;
-  width: 60%;
+  width: 40%;
   left: 0;
   right: 0;
   margin-left: auto;
@@ -1301,4 +1301,9 @@ label.required::after {
 .alert-title{
    text-align:center;
    font-weight: bolder;
+}
+
+.table > tbody > tr > td .td_hash{
+    width: 85px;
+    padding-left: 15px;
 }
