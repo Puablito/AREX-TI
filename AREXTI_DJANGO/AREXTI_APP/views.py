@@ -11,7 +11,7 @@ from django.views.generic import TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic import ListView, CreateView, UpdateView, DetailView
 from .models import Proyecto, Pericia, Imagen, TipoHash, ImagenHash, ImagenDetalle, ImagenFile
-from .forms import ProyectoForm, PericiaForm, ImagenForm, ImagenEditForm
+from .forms import ProyectoForm, PericiaForm, ImagenForm, ImagenEditForm, ProyectoConsultaForm, PericiaConsultaForm
 from .filters import ProyectoFilter, PericiaFilter, ImagenFilter, ReporteFilter
 
 import os
@@ -130,6 +130,16 @@ def ProyectoEliminar(request, Proyectoid):
     return redirect('ProyectoListar')
 
 
+class ProyectoConsultar(UpdateView):
+    model = Proyecto
+    form_class = ProyectoConsultaForm
+    template_name = 'AREXTI_APP/ProyectoCrear.html'
+    success_url = reverse_lazy('ProyectoListar')
+
+    def form_valid(self, form,):
+        return redirect(self.success_url)
+
+
 class PericiaListar(FilteredListView):
     filterset_class = PericiaFilter
 
@@ -237,6 +247,26 @@ def PericiaEliminar(request, Periciaid):
     return redirect('PericiaListar', Proyectoid=pro)
 
 
+class PericiaConsultar(UpdateView):
+    model = Pericia
+    form_class = PericiaConsultaForm
+    template_name = 'AREXTI_APP/PericiaCrear.html'
+
+    def form_valid(self, form, ):
+        return redirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse_lazy('PericiaListar', kwargs={'Proyectoid': self.object.proyecto.id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        proid = self.kwargs.get("Proyectoid")
+        if proid is None:
+            proid = 0
+        context['proyectoId'] = proid
+        return context
+
+
 class ImagenListar(FilteredListView):
     filterset_class = ImagenFilter
     def get_queryset(self):
@@ -316,7 +346,7 @@ class ImagenEditar(UpdateView):
     def get_context_data(self, *args, **kwargs):
         imagen = self.get_object()
         context = super().get_context_data(*args, **kwargs)
-        context['detalles'] = ImagenDetalle.objects.filter(imagen=imagen)
+        context['detalles'] = ImagenDetalle.objects.filter(imagen=imagen).order_by('id')
         return context
 
     def get_success_url(self):
@@ -331,7 +361,7 @@ class ImagenConsultar(DetailView):
     def get_context_data(self, *args, **kwargs):
         imagen = self.get_object()
         context = super().get_context_data(*args, **kwargs)
-        context['detalles'] = ImagenDetalle.objects.filter(imagen=imagen)
+        context['detalles'] = ImagenDetalle.objects.filter(imagen=imagen).order_by('id')
         return context
 
 
@@ -342,8 +372,10 @@ def ImagenEliminar(request, Imagenid):
         img.save()
     return redirect('ImagenListar', img.pericia.id)
 
+
 class ReporteOcurrencia(FilteredListView):
     filterset_class = ReporteFilter
+
     def get_queryset(self):
         perid = self.kwargs.get("pericia")
         # queryset = super().get_queryset()
@@ -351,7 +383,7 @@ class ReporteOcurrencia(FilteredListView):
         #     queryset = Imagen.objects.filter(activo=1, pericia=perid).order_by('-id')
         # else:
         #     queryset = Imagen.objects.filter(activo=1).order_by('-id')
-        queryset = Imagen.objects.order_by('-id')
+        queryset = None  # Imagen.objects.order_by('-id')
         self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
 
         return self.filterset.qs.distinct()

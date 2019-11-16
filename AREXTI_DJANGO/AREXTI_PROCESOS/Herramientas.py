@@ -127,7 +127,7 @@ def imagenTipoActualizar(conexion, imagenId, imagentipo, detalles):
 def imagenDetalleEliminar(conexion, imagenId):
     # Elimina el detalle de la imagen
     query = """ DELETE FROM "AREXTI_APP_imagendetalle" 
-                WHERE id = %s;"""
+                WHERE imagen_id = %s;"""
     data = (imagenId,)
     conexion.consulta(query, data, False)
     resultado = conexion.conexionCommitRoll()

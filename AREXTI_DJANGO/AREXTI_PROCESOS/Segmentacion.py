@@ -170,7 +170,7 @@ class Segmentador:
         texto = texto.replace('"', "")
         texto = texto.replace("'", "")
         texto = texto.replace("\n\n", "\n")
-        texto = texto.replace("\n", " ")
+        texto = texto.replace("\n", " </br> ")
         return texto
 
     def extraerCabecera(self, canny):

@@ -111,7 +111,14 @@ Pericias
         <td style="display:none;">{{pericia.id}}</td>
         <td>{{pericia.proyecto.IPP}}</td>
         <td>{{pericia.proyecto.descripcion}}</td>
-        <td>{{pericia.descripcion}}</td>
+        <!--<td>{{pericia.descripcion}}</td>-->
+        <td>
+            <div class="cl-effect-1">
+                <a class="link" href="{% url 'PericiaConsultar' pericia.id proyectoId%}">
+                    {{pericia.descripcion}}
+                </a>
+            </div>
+        </td>
         <td>{{pericia.nombrePerito}}</td>
         <td>{{pericia.tipoPericia}}</td>
         <td>{{pericia.fecha}}</td>

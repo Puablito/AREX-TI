@@ -320,3 +320,4 @@ def cambiar_tipoimagen(imagenid, imagentipo):
                                                                                                    nombreImagen,
                                                                                                    RtaElimina[1]))
     logging.info("----- Fin del proceso canbio de tipo de imagen -----")
+cambiar_tipoimagen(155,"OTRO")
