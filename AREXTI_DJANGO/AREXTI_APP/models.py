@@ -87,6 +87,9 @@ class Imagen(models.Model):
     def get_datos(self, tipoHashId):
         return self.imagenhash_set.filter(tipoHash=tipoHashId)
 
+    def get_detalle(self, imagen):
+        return self.imagendetalle_set.filter(imagen=imagen)
+
 
 class ImagenHash(models.Model):
     imagen = models.ForeignKey(Imagen, on_delete=models.CASCADE)
@@ -97,13 +100,13 @@ class ImagenHash(models.Model):
 class TipoDetalle(models.Model):
     id = models.CharField(max_length=60, primary_key=True)
     descripcion = models.CharField(max_length=100)
-
+    def __str__(self):
+        return self.id
 
 class ImagenDetalle(models.Model):
     imagen = models.ForeignKey(Imagen, on_delete=models.CASCADE)
     tipoDetalle = models.ForeignKey(TipoDetalle, on_delete=models.CASCADE)
     texto = models.TextField(max_length=100000)
-
 
 
 class Log(models.Model):

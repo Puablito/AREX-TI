@@ -23,10 +23,10 @@ class ProyectoForm(forms.ModelForm):
         ]
 
         labels = {
-            'IPP':'IPP',
-            'descripcion':'Descripcion',
-            'fiscalia':'Fiscalia',
-            'responsable':'Responsable',
+            'IPP': 'IPP',
+            'descripcion': 'Descripcion',
+            'fiscalia': 'Fiscalia',
+            'responsable': 'Responsable',
             'defensoria': 'Defensoria',
             'juzgado': 'Juzgado',
         }
@@ -117,3 +117,83 @@ class ImagenEditForm(forms.ModelForm):
             'extension': forms.TextInput(attrs={'class': 'form-control', 'id': 'extension', 'readonly':'readonly'}),
             'tipoImagen': forms.Select(attrs={'class': 'form-control', 'id': 'tipoImagen'}),
         }
+
+
+class ProyectoConsultaForm(forms.ModelForm):
+
+    class Meta:
+        model = Proyecto
+
+        fields = [
+            'IPP',
+            'descripcion',
+            'fiscalia',
+            'responsable',
+            'defensoria',
+            'juzgado',
+        ]
+
+        labels = {
+            'IPP': 'IPP',
+            'descripcion': 'Descripcion',
+            'fiscalia': 'Fiscalia',
+            'responsable': 'Responsable',
+            'defensoria': 'Defensoria',
+            'juzgado': 'Juzgado',
+        }
+
+        widgets = {
+            'IPP': forms.TextInput(attrs={'class': 'form-control', 'id': 'IPP'}),
+            'descripcion': forms.TextInput(attrs={'class': 'form-control'}),
+            'fiscalia': forms.TextInput(attrs={'class': 'form-control', 'id': 'fiscalia'}),
+            'responsable': forms.TextInput(attrs={'class': 'form-control'}),
+            'defensoria': forms.TextInput(attrs={'class': 'form-control'}),
+            'juzgado': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(ProyectoConsultaForm, self).__init__(*args, **kwargs)
+        self.fields['IPP'].widget.attrs['readonly'] = True
+        self.fields['descripcion'].widget.attrs['readonly'] = True
+        self.fields['fiscalia'].widget.attrs['readonly'] = True
+        self.fields['responsable'].widget.attrs['readonly'] = True
+        self.fields['defensoria'].widget.attrs['readonly'] = True
+        self.fields['juzgado'].widget.attrs['readonly'] = True
+
+
+class PericiaConsultaForm(forms.ModelForm):
+
+    class Meta:
+        model = Pericia
+
+        fields = [
+            'proyecto',
+            'descripcion',
+            'nombrePerito',
+            'fecha',
+            'tipoPericia',
+        ]
+
+        labels = {
+            'proyecto': 'Proyecto',
+            'descripcion': 'Descripcion',
+            'nombrePerito': 'Nombre perito',
+            'fecha': 'Fecha',
+            'tipoPericia': 'Tipo Pericia',
+        }
+
+        widgets = {
+            'proyecto': forms.Select(attrs={'class': 'form-control'}),
+            'descripcion': forms.TextInput(attrs={'class': 'form-control', 'id': 'descripcion'}),
+            'nombrePerito': forms.TextInput(attrs={'class': 'form-control'}),
+            'fecha': forms.TextInput(attrs={'class': 'form-control'}),
+            'tipoPericia': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(PericiaConsultaForm, self).__init__(*args, **kwargs)
+        self.fields['proyecto'].widget.attrs['readonly'] = True
+        self.fields['descripcion'].widget.attrs['readonly'] = True
+        self.fields['nombrePerito'].widget.attrs['readonly'] = True
+        self.fields['fecha'].widget.attrs['readonly'] = True
+        self.fields['tipoPericia'].widget.attrs['readonly'] = True

@@ -22,7 +22,7 @@ Pericias
             <div class="form-group col-md-3">
                 <!--<div class="form-group">-->
                 {{ filterset.form.proyecto.label_tag }}
-                {% render_field filterset.form.proyecto class="form-control" %}
+                {% render_field filterset.form.proyecto class="form-control" value="1" %}
                     <!--</div>-->
                 <!--</div>-->
             </div>
@@ -57,18 +57,18 @@ Pericias
 {% endblock %}
 
 {% block acciones %}
-<!--<a class="btn btn-success" href="{% url 'PericiaCrear' %}">Agregar</a>-->
+
 {% endblock %}
 
 {% block tabla_contenido %}
 <div class="form-group col-md-3">
-    <a class="btn btn-success" href="{% url 'PericiaCrear' %}">Agregar</a>
+    <a class="btn btn-success" href="{% url 'PericiaCrear' proyectoId %}">Agregar</a>
 </div>
-<div class="form-group col-md-3">
-    <label>Pericias por página:</label>
+<div class="form-group col-md-3" style="display:flex">
+    <label>Pericias por página:</label>&nbsp;
     <form action="." method="get">
-        <select name="paginate_by" class="form-control" onchange="this.form.submit();">
-            <option value="5" {% if 5 == numero_paginacion %}selected{% endif %}>Predeterminado</option>
+        <select name="paginate_by" class="form-control" onchange="this.form.submit();" style="width:20%">
+            <option value="5" {% if 5 == numero_paginacion %}selected{% endif %}>5</option>
             <option value="10" {% if 10 == numero_paginacion %}selected{% endif %}>10</option>
             <option value="15" {% if 15 == numero_paginacion %}selected{% endif %}>15</option>
             <option value="20" {% if 20 == numero_paginacion %}selected{% endif %}>20</option>
@@ -87,14 +87,14 @@ Pericias
         <th>Perito</th>
         <th>Tipo Pericia</th>
         <th>Fecha</th>
-        <th>Imagenes</th>
+        <th>Imágenes</th>
     </tr>
 </thead>
 <tbody>
     {% for pericia in object_list %}
     <tr>
         <td>
-            <a href="{% url 'PericiaEditar' pericia.id %}">
+            <a href="{% url 'PericiaEditar' pericia.id proyectoId%}">
                 <img src="../../static/image/editar.png" alt="Modificar" title="Modificar" style=";width: 20px">
             </a>
         </td>
@@ -111,11 +111,18 @@ Pericias
         <td style="display:none;">{{pericia.id}}</td>
         <td>{{pericia.proyecto.IPP}}</td>
         <td>{{pericia.proyecto.descripcion}}</td>
-        <td>{{pericia.descripcion}}</td>
+        <!--<td>{{pericia.descripcion}}</td>-->
+        <td>
+            <div class="cl-effect-1">
+                <a class="link" href="{% url 'PericiaConsultar' pericia.id proyectoId%}">
+                    {{pericia.descripcion}}
+                </a>
+            </div>
+        </td>
         <td>{{pericia.nombrePerito}}</td>
         <td>{{pericia.tipoPericia}}</td>
         <td>{{pericia.fecha}}</td>
-        <td>Cantidad</td>
+        <td>{{pericia.num_imagenes}}</td>
     </tr>
     <div id="Eliminar{{ pericia.id }}" class="modal fade">
         <div class="modal-dialog modal-confirm">

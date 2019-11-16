@@ -2,8 +2,6 @@
 import cv2
 import numpy as np
 import os
-# from tensorflow.python.keras.preprocessing.image import img_to_array
-# from tensorflow.python.keras.models import load_model
 from tensorflow.python.keras.preprocessing.image import img_to_array
 from tensorflow.python.keras.models import load_model
 
@@ -28,7 +26,9 @@ class RedNeuronalTexto:
         archivononmbre = imagen_path + imagen_nombre
         imagen = cv2.imread(archivononmbre, cv2.IMREAD_GRAYSCALE)
         if imagen is None:  # always check for None
-            print("----------------------------------unable to load Image---------------------", imagen_nombre)
+            pass
+            # resultado = ["ERROR", "No se pudo cargar la imagen {0}".format(archivononmbre)]
+            # return resultado
         else:
             # Se orocesa la imagen antes de realizar la predicción
             imagen = cv2.resize(imagen, self.targetSize, interpolation=cv2.INTER_AREA)
@@ -69,7 +69,9 @@ class RedNeuronalChat:
         archivononmbre = imagen_path + imagen_nombre
         imagen = cv2.imread(archivononmbre, cv2.IMREAD_GRAYSCALE)
         if imagen is None:  # always check for None
-            print("----------------------------------unable to load Image---------------------", imagen_nombre)
+            pass
+            # resultado = ["ERROR", "No se pudo cargar la imagen {0}".format(archivononmbre)]
+            # return resultado
         else:
             # Se orocesa la imagen antes de realizar la predicción
             imagen = cv2.resize(imagen, self.targetSize, interpolation=cv2.INTER_AREA)
@@ -110,7 +112,9 @@ class RedNeuronalEmail:
         archivononmbre = imagen_path + imagen_nombre
         imagen = cv2.imread(archivononmbre, cv2.IMREAD_GRAYSCALE)
         if imagen is None:  # always check for None
-            print("----------------------------------unable to load Image---------------------", imagen_nombre)
+            pass
+            # resultado = ["ERROR", "No se pudo cargar la imagen {0}".format(archivononmbre)]
+            # return resultado
         else:
             # Se orocesa la imagen antes de realizar la predicción
             imagen = cv2.resize(imagen, self.targetSize, interpolation=cv2.INTER_AREA)

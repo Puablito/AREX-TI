@@ -32,22 +32,20 @@ def imagenInsertar(conexion, periciaid,  imagen):
 
     data = (nombre, miniatura, thumbnail_binary, path, extension, 1, periciaid, tipoImagen)
 
-    resultado = conexion.consulta(query, data, False)
+    conexion.consulta(query, data, False)
 
     imagenId = conexion.lastId()
     # insert de las otras tablas
     hashes = imagen.get_hashes()
-    resultadoHash = hashesInsertar(hashes, imagenId, conexion)
+    hashesInsertar(hashes, imagenId, conexion)
 
     metadatos = imagen.get_metadatos()
-    resultadoMetadato = metadatosInsertar(metadatos, imagenId, conexion)
+    metadatosInsertar(metadatos, imagenId, conexion)
 
     detalles = imagen.get_detalles()
-    resultadoDetalle = detallesInsertar(detalles, imagenId, conexion)
+    detallesInsertar(detalles, imagenId, conexion)
 
-    resultado = resultado and resultadoHash and resultadoMetadato and resultadoDetalle
-
-    conexion.conexionCommitRoll(resultado)
+    resultado = conexion.conexionCommitRoll()
     if resultado:
         return ["OK", resultado]
     else:
@@ -57,50 +55,38 @@ def imagenInsertar(conexion, periciaid,  imagen):
 
 def hashesInsertar(hashes, imagenId, conexion):
     query = """ INSERT INTO "AREXTI_APP_imagenhash" 
-                    (valor, imagen_id, "tipoHash_id")
-                    VALUES (%s, %s, %s)"""
+                (valor, imagen_id, "tipoHash_id")
+                VALUES (%s, %s, %s)"""
     if hashes:
         for hash in hashes:
             tipoHash = hash
             valorHash = hashes[hash]
             data = (valorHash, imagenId, tipoHash)
-            resultado = conexion.consulta(query, data, False)
-            if not resultado:
-                return resultado
-        return resultado
-    return True
+            conexion.consulta(query, data, False)
 
 
 def metadatosInsertar(metadatos, imagenId, conexion):
     query = """ INSERT INTO "AREXTI_APP_imagenmetadatos" 
-                        ("idMetadato", valor, imagen_id)
-                        VALUES (%s, %s, %s)"""
+                ("idMetadato", valor, imagen_id)
+                VALUES (%s, %s, %s)"""
     if metadatos:
         for metadato in metadatos:
             idMetadato = metadato
             valorMetadato = metadatos[metadato]
             data = (idMetadato, valorMetadato, imagenId)
-            resultado = conexion.consulta(query, data, False)
-            if not resultado:
-                return resultado
-        return resultado
-    return True
+            conexion.consulta(query, data, False)
 
 
 def detallesInsertar(detalles, imagenId, conexion):
     query = """ INSERT INTO "AREXTI_APP_imagendetalle" 
-                            (texto, imagen_id, "tipoDetalle_id")
-                            VALUES (%s, %s, %s)"""
+                (texto, imagen_id, "tipoDetalle_id")
+                VALUES (%s, %s, %s)"""
     if detalles:
         for detalle in detalles:
             texto = detalle.get_texto()
             tipoDetalle = detalle.get_tipoDetalle()
             data = (texto, imagenId, tipoDetalle)
-            resultado = conexion.consulta(query, data, False)
-            if not resultado:
-                return resultado
-        return resultado
-    return True
+            conexion.consulta(query, data, False)
 
 
 def miniaturaCrea(imagen, ext):
@@ -118,3 +104,34 @@ def miniaturaCrea(imagen, ext):
     retval, buf = cv2.imencode('.' + ext, img_resized)
     return buf
 
+
+def imagenTipoActualizar(conexion, imagenId, imagentipo, detalles):
+    # actualiza el tipo de imagen en tabla IMAGEN
+    query = """ UPDATE "AREXTI_APP_imagen" 
+                SET "tipoImagen_id" = %s
+                WHERE id = %s;"""
+
+    data = (imagentipo, imagenId)
+    conexion.consulta(query, data, False)
+
+    # Guarda el nuevo detalle de la Imagen
+    detallesInsertar(detalles, imagenId, conexion)
+
+    resultado = conexion.conexionCommitRoll()
+    if resultado:
+        return ["OK", resultado]
+    else:
+        return ["ERROR", conexion.error]
+
+
+def imagenDetalleEliminar(conexion, imagenId):
+    # Elimina el detalle de la imagen
+    query = """ DELETE FROM "AREXTI_APP_imagendetalle" 
+                WHERE imagen_id = %s;"""
+    data = (imagenId,)
+    conexion.consulta(query, data, False)
+    resultado = conexion.conexionCommitRoll()
+    if resultado:
+        return ["OK", resultado]
+    else:
+        return ["ERROR", conexion.error]
