@@ -199,12 +199,12 @@ def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
 ## para ejecutarlo desde consola descomentar
 pericia = 1
 tipoProceso = "D"
-listaHash = ['SHA1', 'MD5', 'SHA256'] #{"MD5": "", "SHA1": "", "SHA256": ""}
+listaHash = ['SHA1', 'MD5', 'SHA256']
 
 #Mariano
-DirPrincipal = "Nueva"
+# DirPrincipal = "Nueva"
 
 #Pablo
 # DirPrincipal = r"PericiaPrueba\Dir2"
-DirPrincipal = r"CapturasPablo"
+DirPrincipal = "CapturasPablo"
 proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash)

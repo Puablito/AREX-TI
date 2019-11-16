@@ -26,9 +26,8 @@ class RedNeuronalTexto:
         archivononmbre = imagen_path + imagen_nombre
         imagen = cv2.imread(archivononmbre, cv2.IMREAD_GRAYSCALE)
         if imagen is None:  # always check for None
-            pass
-            # resultado = ["ERROR", "No se pudo cargar la imagen {0}".format(archivononmbre)]
-            # return resultado
+            resultado = ["ERROR", "No se pudo cargar la imagen {0}".format(archivononmbre)]
+            return resultado
         else:
             # Se orocesa la imagen antes de realizar la predicción
             imagen = cv2.resize(imagen, self.targetSize, interpolation=cv2.INTER_AREA)
@@ -43,9 +42,9 @@ class RedNeuronalTexto:
             answer = np.argmax(result)
 
             if answer == 0:
-                resultado = True
+                resultado = ["OK", True]
             elif answer == 1:
-                resultado = False
+                resultado = ["OK", False]
 
             return resultado
 
@@ -69,9 +68,8 @@ class RedNeuronalChat:
         archivononmbre = imagen_path + imagen_nombre
         imagen = cv2.imread(archivononmbre, cv2.IMREAD_GRAYSCALE)
         if imagen is None:  # always check for None
-            pass
-            # resultado = ["ERROR", "No se pudo cargar la imagen {0}".format(archivononmbre)]
-            # return resultado
+            resultado = ["ERROR", "No se pudo cargar la imagen {0}".format(archivononmbre)]
+            return resultado
         else:
             # Se orocesa la imagen antes de realizar la predicción
             imagen = cv2.resize(imagen, self.targetSize, interpolation=cv2.INTER_AREA)
@@ -86,9 +84,9 @@ class RedNeuronalChat:
             answer = np.argmax(result)
 
             if answer == 0:
-                resultado = True
+                resultado = ["OK", True]
             elif answer == 1:
-                resultado = False
+                resultado = ["OK", False]
 
             return resultado
 
@@ -112,9 +110,8 @@ class RedNeuronalEmail:
         archivononmbre = imagen_path + imagen_nombre
         imagen = cv2.imread(archivononmbre, cv2.IMREAD_GRAYSCALE)
         if imagen is None:  # always check for None
-            pass
-            # resultado = ["ERROR", "No se pudo cargar la imagen {0}".format(archivononmbre)]
-            # return resultado
+            resultado = ["ERROR", "No se pudo cargar la imagen {0}".format(archivononmbre)]
+            return resultado
         else:
             # Se orocesa la imagen antes de realizar la predicción
             imagen = cv2.resize(imagen, self.targetSize, interpolation=cv2.INTER_AREA)
@@ -129,8 +126,8 @@ class RedNeuronalEmail:
             answer = np.argmax(result)
 
             if answer == 0:
-                resultado = True
+                resultado = ["OK", True]
             elif answer == 1:
-                resultado = False
+                resultado = ["OK", False]
 
             return resultado

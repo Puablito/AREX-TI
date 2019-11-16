@@ -139,92 +139,106 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
                     mensajes_Cola.put(mensaje)
                     continue
             else:
-                tiene_texto = True
+                tiene_texto = ["OK", True]
 
-            if not tiene_texto:  # Si la imagen NO posee texto
-                imagenes_notexto.put(imagen_with_path)
-            else:  # Si la imagen posee texto
-
-                # Calcula Hashes
-                try:
-                    listado_hashes = Hashes.calcular_hashes(listado_hashes, imagen_with_path)
-                    imagen_procesada.set_hashes(listado_hashes)
-                except ValueError:
-                    mensaje = ["ERROR", 'Error en los tipos de hash. ({0} - {1})'.format(sys.exc_info()[0],
-                                                                                         sys.exc_info()[1])]
-                    mensajes_Cola.put(mensaje)
-                    break
-
-                except:
-                    mensaje = ["ERROR",
-                               'Error al calcular los hash de la imagen: {0} ({1} - {2})'.format(imagen_with_path,
-                                                                                                 sys.exc_info()[0],
-                                                                                                 sys.exc_info()[1])]
-                    mensajes_Cola.put(mensaje)
-                    continue
-
-                # Extrae metadatos
-                try:
-                    listado_metadatos = Metadatos.metadata_extraer(imagen_with_path)
-                    imagen_procesada.set_metadatos(listado_metadatos)
-                except:
-                    mensaje = ["ERROR",
-                               'Error al extraer los metadatos de la imagen: {0} ({1} - {2})'.format(imagen_with_path,
-                                                                                                     sys.exc_info()[0],
-                                                                                                     sys.exc_info()[1])]
-                    mensajes_Cola.put(mensaje)
-
-                # Crea la miniatura
-                try:
-                    thumbnail = Herramientas.miniaturaCrea(imagen_with_path, img_extension)
-                    imagen_procesada.set_thumbnail(thumbnail)
-                except:
-                    mensaje = ["ERROR", 'Error al crear la miniatura: {0} ({1} - {2})'.format(imagen_with_path,
-                                                                                              sys.exc_info()[0],
-                                                                                              sys.exc_info()[1])]
-                    mensajes_Cola.put(mensaje)
-
-                # Verifica si es de chat o no
-                try:
-                    img_path = img_path + os.sep
-                    es_chat = rn_chat.imagen_es_chat(img_path, img_nombre)
-                except:
-                    mensaje = ["ERROR",
-                               'Error en RN Chat, al predecir la imagen: {0} ({1} - {2})'.format(imagen_with_path,
-                                                                                                 sys.exc_info()[0],
-                                                                                                 sys.exc_info()[1])]
-                    mensajes_Cola.put(mensaje)
-                    continue
-
-                segmentador.set_imagen(imagen_procesada)
-                if es_chat:
-                    imagen_procesada.set_imagentipo("CHAT")
-                    # Segmenta la imagen y extraer texto DE CHAT
-                    imagen_procesada.set_detalles(segmentador.segmentarChat())
+            if tiene_texto[0] == "ERROR":
+                mensaje = ["ERROR", 'Error en RN Texto ({0})'.format(tiene_texto[1])]
+                mensajes_Cola.put(mensaje)
+            else:
+                # Si la imagen NO posee texto
+                if not tiene_texto[1]:
+                    imagenes_notexto.put(imagen_with_path)
                 else:
-                    # Verifica si es de mail o no con la RN
+                    # Si la imagen posee texto
+                    # Calcula Hashes
                     try:
-                        img_path = img_path + os.sep
-                        es_mail = rn_mail.imagen_es_email(img_path, img_nombre)
+                        listado_hashes = Hashes.calcular_hashes(listado_hashes, imagen_with_path)
+                        imagen_procesada.set_hashes(listado_hashes)
+                    except ValueError:
+                        mensaje = ["ERROR", 'Error en los tipos de hash. ({0} - {1})'.format(sys.exc_info()[0],
+                                                                                             sys.exc_info()[1])]
+                        mensajes_Cola.put(mensaje)
+                        break
+
                     except:
                         mensaje = ["ERROR",
-                                   'Error en RN Mail, al predecir la imagen: {0} ({1} - {2})'.format(imagen_with_path,
+                                   'Error al calcular los hash de la imagen: {0} ({1} - {2})'.format(imagen_with_path,
                                                                                                      sys.exc_info()[0],
                                                                                                      sys.exc_info()[1])]
                         mensajes_Cola.put(mensaje)
                         continue
 
-                    if es_mail:
-                        imagen_procesada.set_imagentipo("MAIL")  # Segmenta la imagen y extraer texto DE MAIL
-                        imagen_procesada.set_detalles(segmentador.segmentarMail())
-                    else:
-                        imagen_procesada.set_imagentipo("OTRO")  # Segmenta la imagen y extraer texto DE OTROS
-                        imagen_procesada.set_detalles(segmentador.segmentarOtro())
+                    # Extrae metadatos
+                    try:
+                        listado_metadatos = Metadatos.metadata_extraer(imagen_with_path)
+                        imagen_procesada.set_metadatos(listado_metadatos)
+                    except:
+                        mensaje = ["ERROR",
+                                   'Error al extraer los metadatos de la imagen: {0} ({1} - {2})'.format(imagen_with_path,
+                                                                                                         sys.exc_info()[0],
+                                                                                                         sys.exc_info()[1])]
+                        mensajes_Cola.put(mensaje)
 
-                mensaje = ["INFO", 'Se procesó correctamente la imagen: {0}'.format(imagen_with_path)]
-                mensajes_Cola.put(mensaje)
-                # Guarda en Cola para guardar en BD
-                imagenes_guardar.put(imagen_procesada)
+                    # Crea la miniatura
+                    try:
+                        thumbnail = Herramientas.miniaturaCrea(imagen_with_path, img_extension)
+                        imagen_procesada.set_thumbnail(thumbnail)
+                    except:
+                        mensaje = ["ERROR", 'Error al crear la miniatura: {0} ({1} - {2})'.format(
+                            imagen_with_path, sys.exc_info()[0], sys.exc_info()[1])]
+                        mensajes_Cola.put(mensaje)
+
+                    # Inicializa el segmentador
+                    segmentador.set_imagen(imagen_procesada)
+
+                    # Verifica si es de chat o no
+                    try:
+                        img_path = img_path + os.sep
+                        es_chat = rn_chat.imagen_es_chat(img_path, img_nombre)
+                    except:
+                        mensaje = ["ERROR",
+                                   'Error en RN Chat, al predecir la imagen: {0} ({1} - {2})'.format(
+                                       imagen_with_path, sys.exc_info()[0], sys.exc_info()[1])]
+                        mensajes_Cola.put(mensaje)
+                        continue
+
+                    if es_chat[0] == "ERROR":
+                        mensaje = ["ERROR", 'Error en RN Chat ({0})'.format(es_chat[1])]
+                        mensajes_Cola.put(mensaje)
+                    else:
+                        if es_chat[1]:
+                            imagen_procesada.set_imagentipo("CHAT")
+                            # Segmenta la imagen y extraer texto DE CHAT
+                            imagen_procesada.set_detalles(segmentador.segmentarChat())
+
+                    # Si no se pudo procesar con la RN de Chat o no es chat
+                    if es_chat[0] == "ERROR" or es_chat[1] == False:
+                        # Verifica si es de mail
+                        try:
+                            img_path = img_path + os.sep
+                            es_mail = rn_mail.imagen_es_email(img_path, img_nombre)
+                        except:
+                            mensaje = ["ERROR",
+                                       'Error en RN Mail, al predecir la imagen: {0} ({1} - {2})'.format(
+                                           imagen_with_path, sys.exc_info()[0], sys.exc_info()[1])]
+                            mensajes_Cola.put(mensaje)
+                            continue
+
+                        if es_mail[0] == "ERROR":
+                            mensaje = ["ERROR", 'Error en RN Mail ({0})'.format(es_mail[1])]
+                            mensajes_Cola.put(mensaje)
+                        else:
+                            if es_mail[1]:
+                                imagen_procesada.set_imagentipo("MAIL")  # Segmenta la imagen y extraer texto DE MAIL
+                                imagen_procesada.set_detalles(segmentador.segmentarMail())
+                            else:
+                                imagen_procesada.set_imagentipo("OTRO")  # Segmenta la imagen y extraer texto DE OTROS
+                                imagen_procesada.set_detalles(segmentador.segmentarOtro())
+
+                    mensaje = ["INFO", 'Se procesó correctamente la imagen: {0}'.format(imagen_with_path)]
+                    mensajes_Cola.put(mensaje)
+                    # Guarda en Cola para guardar en BD
+                    imagenes_guardar.put(imagen_procesada)
 
 
 def cambiar_tipoimagen(imagenid, imagentipo):
