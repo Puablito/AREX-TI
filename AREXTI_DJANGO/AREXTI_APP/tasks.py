@@ -31,10 +31,10 @@ def prueba_json(hashes, perid, url):
 
 
 @shared_task
-def call_ChangeImageType(imagenId, imagenTipoId):
+def call_ChangeImageType(imagenId, imagenNombre, imagenTipoId):
 
 	return True
-	# return ImagenAcciones.cambiar_tipoimagen(imagenId, imagenTipoId)
+	# return ImagenAcciones.cambiar_tipoimagen(imagenId, imagenNombre, imagenTipoId)
 
 
 @shared_task

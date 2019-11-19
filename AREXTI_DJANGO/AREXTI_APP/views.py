@@ -395,7 +395,7 @@ class ImagenEditar(UpdateView):
         return context
 
     def post(self, request, *args, **kwargs):
-        tipoImagenId = request.POST.get('urlFile', None)
+        tipoImagenId = request.POST.get('TipoImagen', None)
         imagen = self.get_object()
 
         isValid = True
@@ -403,7 +403,7 @@ class ImagenEditar(UpdateView):
 
         if not tipoImagenId:
             isValid = False
-            stringList.append('Seleccione un directorio de cual se extraeran las imagenes')
+            stringList.append('Seleccione el tipo de imagen al que quiere cambiar')
 
         if not isValid:
             messages.error(self.request, 'Por favor corrija los errores', extra_tags='title')
@@ -413,7 +413,7 @@ class ImagenEditar(UpdateView):
 
             return render(request, self.template_name)
 
-        call_ChangeImageType.delay(imagen.id, tipoImagenId)
+        call_ChangeImageType.delay(imagen.id, imagen.nombre, tipoImagenId)
 
         messages.success(self.request, 'Exito en la operacion', extra_tags='title')
         messages.success(self.request, 'Inicia el procesamiento automatico de las imagenes')
