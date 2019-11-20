@@ -19,6 +19,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DetailView, V
 from .models import Proyecto, Pericia, Imagen, TipoHash, ImagenHash, ImagenDetalle, ImagenFile, UploadFile
 from .forms import ProyectoForm, PericiaForm, ImagenForm, ImagenEditForm, ProyectoConsultaForm, PericiaConsultaForm, ImagenConsultarForm, UploadFileForm
 from .filters import ProyectoFilter, PericiaFilter, ImagenFilter, ReporteFilter
+from . import funcionesdb
 
 
 #enumerables
@@ -529,18 +530,8 @@ def export_imagenes_xls(request):
     detallesfinal = ''
     metadato = ''
     valormetadato = ''
-    c = connection.cursor()
-    try:
-        # c.execute("BEGIN")
-        # c.callproc("ocurrencias", [palabra, pericia, tiposfinal, detallesfinal, metadato, valormetadato])
-        c.execute("SELECT nombre, path FROM ocurrencias( %s,%s,%s,%s,%s,%s); ",
-                  (palabra, pericia, tiposfinal, detallesfinal, metadato, valormetadato))
-        results = c.fetchall()
-        # c.execute("COMMIT")
-    except Exception as e:
-        aa = e
-        c.close()
-    rows = Imagen.objects.all().values_list('pericia', 'tipoImagen', 'nombre', 'extension')
+    rows = funcionesdb.consulta('ocurrencias', [palabra, pericia, tiposfinal, detallesfinal, metadato, valormetadato])
+    # rows = Imagen.objects.all().values_list('pericia', 'tipoImagen', 'nombre', 'extension')
     for row in rows:
         row_num += 1
         for col_num in range(len(row)):
