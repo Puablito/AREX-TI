@@ -5,6 +5,7 @@ from django.db import models
 from django import forms
 from django_filters import widgets, filters
 from django.db import connection
+from . import funcionesdb
 
 
 class ProyectoFilter(django_filters.FilterSet):
@@ -153,16 +154,17 @@ class ReporteFilter(django_filters.FilterSet):
         valormetadato = filtros['valormeta']
         results = []
         if not(palabra is None or palabra == ''):
-            c = connection.cursor()
+            # c = connection.cursor()
             try:
                 # c.execute("BEGIN")
                 # c.callproc("ocurrencias", [palabra, pericia, tiposfinal, detallesfinal, metadato, valormetadato])
-                c.execute("SELECT nombre, path FROM ocurrencias( %s,%s,%s,%s,%s,%s); ", (palabra, pericia, tiposfinal, detallesfinal, metadato, valormetadato))
-                results = c.fetchall()
+
+                results = funcionesdb.consulta('ocurrencias', [palabra, pericia, tiposfinal, detallesfinal, metadato, valormetadato])
+
                 # c.execute("COMMIT")
             except Exception as e:
                 aa = e
-                c.close()
+
         queryset = results
         # for name, value in self.form.cleaned_data.items():
         #     queryset = self.filters[name].filter(queryset, value)

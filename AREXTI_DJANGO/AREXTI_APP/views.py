@@ -10,10 +10,8 @@ from django.conf import settings
 from django.template import loader
 from django.http import HttpResponse, HttpResponseNotFound
 from django.core.files.storage import FileSystemStorage
-import csv
 import xlwt
 from io import BytesIO
-from reportlab.pdfgen import canvas
 from django.db import connection
 from django.views.generic import TemplateView
 from django.views.generic.detail import SingleObjectMixin
@@ -503,20 +501,6 @@ class BasicUploadView(View):
         else:
             data = {'is_valid': False}
         return JsonResponse(data)
-
-
-def export_imagenes_csv(request):
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="users.csv"'
-
-    writer = csv.writer(response)
-    writer.writerow(['pericia', 'tipoImagen', 'nombre', 'extension'])
-
-    imagenes = Imagen.objects.all().values_list('pericia', 'tipoImagen', 'nombre', 'extension')
-    for imagen in imagenes:
-        writer.writerow(imagen)
-
-    return response
 
 
 def export_imagenes_xls(request):
