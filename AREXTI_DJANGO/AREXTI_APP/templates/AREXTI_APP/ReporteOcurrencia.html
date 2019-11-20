@@ -51,6 +51,14 @@
                 {{ filterset.form.tipoDetalle.label_tag }}
                 {% render_field filterset.form.tipoDetalle class="form-control" %}
             </div>
+            <div class="form-group col-md-3">
+                {{ filterset.form.metadato.label_tag }}
+                {% render_field filterset.form.metadato class="form-control" %}
+            </div>
+            <div class="form-group col-md-3">
+                {{ filterset.form.valormeta.label_tag }}
+                {% render_field filterset.form.valormeta class="form-control" %}
+            </div>
         </div>
         <div class="form-group col-md-4">
             <button type="submit" class="btn btn-primary">Generar</button>
@@ -63,9 +71,9 @@
 
 {% block tabla_contenido %}
 <div class="form-group col-md-3">
-<a class="btn btn-success" href="#">Exportar</a>
+<a class="btn btn-success" href="{% url 'export_imagenes_xls' %}">Exportar</a>
     </div>
-<div class="form-group col-md-3"> # total de ocurrencias: {{object_list.0.suma_ocurrencias}}</div>
+<div class="form-group col-md-3"> # total de ocurrencias: {{object_list.0.10}}</div>
 <thead class="thead-dark" >
     <tr>
         <th># Ocurrencias</th>
@@ -78,18 +86,18 @@
 <tbody>
     {% for imagen in object_list %}
     <tr>
-        <td style="display:none;">{{imagen.id}}</td>
-        <td>{{imagen.num_ocurrencias}}</td>
+        <td style="display:none;">{{imagen.0}}</td>
+        <td>{{imagen.9}}</td>
         <td>
             <div class="cl-effect-1">
-                <a class="link" href="{% url 'ImagenEditar' imagen.id %}">
-                    {{imagen.nombre}}
+                <a class="link" href="{% url 'ImagenEditar' imagen.0 %}">
+                    {{imagen.3}}
                 </a>
             </div>
         </td>
-        <td>{{imagen.extension}}</td>
+        <td>{{imagen.7}}</td>
         <!--<td>{{imagen.suma_ocurrencias}}</td>-->
-        <td>{{imagen.tipoImagen.id}}</td>
+        <td>{{imagen.2}}</td>
         <td>
             {% if  imagen.get_detalle %}
                     {{obj_hash.tipoDetalle.id}}
@@ -127,7 +135,7 @@
         </td>
 
     </tr>
-    <div id="Eliminar{{ imagen.id }}" class="modal fade">
+    <div id="Eliminar{{ imagen.0 }}" class="modal fade">
         <div class="modal-dialog modal-confirm">
             <div class="modal-content">
                 <div class="modal-header">
@@ -142,7 +150,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-info" data-dismiss="modal">Cancelar</button>
-                    <button class="btn btn-danger" onclick="window.location.href='{% url 'ImagenEliminar' imagen.id %}'">Eliminar</button>
+                    <button class="btn btn-danger" onclick="window.location.href='{% url 'ImagenEliminar' imagen.0 %}'">Eliminar</button>
                 </div>
             </div>
         </div>

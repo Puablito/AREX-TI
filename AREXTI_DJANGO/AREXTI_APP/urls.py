@@ -18,4 +18,6 @@ urlpatterns = [
     path('ReporteOcurrencia/', views.ReporteOcurrencia.as_view(), name='ReporteOcurrencia'),
     path('PericiaConsultar/<int:pk>/<int:Proyectoid>/', views.PericiaConsultar.as_view(), name='PericiaConsultar'),
     path('ProyectoConsultar/<int:pk>/', views.ProyectoConsultar.as_view(), name='ProyectoConsultar'),
+    path(r'^export/csv/$', views.export_imagenes_csv, name='export_imagenes_csv'),
+    path(r'^export/xls/$', views.export_imagenes_xls, name='export_imagenes_xls'),
 ]

@@ -6,7 +6,13 @@ from .tasks import getDirectories
 import os
 from django.db.models import Count
 from django.template import loader
-
+from django.http import HttpResponse, HttpResponseNotFound
+from django.core.files.storage import FileSystemStorage
+import csv
+import xlwt
+from io import BytesIO
+from reportlab.pdfgen import canvas
+from django.db import connection
 from django.views.generic import TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic import ListView, CreateView, UpdateView, DetailView
@@ -411,7 +417,7 @@ class ReporteOcurrencia(FilteredListView):
         queryset = None  # Imagen.objects.order_by('-id')
         self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
 
-        return self.filterset.qs.distinct()
+        return self.filterset.qs#.distinct()
     # queryset = Imagen.objects.filter(activo=1).order_by('-id')
 
     #Agrego al contexto la periciaId sobre el cual se obtuvo el conjunto de imagenes
@@ -425,5 +431,74 @@ class ReporteOcurrencia(FilteredListView):
     template_name = 'AREXTI_APP/ReporteOcurrencia.html'
 
 
+def export_imagenes_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="users.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['pericia', 'tipoImagen', 'nombre', 'extension'])
+
+    imagenes = Imagen.objects.all().values_list('pericia', 'tipoImagen', 'nombre', 'extension')
+    for imagen in imagenes:
+        writer.writerow(imagen)
+
+    return response
 
 
+def export_imagenes_xls(request):
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="Ocurrencias por palabra.xls"'
+
+    wb = xlwt.Workbook(encoding='utf-8')
+    ws = wb.add_sheet('Imagenes')
+
+    # Sheet header, first row
+    row_num = 0
+
+    font_style = xlwt.XFStyle()
+    font_style.font.bold = True
+
+    columns = ['pericia', 'tipoImagen', 'nombre', 'extension']
+
+    for col_num in range(len(columns)):
+        ws.write(row_num, col_num, columns[col_num], font_style)
+
+    # Sheet body, remaining rows
+    font_style = xlwt.XFStyle()
+    palabra = ''
+    pericia = ''
+    tiposfinal = ''
+    detallesfinal = ''
+    metadato = ''
+    valormetadato = ''
+    c = connection.cursor()
+    try:
+        # c.execute("BEGIN")
+        # c.callproc("ocurrencias", [palabra, pericia, tiposfinal, detallesfinal, metadato, valormetadato])
+        c.execute("SELECT nombre, path FROM ocurrencias( %s,%s,%s,%s,%s,%s); ",
+                  (palabra, pericia, tiposfinal, detallesfinal, metadato, valormetadato))
+        results = c.fetchall()
+        # c.execute("COMMIT")
+    except Exception as e:
+        aa = e
+        c.close()
+    rows = Imagen.objects.all().values_list('pericia', 'tipoImagen', 'nombre', 'extension')
+    for row in rows:
+        row_num += 1
+        for col_num in range(len(row)):
+            ws.write(row_num, col_num, row[col_num], font_style)
+
+    wb.save(response)
+    return response
+
+
+def pdf_view(request):
+    fs = FileSystemStorage()
+    filename = 'mypdf.pdf'
+    if fs.exists(filename):
+        with fs.open(filename) as pdf:
+            response = HttpResponse(pdf, content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="mypdf.pdf"'
+            return response
+    else:
+        return HttpResponseNotFound('The requested pdf was not found in our server.')

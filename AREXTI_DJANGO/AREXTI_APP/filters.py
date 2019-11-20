@@ -1,11 +1,10 @@
-from .models import Proyecto, Pericia, Imagen, TipoImagen, ImagenHash, ImagenDetalle, TipoDetalle
+from .models import Proyecto, Pericia, Imagen, TipoImagen, ImagenHash, ImagenDetalle, TipoDetalle, Metadatos, ImagenMetadatos
 import django_filters
 from django.db.models import Count, Sum
 from django.db import models
 from django import forms
 from django_filters import widgets, filters
-
-
+from django.db import connection
 
 
 class ProyectoFilter(django_filters.FilterSet):
@@ -101,9 +100,11 @@ def filter_not_empty(queryset, name, value):
 class ReporteFilter(django_filters.FilterSet):
     # nombre = django_filters.CharFilter(lookup_expr='icontains', label='Nombre')
     # extension = django_filters.CharFilter(lookup_expr='icontains', label='Extensión')
-    tipoImagen = django_filters.ModelChoiceFilter(queryset=TipoImagen.objects.filter(activo=1), label='Tipo Imagen')
+    tipoImagen = django_filters.ModelMultipleChoiceFilter(queryset=TipoImagen.objects.filter(activo=1), label='Tipo Imagen')
     texto = django_filters.CharFilter(method='filter_texto', label='Palabra')
-    tipoDetalle = django_filters.ModelChoiceFilter(method='filter_detalle', queryset=TipoDetalle.objects, label='Tipo Detalle')
+    tipoDetalle = django_filters.ModelMultipleChoiceFilter(queryset=TipoDetalle.objects, label='Tipo Detalle')
+    metadato = django_filters.ModelChoiceFilter(queryset=Metadatos.objects.distinct('idMeta'), label='Tipo Metadato', )
+    valormeta = django_filters.CharFilter(label='Valor Metadato')
 
     class Meta:
         model = Imagen
@@ -115,8 +116,8 @@ class ReporteFilter(django_filters.FilterSet):
         #     {'empty_label': 'Todas'})
         self.filters['pericia'].extra.update(
             {'empty_label': 'Todas'})
-        # self.filters['tipoDetalle'].extra.update(
-        #     {'empty_label': 'Todos'})
+        self.filters['metadato'].extra.update(
+            {'empty_label': 'Todos'})
 
     def filter_queryset(self, queryset):
         # super(self, queryset)
@@ -127,39 +128,76 @@ class ReporteFilter(django_filters.FilterSet):
         This method should be overridden if additional filtering needs to be
         applied to the queryset before it is cached.
         """
-        for name, value in self.form.cleaned_data.items():
-            queryset = self.filters[name].filter(queryset, value)
-            if name == 'texto':
-                texto = value
-            if name == 'tipoImagen':
-                tipoImagen = value
-            assert isinstance(queryset, models.QuerySet), \
-                "Expected '%s.%s' to return a QuerySet, but got a %s instead." \
-                % (type(self).__name__, name, type(queryset).__name__)
-        queryset = queryset. \
-                annotate(num_ocurrencias=Count('id')). \
-                extra(
-                select={
-                    'suma_ocurrencias': """SELECT COUNT(*) FROM "AREXTI_APP_imagendetalle" WHERE texto ilike %s 
-                        and "tipoImagen_id" = %s"""
-                }, select_params=['%'+texto+'%', 'OTRO'])
-        return queryset
-    def filter_detalle(self, queryset, name, value):
-        if value:
-            queryset = Imagen.objects.filter(imagendetalle__id__icontains=value)
-        return queryset
+        filtros = self.form.cleaned_data
+        palabra = filtros['texto']
+        detalles = filtros['tipoDetalle']
+        detallesfinal = ''
+        for detalle in detalles:
+            detallesfinal += detalle.id + '.'
 
-    def filter_texto(self, queryset, name, value):
-        if value:
-            # suma = Imagen.objects.filter(imagendetalle__texto__icontains=value).\
-            #     annotate(num_ocurrencias=Count('id')).aggregate(suma_ocurrencias=Sum('num_ocurrencias'))['suma_ocurrencias']
-            queryset = queryset.filter(imagendetalle__texto__icontains=value). \
-                annotate(num_ocurrencias=Count('id')) \
-                # .extra(
-                # select={
-                #     'suma_ocurrencias': """SELECT COUNT(*) FROM "AREXTI_APP_imagendetalle" WHERE texto ilike %s"""
-                # }, select_params=['%'+value+'%'])
-            # queryset = queryset. \
-            #     annotate(suma_ocurrencias=Sum('num_ocurrencias'))
+        tipos = filtros['tipoImagen']
+        tiposfinal = ''
+        for tipo in tipos:
+            tiposfinal += tipo.id + '.'
+
+        pericia = filtros['pericia']
+        if pericia is None:
+            pericia = 0
+        else:
+            pericia = filtros['pericia'].id
+        metadato = filtros['metadato']
+        if metadato is None:
+            metadato = ''
+        else:
+            metadato = filtros['metadato'].idMeta
+        valormetadato = filtros['valormeta']
+        results = []
+        if not(palabra is None or palabra == ''):
+            c = connection.cursor()
+            try:
+                # c.execute("BEGIN")
+                # c.callproc("ocurrencias", [palabra, pericia, tiposfinal, detallesfinal, metadato, valormetadato])
+                c.execute("SELECT nombre, path FROM ocurrencias( %s,%s,%s,%s,%s,%s); ", (palabra, pericia, tiposfinal, detallesfinal, metadato, valormetadato))
+                results = c.fetchall()
+                # c.execute("COMMIT")
+            except Exception as e:
+                aa = e
+                c.close()
+        queryset = results
+        # for name, value in self.form.cleaned_data.items():
+        #     queryset = self.filters[name].filter(queryset, value)
+        #     if name == 'texto':
+        #         texto = value
+        #     if name == 'tipoImagen':
+        #         tipoImagen = value
+        #     assert isinstance(queryset, models.QuerySet), \
+        #         "Expected '%s.%s' to return a QuerySet, but got a %s instead." \
+        #         % (type(self).__name__, name, type(queryset).__name__)
+        # queryset = queryset. \
+        #         annotate(num_ocurrencias=Count('id')). \
+        #         extra(
+        #         select={
+        #             'suma_ocurrencias': """SELECT COUNT(*) FROM "AREXTI_APP_imagendetalle" WHERE texto ilike %s
+        #                 and "tipoImagen_id" = %s"""
+        #         }, select_params=['%'+texto+'%', 'OTRO'])
 
         return queryset
+    # def filter_detalle(self, queryset, name, value):
+    #     if value:
+    #         queryset = Imagen.objects.filter(imagendetalle__id__icontains=value)
+    #     return queryset
+    #
+    # def filter_texto(self, queryset, name, value):
+    #     if value:
+    #         # suma = Imagen.objects.filter(imagendetalle__texto__icontains=value).\
+    #         #     annotate(num_ocurrencias=Count('id')).aggregate(suma_ocurrencias=Sum('num_ocurrencias'))['suma_ocurrencias']
+    #         queryset = queryset.filter(imagendetalle__texto__icontains=value). \
+    #             annotate(num_ocurrencias=Count('id')) \
+    #             # .extra(
+    #             # select={
+    #             #     'suma_ocurrencias': """SELECT COUNT(*) FROM "AREXTI_APP_imagendetalle" WHERE texto ilike %s"""
+    #             # }, select_params=['%'+value+'%'])
+    #         # queryset = queryset. \
+    #         #     annotate(suma_ocurrencias=Sum('num_ocurrencias'))
+    #
+    #     return queryset

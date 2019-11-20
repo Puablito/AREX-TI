@@ -202,9 +202,9 @@ tipoProceso = "D"
 listaHash = ['SHA1', 'MD5', 'SHA256'] #{"MD5": "", "SHA1": "", "SHA256": ""}
 
 #Mariano
-DirPrincipal = "Nueva"
+DirPrincipal = "Todas"
 
 #Pablo
 # DirPrincipal = r"PericiaPrueba\Dir2"
-DirPrincipal = r"CapturasPablo"
+# DirPrincipal = r"CapturasPablo"
 proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash)
