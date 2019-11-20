@@ -219,48 +219,81 @@ class Segmentador:
         return mails
 
     def segmentarChat(self):
-        self.configurarImagen()
-        erosion = self.tratarImagen()
-        self.obtenerBordes(erosion)
-        contornos = self.obtenerGlobos()
-        globos = self.setearGlobos(contornos)
-        return globos
+        Is_OK = True
+        try:
+            self.configurarImagen()
+            erosion = self.tratarImagen()
+            self.obtenerBordes(erosion)
+            contornos = self.obtenerGlobos()
+            globos = self.setearGlobos(contornos)
+        except Exception as e:
+            Is_OK = False
+            error = e
+
+        if Is_OK:
+            RtaSeg = ["OK", globos]
+        else:
+            RtaSeg = ["ERROR", error]
+
+        return RtaSeg
 
     def segmentarMail(self):
-        detalles = []
-        self.configurarImagen()
-        texto = self.extraerTextoImagen(self.imgEscalada)
-        detalle = ImagenProcesar.ImagenDetalle()
-        detalle.set_tipoDetalle('TEXTO')
-        detalle.set_texto(texto)
-        detalles.append(detalle)
-        mails = self.obtenerMails(texto)
-        if mails:
-            for mail in mails:
-                detalleMail = ImagenProcesar.ImagenDetalle()
-                detalleMail.set_tipoDetalle('MAIL')
-                detalleMail.set_texto(mail)
-                detalles.append(detalleMail)
-        return detalles
+        Is_OK = True
+        try:
+            detalles = []
+            self.configurarImagen()
+            texto = self.extraerTextoImagen(self.imgEscalada)
+            detalle = ImagenProcesar.ImagenDetalle()
+            detalle.set_tipoDetalle('TEXTO')
+            detalle.set_texto(texto)
+            detalles.append(detalle)
+            mails = self.obtenerMails(texto)
+            if mails:
+                for mail in mails:
+                    detalleMail = ImagenProcesar.ImagenDetalle()
+                    detalleMail.set_tipoDetalle('MAIL')
+                    detalleMail.set_texto(mail)
+                    detalles.append(detalleMail)
+
+        except Exception as e:
+            Is_OK = False
+            error = e
+
+        if Is_OK:
+            RtaSeg = ["OK", detalles]
+        else:
+            RtaSeg = ["ERROR", error]
+
+        return RtaSeg
 
     def segmentarOtro(self):
-        detalles = []
-        self.configurarImagen()
-        texto = self.extraerTextoImagen(self.imgEscalada)
-        detalle = ImagenProcesar.ImagenDetalle()
-        detalle.set_tipoDetalle('TEXTO')
-        detalle.set_texto(texto)
-        detalles.append(detalle)
-        mails = self.obtenerMails(texto)
-        if mails:
-            for mail in mails:
-                detalleMail = ImagenProcesar.ImagenDetalle()
-                detalleMail.set_tipoDetalle('MAIL')
-                detalleMail.set_texto(mail)
-                detalles.append(detalleMail)
+        Is_OK = True
+        try:
+            detalles = []
+            self.configurarImagen()
+            texto = self.extraerTextoImagen(self.imgEscalada)
+            detalle = ImagenProcesar.ImagenDetalle()
+            detalle.set_tipoDetalle('TEXTO')
+            detalle.set_texto(texto)
+            detalles.append(detalle)
+            mails = self.obtenerMails(texto)
+            if mails:
+                for mail in mails:
+                    detalleMail = ImagenProcesar.ImagenDetalle()
+                    detalleMail.set_tipoDetalle('MAIL')
+                    detalleMail.set_texto(mail)
+                    detalles.append(detalleMail)
 
-        return detalles
+        except Exception as e:
+            Is_OK = False
+            error = e
 
+        if Is_OK:
+            RtaSeg = ["OK", detalles]
+        else:
+            RtaSeg = ["ERROR", error]
+
+        return RtaSeg
 
 class ExtraccionTexto:
     def __init__(self, tesseract_cmd):

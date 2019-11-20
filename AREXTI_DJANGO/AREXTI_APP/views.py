@@ -2,9 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.contrib import messages
 from enum import Enum
-from .tasks import getDirectories
+from .tasks import getDirectories, call_ChangeImageType
 import os
+from django.http import JsonResponse
 from django.db.models import Count
+from django.conf import settings
 from django.template import loader
 from django.http import HttpResponse, HttpResponseNotFound
 from django.core.files.storage import FileSystemStorage
@@ -15,9 +17,9 @@ from reportlab.pdfgen import canvas
 from django.db import connection
 from django.views.generic import TemplateView
 from django.views.generic.detail import SingleObjectMixin
-from django.views.generic import ListView, CreateView, UpdateView, DetailView
-from .models import Proyecto, Pericia, Imagen, TipoHash, ImagenHash, ImagenDetalle, ImagenFile
-from .forms import ProyectoForm, PericiaForm, ImagenForm, ImagenEditForm, ProyectoConsultaForm, PericiaConsultaForm
+from django.views.generic import ListView, CreateView, UpdateView, DetailView, View, TemplateView
+from .models import Proyecto, Pericia, Imagen, TipoHash, ImagenHash, ImagenDetalle, ImagenFile, UploadFile
+from .forms import ProyectoForm, PericiaForm, ImagenForm, ImagenEditForm, ProyectoConsultaForm, PericiaConsultaForm, ImagenConsultarForm, UploadFileForm
 from .filters import ProyectoFilter, PericiaFilter, ImagenFilter, ReporteFilter
 
 
@@ -267,6 +269,7 @@ class PericiaConsultar(UpdateView):
 
 class ImagenListar(FilteredListView):
     filterset_class = ImagenFilter
+
     def get_queryset(self):
         perid = self.kwargs.get("pericia")
         # queryset = super().get_queryset()
@@ -279,6 +282,13 @@ class ImagenListar(FilteredListView):
         return self.filterset.qs.distinct()
     # queryset = Imagen.objects.filter(activo=1).order_by('-id')
 
+    def get_paginate_by(self, queryset):
+        paginacion = self.request.GET.get('paginate_by', self.paginate_by)
+        if paginacion:
+            return paginacion
+        else:
+            return 5
+
     #Agrego al contexto la periciaId sobre el cual se obtuvo el conjunto de imagenes
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -286,6 +296,12 @@ class ImagenListar(FilteredListView):
         context['periciaId'] = periciaId
         context['tipoHashes'] = TipoHash.objects.filter(activo=1)
         context['pericia'] = Pericia.objects.get(pk=periciaId)
+
+        paginacion = self.request.GET.get('paginate_by')
+        if paginacion == None:
+            paginacion = 5
+        context['numero_paginacion'] = int(paginacion)
+
         return context
 
     paginate_by = 10
@@ -307,13 +323,16 @@ class ImagenCrear(CreateView):
 
         pericia = get_object_or_404(Pericia, pk=perid)
 
+        photos_list = UploadFile.objects.filter(periciaId=perid)
 
         path = os.path.join("C:\\Users\\javier\\Desktop\\BS\\AREXTI\\", pericia.directorio)
-        directorios = getDirectories(path, "")
+        directorios = getDirectories(path, "", 1)
         contexto = {
             'tipoHashes': queryset,
             'activeTab': activeTab,
-            'directorios': directorios
+            'directorios': directorios,
+            'periciaId': pericia.id,
+            'photos': photos_list,
         }
 
         return render(request, self.template_name, contexto)
@@ -351,11 +370,12 @@ class ImagenCrear(CreateView):
 
             pericia = get_object_or_404(Pericia, pk=perid)
             path = os.path.join("C:\\Users\\javier\\Desktop\\BS\\AREXTI\\", pericia.directorio)
-            directorios = getDirectories(path, "")
+            directorios = getDirectories(path, "", 1)
             contexto = {
                 'tipoHashes': queryset,
                 'activeTab': activeTab,
-                'directorios': directorios
+                'directorios': directorios,
+                'periciaId': pericia.id,
             }
             return render(request, self.template_name, contexto)
 
@@ -378,22 +398,55 @@ class ImagenEditar(UpdateView):
         imagen = self.get_object()
         context = super().get_context_data(*args, **kwargs)
         context['detalles'] = ImagenDetalle.objects.filter(imagen=imagen).order_by('id')
+        context['periciaId'] = imagen.pericia.id
         return context
+
+    def post(self, request, *args, **kwargs):
+        tipoImagenId = request.POST.get('TipoImagen', None)
+        imagen = self.get_object()
+
+        isValid = True
+        stringList = list()
+
+        if not tipoImagenId:
+            isValid = False
+            stringList.append('Seleccione el tipo de imagen al que quiere cambiar')
+
+        if not isValid:
+            messages.error(self.request, 'Por favor corrija los errores', extra_tags='title')
+
+            for st in stringList:
+                messages.error(self.request, st)
+
+            return render(request, self.template_name)
+
+        call_ChangeImageType.delay(imagen.id, imagen.nombre, tipoImagenId)
+
+        messages.success(self.request, 'Exito en la operacion', extra_tags='title')
+        messages.success(self.request, 'Inicia el procesamiento automatico de las imagenes')
+
+        return render(self.get_success_url())
 
     def get_success_url(self):
         print(self.kwargs)
-        return reverse('ImagenListar', kwargs={'id': self.model.pericia})
+        return reverse('ImagenListar', kwargs={'pericia': 5})
 
 
-class ImagenConsultar(DetailView):
+class ImagenConsultar(UpdateView):
     model = Imagen
+    form_class = ImagenConsultarForm
     template_name = 'AREXTI_APP/ImagenEditar.html'
 
     def get_context_data(self, *args, **kwargs):
         imagen = self.get_object()
         context = super().get_context_data(*args, **kwargs)
         context['detalles'] = ImagenDetalle.objects.filter(imagen=imagen).order_by('id')
+        context['periciaId'] = imagen.pericia.id
         return context
+
+    # def get_success_url(self):
+    #     print(self.kwargs)
+    #     return reverse('ImagenListar', kwargs={'pericia': 5})
 
 
 def ImagenEliminar(request, Imagenid):
@@ -429,6 +482,27 @@ class ReporteOcurrencia(FilteredListView):
 
     paginate_by = 10
     template_name = 'AREXTI_APP/ReporteOcurrencia.html'
+
+
+class BasicUploadView(View):
+    def get(self, request, *args, **kwargs):
+        perid = self.kwargs.get("pericia")
+        photos_list = UploadFile.objects.filter(periciaId=perid)
+        return render(self.request, 'ImagenCrear.html', {'photos': photos_list})
+        # return render(self.request, 'files/basic_upload/index.html', {'photos': photos_list})
+
+    def post(self, request, *args, **kwargs):
+        form = UploadFileForm(self.request.POST, self.request.FILES)
+        perid = self.kwargs.get("pericia")
+        if form.is_valid():
+            uploadFile = form.save(commit=False)
+            uploadFile.periciaId = perid
+            uploadFile.save()
+            data = {'is_valid': True, 'name': uploadFile.file.name, 'url': uploadFile.file.url}
+            #data = {'is_valid': True, 'media': perid}
+        else:
+            data = {'is_valid': False}
+        return JsonResponse(data)
 
 
 def export_imagenes_csv(request):

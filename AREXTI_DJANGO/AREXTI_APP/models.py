@@ -153,3 +153,10 @@ class ImagenFile(object):
     fileUrl = models.CharField(max_length=200)
     hashList = models.CharField(max_length=5000)
 
+
+class UploadFile(models.Model):
+    periciaId = models.IntegerField()
+    title = models.CharField(max_length=255, blank=True)
+    file = models.FileField(upload_to='files/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+

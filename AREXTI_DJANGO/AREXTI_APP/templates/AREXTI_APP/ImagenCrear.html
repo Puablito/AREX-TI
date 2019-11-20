@@ -6,7 +6,11 @@
 {% endblock %}
 
 {% block AbmBaseScripts %}
+  <script src="{% static 'js/jquery-file-upload/vendor/jquery.ui.widget.js' %}"></script>
+  <script src="{% static 'js/jquery-file-upload/jquery.iframe-transport.js' %}"></script>
+  <script src="{% static 'js/jquery-file-upload/jquery.fileupload.js' %}"></script>
 
+  <script src="{% static 'js/files/basic-upload.js' %}"></script>
 <script>
   function getDirectorios()
   {
@@ -46,7 +50,7 @@
 
 
 {% block linkVolver %}
-  <a type="" href="{% url 'ImagenListar' 0 %}" style="color:black"> Volver a imagen</a>
+  <a type="" href="{% url 'ImagenListar' periciaId %}" style="color:black"> Volver a imagen</a>
 {% endblock %}
 
 {% block body %}
@@ -101,9 +105,6 @@
           </div>
         </div>
       </div>
-
-      {{url2}}
-
     </div>
 
     {% if activeTab %}
@@ -123,9 +124,57 @@
         </div>
       </div>
 
+      <div class="container" style="border-style:groove; margin-top:20px;">
+        <article style="margin-top:5px;">
+          <div class="info">
+            <strong><i class="fa fa-info-circle"></i> Nota:</strong> suba solo imagenes con texto
+          </div>
+        </article>
+        <div style="margin-bottom: 20px;">
+          <button type="button" class="btn btn-primary js-upload-files">
+            <span class="glyphicon glyphicon-cloud-upload"></span> Upload imagenes
+          </button>
+          <input id="fileupload" type="file" name="file" multiple
+           style="display: none;"
+           data-url="{% url 'BasicUpload' periciaId %}"
+           data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'>
+        </div>
+
+        <table id="gallery" class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Archivos</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for photo in photos %}
+              <tr>
+                <td><a class="link" href="{{ photo.file.url }}">{{ photo.file.name }}</a></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
     </div>
     {% endif %}
 
+  </div>
+</div>
+
+
+<div class="modal fade" id="modal-progress" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Uploading...</h4>
+      </div>
+      <div class="modal-body">
+        <div class="progress">
+          <div class="progress-bar" role="progressbar" style="width: 0%;">0%</div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}

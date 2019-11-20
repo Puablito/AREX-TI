@@ -6,7 +6,7 @@ import ImagenAcciones, Herramientas, BaseDatos
 from multiprocessing import Process, Queue
 
 
-def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
+def proceso_Principal(periciaid, periciaNombre, tipoProceso, DirPrincipal, listaHash):
     if __name__ == '__main__':
         # Crea la carpeta Logs
         try:
@@ -15,20 +15,21 @@ def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
             pass
 
         # Configuración del Log
-        logging.basicConfig(handlers=[logging.FileHandler('Logs/ProcesoPrincipal.csv', 'a', 'utf-8')],
+        nombreArchivo = "Pericia_{0}-{1}_ProcesoGeneral".format(periciaid, periciaNombre)
+        logging.basicConfig(handlers=[logging.FileHandler('Logs/{0}.txt'.format(nombreArchivo), 'a', 'utf-8')],
                             format='%(asctime)s; %(levelname)s; %(message)s',
-                            level=logging.DEBUG,
+                            level=logging.INFO,
                             datefmt='%d-%b-%y %H:%M:%S')
 
         # Creo diccionario de hashes
         dic = dict()
         for hashTipo in listaHash:
-            dic.update({hashTipo:""})
+            dic.update({hashTipo: ""})
         listaHash = dic
 
-        logging.info("----- Inicio del proceso priincipal -----")
+        logging.info("----- Inicio del proceso principal pericia: {0}-{1} -----".format(periciaid, periciaNombre))
         logging.info("---- Parametros del proceso ----")
-        logging.info("-- Pericia: {0}".format(pericia))
+        logging.info("-- Pericia: {0}-{1}".format(periciaid, periciaNombre))
         logging.info("-- Tipo de proceso: {0}".format(tipoProceso))
         logging.info("-- Hashes a aplicar: {0}".format(listaHash))
 
@@ -108,8 +109,10 @@ def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
             3- Mientras "procesos_ejecucion" tenga procesos activos:
                 A- Para cada proceso revisamos si el proceso sigue vivo, en caso de que haya muerto lo recuperamos, 
                     le quitamos los recursos y lo sacamos de "procesos_ejecucion"
-                B- Verificamos si la cola "imagenesNoTexto_Cola" posee datos, de ser asi guardamos la información en el archivo LOG
-                C- Verificamos si la cola "ImagenesGuardar_Cola" posee datos, de ser asi, se llama al proceso de guardado de imagen en BD 
+                B- Verificamos si la cola "imagenesNoTexto_Cola" posee datos, de ser asi guardamos la información en 
+                   el archivo LOG
+                C- Verificamos si la cola "ImagenesGuardar_Cola" posee datos, de ser asi, se llama al proceso de 
+                   guardado de imagen en BD 
              4- El proceso finaliza cuando "procesos_ejecucion" se encuentre vacio
             """
             ImagenesCola_cantidad = ImagenesCola.qsize()
@@ -143,21 +146,14 @@ def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
                 logging.info("Se crea el proceso: {0}".format(indiceProceso))
                 indiceProceso += 1
 
+            nombreLogSinTexto = "Pericia_{0}-{1}_ImagenesSinTexto".format(periciaid, periciaNombre)
+
             # Mientras haya procesos en ejecución
             while procesos_ejecucion:
 
-                # Revisa si los procesos han muerto
-                for proceso in procesos_ejecucion:
-                    if not proceso.is_alive():
-                        logging.info("Se elimina el proceso: {0}".format(proceso.name))
-                        # Recuperamos el proceso y lo sacamos de la lista
-                        proceso.join()
-                        procesos_ejecucion.remove(proceso)
-                        del proceso
-
                 # Guardado en archivo las imagenes que no se reconocieron con texto
                 if not imagenesNoTexto_Cola.empty():
-                    with open("Logs/Log_imagenesSinTexto.txt", "a") as archivo_notexto:
+                    with open("Logs/{0}.txt".format(nombreLogSinTexto), "a") as archivo_notexto:
                         while not imagenesNoTexto_Cola.empty():
                             fecha = time.strftime("%d-%m-%Y %H:%M:%S")
                             archivo_notexto.write("{0}; {1}; \n".format(fecha, imagenesNoTexto_Cola.get()))
@@ -174,13 +170,23 @@ def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
                 while not ImagenesGuardar_Cola.empty():
                     img_guardar = ImagenesGuardar_Cola.get()
                     # Guarda de a una imagen
-                    RtaBD = Herramientas.imagenInsertar(conexionBD, pericia, img_guardar)
+                    RtaBD = Herramientas.imagenInsertar(conexionBD, periciaid, img_guardar)
                     if RtaBD[0] == "ERROR":
                         mjeError = RtaBD[1].replace("\n", ",")
-                        logging.error('Error al guardar la imagen en la Base de Datos, nombre: {0} - ({1})'.format(img_guardar.get_nombre(),
-                                                                                                                   mjeError))
+                        logging.error('Error al guardar la imagen en la Base de Datos, nombre: {0} - ({1})'.format(
+                            img_guardar.get_nombre(), mjeError))
 
                     print("Imagen: {0} - {1}".format(img_guardar.get_nombre(), img_guardar.get_imagentipo()))
+
+                # Revisa si los procesos han muerto
+                for proceso in procesos_ejecucion:
+                    if not proceso.is_alive():
+                        logging.info("Se elimina el proceso: {0}".format(proceso.name))
+                        # Recuperamos el proceso y lo sacamos de la lista
+                        proceso.join()
+                        procesos_ejecucion.remove(proceso)
+                        del proceso
+
                 # Para no saturar el cpu, dormimos el ciclo durante 1 segundo
                 time.sleep(1)
             conexionBD.desconectar()
@@ -191,20 +197,21 @@ def proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash):
             logging.info("Inicio del proceso: {0}".format(TiempoInicial))
             logging.info("Fin del proceso: {0}".format(TiempoFinal))
             logging.info("Tiempo transcurrido: {0}".format(TiempoFinal - TiempoInicial))
-            logging.info("----- Fin del proceso priincipal pericia: -----")
+            logging.info("----- Fin del proceso principal pericia: {0}-{1} -----".format(periciaid, periciaNombre))
 
             print("Todos los procesos han terminado")
 
 
 ## para ejecutarlo desde consola descomentar
-pericia = 1
+periciaid = 1
+periciaNombre = "Prueba"
 tipoProceso = "D"
-listaHash = ['SHA1', 'MD5', 'SHA256'] #{"MD5": "", "SHA1": "", "SHA256": ""}
+listaHash = ['SHA1', 'MD5', 'SHA256']
 
 #Mariano
 DirPrincipal = "Todas"
 
 #Pablo
-# DirPrincipal = r"PericiaPrueba\Dir2"
-# DirPrincipal = r"CapturasPablo"
-proceso_Principal(pericia, tipoProceso, DirPrincipal, listaHash)
+DirPrincipal = r"PericiaPrueba\Dir2"
+# DirPrincipal = "CapturasPablo"
+proceso_Principal(periciaid, periciaNombre, tipoProceso, DirPrincipal, listaHash)
