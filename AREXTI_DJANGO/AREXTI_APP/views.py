@@ -2,18 +2,24 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.contrib import messages
 from enum import Enum
-from .tasks import getDirectories, call_ChangeImageType
+from .tasks import getDirectories, call_ChangeImageType, call_ProcessImage
 import os
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.db.models import Count
 from django.conf import settings
 from django.template import loader
-
+from django.http import HttpResponse, HttpResponseNotFound
+from django.core.files.storage import FileSystemStorage
+import xlwt
+from io import BytesIO
+from django.db import connection
+from django.views.generic import TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, View, TemplateView
-from .models import Proyecto, Pericia, Imagen, TipoHash, ImagenHash, ImagenDetalle, ImagenFile, UploadFile
+from .models import Proyecto, Pericia, Imagen, TipoHash, ImagenHash, ImagenDetalle, ImagenFile, UploadFile, Parametros
 from .forms import ProyectoForm, PericiaForm, ImagenForm, ImagenEditForm, ProyectoConsultaForm, PericiaConsultaForm, ImagenConsultarForm, UploadFileForm
 from .filters import ProyectoFilter, PericiaFilter, ImagenFilter, ReporteFilter
+from . import funcionesdb
 
 
 #enumerables
@@ -21,6 +27,14 @@ class messageTitle(Enum):
     Alta = "Alta exitosa"
     Modificacion = "Modificación exitosa"
 
+
+class CreateTabs(Enum):
+    Directorio = "D"
+    Archivo = "A"
+
+
+class ParametroSistema(Enum):
+    DirectorioBase = "DIRECTORIOIMAGEN"
 
 class FilteredListView(ListView):
     filterset_class = None
@@ -317,8 +331,9 @@ class ImagenCrear(CreateView):
         pericia = get_object_or_404(Pericia, pk=perid)
 
         photos_list = UploadFile.objects.filter(periciaId=perid)
+        directorioBase = Parametros.objects.get(id=ParametroSistema.DirectorioBase.value)
 
-        path = os.path.join("C:\\Users\\javier\\Desktop\\BS\\AREXTI\\", pericia.directorio)
+        path = os.path.join(directorioBase.valorTexto, pericia.directorio)
         directorios = getDirectories(path, "", 1)
         contexto = {
             'tipoHashes': queryset,
@@ -326,29 +341,42 @@ class ImagenCrear(CreateView):
             'directorios': directorios,
             'periciaId': pericia.id,
             'photos': photos_list,
+            'archivoTab': "A",
+            'directorioTab': "D",
         }
 
         return render(request, self.template_name, contexto)
 
     def post(self, request, *args, **kwargs):
-        hashesId = request.POST.getlist('inputHash')
+        hashesDirectorioId = request.POST.getlist('inputHashDirectorio')
+        hashesArchivoId = request.POST.getlist('inputHashArchivo')
         perid = self.kwargs.get("pericia")
         url = request.POST.get('urlFile', None)
+        fromTab = request.POST.get('fromTab', None)
+        pericia = get_object_or_404(Pericia, pk=perid)
 
         isValid = True
         stringList = list()
+
+        if not fromTab or fromTab not in [CreateTabs.Archivo.value, CreateTabs.Directorio.value]:
+            isValid = False
+            stringList.append('Debe seleccionar una opcion para cargar imagenes')
 
         if not perid or perid == 0:
             isValid = False
             stringList.append('Debe existir una pericia para operar')
 
-        if not hashesId:
-            isValid = False
-            stringList.append('Seleccione uno o mas hashes a aplicar')
-
-        if not url:
+        if fromTab == CreateTabs.Directorio.value and not url:
             isValid = False
             stringList.append('Seleccione un directorio de cual se extraeran las imagenes')
+
+        if fromTab == CreateTabs.Directorio.value and not hashesDirectorioId:
+            isValid = False
+            stringList.append('Seleccione uno o mas hashes para aplicar a las imagenes del directorio')
+
+        if fromTab == CreateTabs.Archivo.value and not hashesArchivoId:
+            isValid = False
+            stringList.append('Seleccione uno o mas hashes para aplicar a los archivos')
 
         if not isValid:
             messages.error(self.request, 'Por favor corrija los errores', extra_tags='title')
@@ -361,25 +389,27 @@ class ImagenCrear(CreateView):
             if Imagen.objects.filter(pericia=perid).count() > 0:
                 activeTab = True
 
-            pericia = get_object_or_404(Pericia, pk=perid)
-            path = os.path.join("C:\\Users\\javier\\Desktop\\BS\\AREXTI\\", pericia.directorio)
+            directorioBase = Parametros.objects.get(id=ParametroSistema.DirectorioBase.value)
+
+            path = os.path.join(directorioBase.valorTexto, pericia.directorio)
             directorios = getDirectories(path, "", 1)
             contexto = {
                 'tipoHashes': queryset,
                 'activeTab': activeTab,
                 'directorios': directorios,
-                'periciaId': pericia.id,
+                'periciaId': pericia.id,  #ver de pasarle el fromTab para setear el mismo
             }
             return render(request, self.template_name, contexto)
 
-        # resultado = call_ImageProccess.delay(5, 10) aca proceso las imagenes (debo pasarle los parametros)
-
-        hashes = TipoHash.objects.filter(id__in=hashesId)
+        if fromTab == CreateTabs.Directorio.value:
+            call_ProcessImage(perid, pericia.descripcion, fromTab, url, hashesId)
+        else:
+            call_ProcessImage(perid, pericia.descripcion, fromTab, pericia.directorio, hashesId)
 
         messages.success(self.request, 'Exito en la operacion', extra_tags='title')
         messages.success(self.request, 'Inicia el procesamiento automatico de las imagenes')
 
-        return render(request, self.template_name, {'url2': url}) #deberia llamar al imagenListar
+        return render(request, 'AREXTI_APP/ImagenListar.html', {'pericia': pericia, 'periciaId': perid}) #deberia llamar al imagenListar
 
 
 class ImagenEditar(UpdateView):
@@ -411,18 +441,14 @@ class ImagenEditar(UpdateView):
             for st in stringList:
                 messages.error(self.request, st)
 
-            return render(request, self.template_name)
+            return render(request, self.template_name, {'imagen': imagen, 'periciaId': imagen.pericia.id})
 
-        call_ChangeImageType.delay(imagen.id, imagen.nombre, tipoImagenId)
+        call_ChangeImageType(imagen.id, imagen.nombre, tipoImagenId)
 
         messages.success(self.request, 'Exito en la operacion', extra_tags='title')
         messages.success(self.request, 'Inicia el procesamiento automatico de las imagenes')
 
-        return render(self.get_success_url())
-
-    def get_success_url(self):
-        print(self.kwargs)
-        return reverse('ImagenListar', kwargs={'pericia': 5})
+        return render(request, 'AREXTI_APP/ImagenListar.html', {'pericia': imagen.pericia, 'periciaId': imagen.pericia.id})
 
 
 class ImagenConsultar(UpdateView):
@@ -463,7 +489,7 @@ class ReporteOcurrencia(FilteredListView):
         queryset = None  # Imagen.objects.order_by('-id')
         self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
 
-        return self.filterset.qs.distinct()
+        return self.filterset.qs#.distinct()
     # queryset = Imagen.objects.filter(activo=1).order_by('-id')
 
     #Agrego al contexto la periciaId sobre el cual se obtuvo el conjunto de imagenes
@@ -491,6 +517,7 @@ class BasicUploadView(View):
             uploadFile = form.save(commit=False)
             uploadFile.periciaId = perid
             uploadFile.save()
+
             data = {'is_valid': True, 'name': uploadFile.file.name, 'url': uploadFile.file.url}
             #data = {'is_valid': True, 'media': perid}
         else:
@@ -498,5 +525,50 @@ class BasicUploadView(View):
         return JsonResponse(data)
 
 
+def export_imagenes_xls(request):
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="Ocurrencias por palabra.xls"'
+
+    wb = xlwt.Workbook(encoding='utf-8')
+    ws = wb.add_sheet('Imagenes')
+
+    # Sheet header, first row
+    row_num = 0
+
+    font_style = xlwt.XFStyle()
+    font_style.font.bold = True
+
+    columns = ['pericia', 'tipoImagen', 'nombre', 'extension']
+
+    for col_num in range(len(columns)):
+        ws.write(row_num, col_num, columns[col_num], font_style)
+
+    # Sheet body, remaining rows
+    font_style = xlwt.XFStyle()
+    palabra = ''
+    pericia = ''
+    tiposfinal = ''
+    detallesfinal = ''
+    metadato = ''
+    valormetadato = ''
+    rows = funcionesdb.consulta('ocurrencias', [palabra, pericia, tiposfinal, detallesfinal, metadato, valormetadato])
+    # rows = Imagen.objects.all().values_list('pericia', 'tipoImagen', 'nombre', 'extension')
+    for row in rows:
+        row_num += 1
+        for col_num in range(len(row)):
+            ws.write(row_num, col_num, row[col_num], font_style)
+
+    wb.save(response)
+    return response
 
 
+def pdf_view(request):
+    fs = FileSystemStorage()
+    filename = 'mypdf.pdf'
+    if fs.exists(filename):
+        with fs.open(filename) as pdf:
+            response = HttpResponse(pdf, content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="mypdf.pdf"'
+            return response
+    else:
+        return HttpResponseNotFound('The requested pdf was not found in our server.')

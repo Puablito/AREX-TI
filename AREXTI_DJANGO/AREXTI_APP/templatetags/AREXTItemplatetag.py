@@ -1,4 +1,5 @@
 from django import template
+from AREXTI_APP.models import ImagenHash
 
 register = template.Library()
 
@@ -11,6 +12,15 @@ def img_hash_tags(tipo_hash, hashes):
     else:
         return None
 
+@register.filter
+def img_hash_tags2(tipo_hash, id):
+    hashes = ImagenHash.objects.filter(imagen_id=id)
+    for hash in hashes:
+        if hash.tipoHash == tipo_hash:
+            return hash.valor
+            break
+    else:
+        return None
 
 @register.simple_tag(takes_context=True)
 def param_replace(context, **kwargs):

@@ -21,4 +21,5 @@ urlpatterns = [
     path('ProyectoConsultar/<int:pk>/', views.ProyectoConsultar.as_view(), name='ProyectoConsultar'),
     path('ImagenConsultar/<int:pk>/', views.ImagenConsultar.as_view(), name='ImagenConsultar'),
     path('BasicUpload/<int:pericia>/', views.BasicUploadView.as_view(), name='BasicUpload'),
+    path(r'^export/xls/$', views.export_imagenes_xls, name='export_imagenes_xls'),
 ]
