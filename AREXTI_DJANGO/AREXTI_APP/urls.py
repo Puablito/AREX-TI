@@ -17,9 +17,12 @@ urlpatterns = [
     path('ImagenEditar/<int:pk>/', views.ImagenEditar.as_view(), name='ImagenEditar'),
     path('ImagenEliminar/<int:Imagenid>/', views.ImagenEliminar, name='ImagenEliminar'),
     path('ReporteOcurrencia/', views.ReporteOcurrencia.as_view(), name='ReporteOcurrencia'),
+    path('ReporteNube/', views.ReporteNube.as_view(), name='ReporteNube'),
     path('PericiaConsultar/<int:pk>/<int:Proyectoid>/', views.PericiaConsultar.as_view(), name='PericiaConsultar'),
     path('ProyectoConsultar/<int:pk>/', views.ProyectoConsultar.as_view(), name='ProyectoConsultar'),
     path('ImagenConsultar/<int:pk>/', views.ImagenConsultar.as_view(), name='ImagenConsultar'),
     path('BasicUpload/<int:pericia>/', views.BasicUploadView.as_view(), name='BasicUpload'),
-    path(r'^export/xls/$', views.export_imagenes_xls, name='export_imagenes_xls'),
+    path('export/xls/', views.export_imagenes_xls, name='export_imagenes_xls'),
+    path('export/pdf/', views.write_pdf_view, name='write_pdf_view'),
+    path('ReporteNubeee/', views.cloud_gen, name='cloud_gen'),
 ]

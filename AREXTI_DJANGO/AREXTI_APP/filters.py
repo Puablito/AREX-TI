@@ -99,8 +99,6 @@ def filter_not_empty(queryset, name, value):
 
 
 class ReporteFilter(django_filters.FilterSet):
-    # nombre = django_filters.CharFilter(lookup_expr='icontains', label='Nombre')
-    # extension = django_filters.CharFilter(lookup_expr='icontains', label='Extensión')
     tipoImagen = django_filters.ModelMultipleChoiceFilter(queryset=TipoImagen.objects.filter(activo=1), label='Tipo Imagen')
     texto = django_filters.CharFilter(method='filter_texto', label='Palabra')
     tipoDetalle = django_filters.ModelMultipleChoiceFilter(queryset=TipoDetalle.objects, label='Tipo Detalle')
@@ -116,12 +114,11 @@ class ReporteFilter(django_filters.FilterSet):
         # self.filters['tipoImagen'].extra.update(
         #     {'empty_label': 'Todas'})
         self.filters['pericia'].extra.update(
-            {'empty_label': 'Todas'})
+            {'empty_label': None})
         self.filters['metadato'].extra.update(
             {'empty_label': 'Todos'})
 
     def filter_queryset(self, queryset):
-        # super(self, queryset)
         """
         Filter the queryset with the underlying form's `cleaned_data`. You must
         call `is_valid()` or `errors` before calling this method.
@@ -154,52 +151,11 @@ class ReporteFilter(django_filters.FilterSet):
         valormetadato = filtros['valormeta']
         results = []
         if not(palabra is None or palabra == ''):
-            # c = connection.cursor()
             try:
-                # c.execute("BEGIN")
-                # c.callproc("ocurrencias", [palabra, pericia, tiposfinal, detallesfinal, metadato, valormetadato])
+                 results = funcionesdb.consulta('ocurrencias', [palabra, pericia, tiposfinal, detallesfinal, metadato, valormetadato])
 
-                results = funcionesdb.consulta('ocurrencias', [palabra, pericia, tiposfinal, detallesfinal, metadato, valormetadato])
-
-                # c.execute("COMMIT")
             except Exception as e:
                 aa = e
 
         queryset = results
-        # for name, value in self.form.cleaned_data.items():
-        #     queryset = self.filters[name].filter(queryset, value)
-        #     if name == 'texto':
-        #         texto = value
-        #     if name == 'tipoImagen':
-        #         tipoImagen = value
-        #     assert isinstance(queryset, models.QuerySet), \
-        #         "Expected '%s.%s' to return a QuerySet, but got a %s instead." \
-        #         % (type(self).__name__, name, type(queryset).__name__)
-        # queryset = queryset. \
-        #         annotate(num_ocurrencias=Count('id')). \
-        #         extra(
-        #         select={
-        #             'suma_ocurrencias': """SELECT COUNT(*) FROM "AREXTI_APP_imagendetalle" WHERE texto ilike %s
-        #                 and "tipoImagen_id" = %s"""
-        #         }, select_params=['%'+texto+'%', 'OTRO'])
-
         return queryset
-    # def filter_detalle(self, queryset, name, value):
-    #     if value:
-    #         queryset = Imagen.objects.filter(imagendetalle__id__icontains=value)
-    #     return queryset
-    #
-    # def filter_texto(self, queryset, name, value):
-    #     if value:
-    #         # suma = Imagen.objects.filter(imagendetalle__texto__icontains=value).\
-    #         #     annotate(num_ocurrencias=Count('id')).aggregate(suma_ocurrencias=Sum('num_ocurrencias'))['suma_ocurrencias']
-    #         queryset = queryset.filter(imagendetalle__texto__icontains=value). \
-    #             annotate(num_ocurrencias=Count('id')) \
-    #             # .extra(
-    #             # select={
-    #             #     'suma_ocurrencias': """SELECT COUNT(*) FROM "AREXTI_APP_imagendetalle" WHERE texto ilike %s"""
-    #             # }, select_params=['%'+value+'%'])
-    #         # queryset = queryset. \
-    #         #     annotate(suma_ocurrencias=Sum('num_ocurrencias'))
-    #
-    #     return queryset

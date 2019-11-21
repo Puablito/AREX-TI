@@ -35,7 +35,7 @@
 {% block filtros %}
 <form>
         <div class="form-row">
-            <div class="form-group col-md-3">
+            <div class="form-group col-md-2">
                 {{ filterset.form.texto.label_tag }}
                 {% render_field filterset.form.texto class="form-control" %}
             </div>
@@ -43,11 +43,11 @@
                 {{ filterset.form.pericia.label_tag }}
                 {% render_field filterset.form.pericia class="form-control" %}
             </div>
-            <div class="form-group col-md-3">
+            <div class="form-group col-md-2">
                 {{ filterset.form.tipoImagen.label_tag }}
                 {% render_field filterset.form.tipoImagen class="form-control" %}
             </div>
-            <div class="form-group col-md-3">
+            <div class="form-group col-md-2">
                 {{ filterset.form.tipoDetalle.label_tag }}
                 {% render_field filterset.form.tipoDetalle class="form-control" %}
             </div>
@@ -55,32 +55,45 @@
                 {{ filterset.form.metadato.label_tag }}
                 {% render_field filterset.form.metadato class="form-control" %}
             </div>
-            <div class="form-group col-md-3">
+            <div class="form-group col-md-2">
                 {{ filterset.form.valormeta.label_tag }}
                 {% render_field filterset.form.valormeta class="form-control" %}
             </div>
         </div>
         <div class="form-group col-md-4">
+            <input type="hidden" name="paginate_by" value={{ numero_paginacion }} />
             <button type="submit" class="btn btn-primary">Generar</button>
         </div>
-    </form>
+</form>
 {% endblock %}
 
 {% block acciones %}
 {% endblock %}
 
 {% block tabla_contenido %}
-<div class="form-group col-md-3">
+<div class="form-group col-md-2">
 <a class="btn btn-success" href="{% url 'export_imagenes_xls' %}">Exportar</a>
     </div>
 <div class="form-group col-md-3"> # total de ocurrencias: {{object_list.0.suma_total_ocu}}</div>
+<div class="form-group col-md-4" style="display:flex">
+    <label>Imágenes por página: </label>&nbsp;
+    <form action="." method="get">
+        <select name="paginate_by" class="form-control" onchange="this.form.submit();" style="width:15%">
+            <option value="5" {% if 5 == numero_paginacion %}selected{% endif %}>5</option>
+            <option value="10" {% if 10 == numero_paginacion %}selected{% endif %}>10</option>
+            <option value="15" {% if 15 == numero_paginacion %}selected{% endif %}>15</option>
+            <option value="20" {% if 20 == numero_paginacion %}selected{% endif %}>20</option>
+            <option value="50" {% if 50 == numero_paginacion %}selected{% endif %}>50</option>
+        </select>
+    </form>
+</div>
 <thead class="thead-dark" >
     <tr>
         <th># Ocurrencias</th>
-        <th>Imagen</th>
+        <th style="text-align:center;">Imagen</th>
         <th style="width: 100px">Extensión</th>
         <th style="width: 120px">Tipo Imagen</th>
-        <th>Hash</th>
+        <th style="text-align:center;">Hash</th>
     </tr>
 </thead>
 <tbody>

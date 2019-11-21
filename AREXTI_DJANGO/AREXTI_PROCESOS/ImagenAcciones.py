@@ -272,7 +272,7 @@ def cambiar_tipoimagen(imagenid,imagennombre, imagentipo):
                         level=logging.INFO,
                         datefmt='%d-%b-%y %H:%M:%S')
 
-    logging.info("----- Inicio del proceso canbio de tipo de imagen -----")
+    logging.info("----- Inicio del proceso cambio de tipo de imagen -----")
     logging.info("---- Parametros del proceso ----")
     logging.info("-- Imagen: {0}-{1}".format(imagenid, imagennombre))
     logging.info("-- Nuevo tipo de imagen : {0}".format(imagentipo))
@@ -368,7 +368,7 @@ def cambiar_tipoimagen(imagenid,imagennombre, imagentipo):
                     logging.error("Error al cambiar el detalle de la imagen {0}-{1} ({2})".format(imagenid,
                                                                                                   nombreImagen,
                                                                                                   conexionBD.error))
-    logging.info("----- Fin del proceso canbio de tipo de imagen -----")
+    logging.info("----- Fin del proceso cambio de tipo de imagen -----")
 
 
-# cambiar_tipoimagen(155,"OTRO")
+# cambiar_tipoimagen(370,"CapturaTexto 2.jpg","OTRO")

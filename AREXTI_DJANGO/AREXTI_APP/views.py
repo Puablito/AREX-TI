@@ -12,7 +12,7 @@ from django.http import HttpResponse, HttpResponseNotFound
 from django.core.files.storage import FileSystemStorage
 import xlwt
 from io import BytesIO
-from django.db import connection
+from reportlab.pdfgen import canvas
 from django.views.generic import TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, View, TemplateView
@@ -20,6 +20,12 @@ from .models import Proyecto, Pericia, Imagen, TipoHash, ImagenHash, ImagenDetal
 from .forms import ProyectoForm, PericiaForm, ImagenForm, ImagenEditForm, ProyectoConsultaForm, PericiaConsultaForm, ImagenConsultarForm, UploadFileForm
 from .filters import ProyectoFilter, PericiaFilter, ImagenFilter, ReporteFilter
 from . import funcionesdb
+import numpy as np
+from PIL import Image
+from wordcloud import STOPWORDS, WordCloud
+import matplotlib.pyplot as plt
+import io
+import urllib, base64
 
 
 #enumerables
@@ -459,28 +465,46 @@ def ImagenEliminar(request, Imagenid):
 class ReporteOcurrencia(FilteredListView):
     filterset_class = ReporteFilter
 
+    def get_paginate_by(self, queryset):
+        paginacion = self.request.GET.get('paginate_by', self.paginate_by)
+        if paginacion:
+            return paginacion
+        else:
+            return 5
+
     def get_queryset(self):
-        perid = self.kwargs.get("pericia")
-        # queryset = super().get_queryset()
-        # if perid != 0:
-        #     queryset = Imagen.objects.filter(activo=1, pericia=perid).order_by('-id')
-        # else:
-        #     queryset = Imagen.objects.filter(activo=1).order_by('-id')
-        queryset = None  # Imagen.objects.order_by('-id')
+        queryset = None
         self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
 
-        return self.filterset.qs#.distinct()
-    # queryset = Imagen.objects.filter(activo=1).order_by('-id')
+        return self.filterset.qs
 
-    #Agrego al contexto la periciaId sobre el cual se obtuvo el conjunto de imagenes
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['periciaId'] = self.kwargs.get("pericia")
+        context['tipoHashes'] = TipoHash.objects.filter(activo=1)
+        paginacion = self.request.GET.get('paginate_by')
+        if paginacion == None:
+            paginacion = 5
+        context['numero_paginacion'] = int(paginacion)
+        return context
+
+    template_name = 'AREXTI_APP/ReporteOcurrencia.html'
+
+
+class ReporteNube(FilteredListView):
+    filterset_class = ReporteFilter
+
+    def get_queryset(self):
+        queryset = None
+        self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
+
+        return self.filterset.qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         context['tipoHashes'] = TipoHash.objects.filter(activo=1)
         return context
 
-    paginate_by = 10
-    template_name = 'AREXTI_APP/ReporteOcurrencia.html'
+    template_name = 'AREXTI_APP/ReporteNube.html'
 
 
 class BasicUploadView(View):
@@ -524,14 +548,14 @@ def export_imagenes_xls(request):
 
     # Sheet body, remaining rows
     font_style = xlwt.XFStyle()
-    palabra = ''
-    pericia = ''
+    palabra = 'pablito'
+    pericia = 1
     tiposfinal = ''
     detallesfinal = ''
     metadato = ''
     valormetadato = ''
     rows = funcionesdb.consulta('ocurrencias', [palabra, pericia, tiposfinal, detallesfinal, metadato, valormetadato])
-    # rows = Imagen.objects.all().values_list('pericia', 'tipoImagen', 'nombre', 'extension')
+    rows = Imagen.objects.all().values_list('pericia', 'tipoImagen', 'nombre', 'extension')
     for row in rows:
         row_num += 1
         for col_num in range(len(row)):
@@ -541,13 +565,62 @@ def export_imagenes_xls(request):
     return response
 
 
-def pdf_view(request):
-    fs = FileSystemStorage()
-    filename = 'mypdf.pdf'
-    if fs.exists(filename):
-        with fs.open(filename) as pdf:
-            response = HttpResponse(pdf, content_type='application/pdf')
-            response['Content-Disposition'] = 'attachment; filename="mypdf.pdf"'
-            return response
-    else:
-        return HttpResponseNotFound('The requested pdf was not found in our server.')
+def write_pdf_view(request):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename="mypdf.pdf"'
+
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer)
+
+    palabra = 'pablito'
+    pericia = 1
+    tiposfinal = ''
+    detallesfinal = ''
+    metadato = ''
+    valormetadato = ''
+    rows = funcionesdb.consulta('ocurrencias', [palabra, pericia, tiposfinal, detallesfinal, metadato, valormetadato])
+    # Start writing the PDF here
+    linea = 0
+    for fila in rows:
+        p.drawString(10, linea, str(fila['total_ocurrencias']) + ' ' + fila['nombre'] + ' ' + fila['extension'] + ' ' + fila['tipoImagen_id'] + ' ')
+        linea += 50
+    # End writing
+
+    p.showPage()
+    p.save()
+
+    pdf = buffer.getvalue()
+    buffer.close()
+    response.write(pdf)
+
+    return response
+
+def word_cloud(text):
+    # whale_mask = np.array(Image.open("PK_t.png"))
+    stopwords ={'은','입니다'}
+    plt.figure(figsize = (20,5))
+    #plt.imshow(whale_mask , cmap = plt.cm.gray , interpolation = 'bilinear')
+    # font_path = 'C:/Users/Jeong Suji/NanumBarunGothic.ttf'
+    wc = WordCloud(background_color = 'white', max_words=2000,
+              stopwords = stopwords)
+    # wc = WordCloud(font_path=font_path, background_color='white', max_words=2000, mask=whale_mask,
+    #                stopwords=stopwords)
+    wc= wc.generate(text)
+    plt.figure(figsize= (10,5))
+    plt.imshow(wc, interpolation='bilinear')
+    plt.axis("off")
+
+    image = io.BytesIO()
+    plt.savefig(image, format='png')
+    image.seek(0)  # rewind the data
+    string = base64.b64encode(image.read())
+
+    image_64 = 'data:image/png;base64,' + urllib.parse.quote(string)
+    return image_64
+
+def cloud_gen(request):
+    text = ''
+    for i in ImagenDetalle.objects.all():
+        text += i.texto
+    wordcloud = word_cloud(text)
+    return render(request, 'ReporteNube.html', {'wordcloud': wordcloud})

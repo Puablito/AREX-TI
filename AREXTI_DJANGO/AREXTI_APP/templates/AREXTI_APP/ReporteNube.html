@@ -1,0 +1,50 @@
+{% extends 'base/ListadoBase.html' %}
+{% load widget_tweaks %}
+
+
+{% block icon %}
+<i class="fa fa-image"></i>
+{% endblock %}
+
+{% block titulo %}
+ Reporte: Nube de palabras
+{% endblock %}
+
+{% block filtros %}
+<form>
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                {{ filterset.form.pericia.label_tag }}
+                {% render_field filterset.form.pericia class="form-control" %}
+            </div>
+            <div class="form-group col-md-3">
+                {{ filterset.form.tipoImagen.label_tag }}
+                {% render_field filterset.form.tipoImagen class="form-control" %}
+            </div>
+            <div class="form-group col-md-3">
+                {{ filterset.form.tipoDetalle.label_tag }}
+                {% render_field filterset.form.tipoDetalle class="form-control" %}
+            </div>
+            <div class="form-group col-md-3">
+                {{ filterset.form.metadato.label_tag }}
+                {% render_field filterset.form.metadato class="form-control" %}
+            </div>
+            <div class="form-group col-md-3">
+                {{ filterset.form.valormeta.label_tag }}
+                {% render_field filterset.form.valormeta class="form-control" %}
+            </div>
+        </div>
+        <div class="form-group col-md-4">
+            <button type="submit" class="btn btn-primary">Generar</button>
+        </div>
+</form>
+{% endblock %}
+
+{% block acciones %}
+{% endblock %}
+
+{% block tabla_contenido %}
+<div class="form-group col-md-3">
+<a class="btn btn-success" href="{% url 'write_pdf_view' %}">Exportar</a>
+    </div>
+{% endblock %}
