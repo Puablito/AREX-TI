@@ -16,4 +16,4 @@
 13. pytz	2019.1	
 14. six	1.12.0	
 15. sqlparse	0.3.0	
-celery 4.3.0
+16. celery 4.3.0
