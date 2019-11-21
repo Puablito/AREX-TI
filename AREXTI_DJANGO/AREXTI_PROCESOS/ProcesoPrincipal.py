@@ -2,7 +2,8 @@ import os
 import datetime
 import time
 import logging
-import ImagenAcciones, Herramientas, BaseDatos
+from AREXTI_PROCESOS import ImagenAcciones, Herramientas, BaseDatos
+# import ImagenAcciones, Herramientas, BaseDatos
 from multiprocessing import Process, Queue
 
 

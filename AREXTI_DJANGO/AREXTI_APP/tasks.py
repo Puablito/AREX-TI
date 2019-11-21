@@ -1,40 +1,17 @@
 from celery import shared_task
 import os
-# from AREXTI_DJANGO.AREXTI_PROCESOS import ImagenAcciones
+from AREXTI_PROCESOS import ImagenAcciones, ProcesoPrincipal
 
 @shared_task
-def prueba_suma(x, y):
-    return x + y
+def call_ProcessImage(periciaid, periciaNombre, tipoProceso, DirPrincipal, listaHash):
 
-
-@shared_task
-def prueba_json(hashes, perid, url):
-	jsonObject = {}
-	hashListObject = []
-
-	for hash in hashes:
-		hashObject = {"name": hash.id}
-		hashListObject.append(hashObject)
-
-	jsonObject["hashes"] = hashListObject
-	jsonObject["pericia"] = perid
-	jsonObject["urlFile"] = url
-	jsonObject["tabFrom"] = "A"
-
-	return jsonObject
-
-
-# @shared_task
-# def call_ImageProccess(x, y):
-#
-# 	return exec_proceso_principal()
+	return ProcesoPrincipal.proceso_Principal(periciaid, periciaNombre, tipoProceso, DirPrincipal, listaHash)
 
 
 @shared_task
 def call_ChangeImageType(imagenId, imagenNombre, imagenTipoId):
 
-	return True
-	# return ImagenAcciones.cambiar_tipoimagen(imagenId, imagenNombre, imagenTipoId)
+	return ImagenAcciones.cambiar_tipoimagen(imagenId, imagenNombre, imagenTipoId)
 
 
 @shared_task
@@ -52,10 +29,3 @@ def path_to_dict(path, root, level, currentLevel):
 		d['nodes'] = [path_to_dict(os.path.join(path, x), rootName, level, currentLevel+1) for x in os.listdir\
 			             (path) if os.path.isdir(os.path.join(path, x))]
 	return d
-
-# def path_to_dict(path):
-# 	d = {'text': os.path.basename(path)}
-# 	if os.path.isdir(path):
-# 		d['nodes'] = [path_to_dict(os.path.join(path,x)) for x in os.listdir\
-#             (path) if os.path.isdir(os.path.join(path, x))]
-# 	return d

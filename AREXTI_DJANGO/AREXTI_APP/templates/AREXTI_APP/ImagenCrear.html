@@ -35,6 +35,16 @@
       });
     })
 
+    $(function(){
+      $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        activeTab =  $(e.target).attr('id');
+        $('#fromTab').val(activeTab);
+      });
+    })
+
+    $(function(){
+      $('#fromTab').val('D');
+    })
 
   </script>
 
@@ -55,18 +65,16 @@
 
 {% block body %}
 
-{{pepe}}
-{{directorios}}
   <!-- Nav tabs -->
 <div class="nav tabs-custom">
   <ul class="nav nav-tabs">
     <li class="nav-item active">
-      <a class="nav-link" data-toggle="tab" href="#directorio">Directorio</a>
+      <a id='D' class="nav-link" data-toggle="tab" href="#directorio">Directorio</a>
     </li>
 
     {% if activeTab %}
     <li class="nav-item">
-      <a class="nav-link" data-toggle="tab" href="#archivo">Archivo</a>
+      <a id='A' class="nav-link" data-toggle="tab" href="#archivo">Archivo</a>
     </li>
     {% endif %}
   </ul>
@@ -81,7 +89,7 @@
             {% for obj_tipoHash in tipoHashes%}
             <div class="col-md-3" style="display:inline">
                 <label class="form-check-label">
-                    <input name="inputHash" type="checkbox" class="form-check-input" value="{{obj_tipoHash.id}}"> {{obj_tipoHash.id}}
+                    <input name="inputHashDirectorio" type="checkbox" class="form-check-input" value="{{obj_tipoHash.id}}"> {{obj_tipoHash.id}}
                 </label>
             </div>
           {% endfor %}
@@ -116,7 +124,7 @@
             {% for obj_tipoHash in tipoHashes%}
             <div class="col-md-3" style="display:inline">
                 <label class="form-check-label">
-                    <input type="checkbox" class="form-check-input"> {{obj_tipoHash.id}}
+                    <input name="inputHashArchivo" type="checkbox" class="form-check-input" value="{{obj_tipoHash.id}}"> {{obj_tipoHash.id}}
                 </label>
             </div>
           {% endfor %}
@@ -149,7 +157,9 @@
           <tbody>
             {% for photo in photos %}
               <tr>
-                <td><a class="link" href="{{ photo.file.url }}">{{ photo.file.name }}</a></td>
+                <td>
+                  <a class="link" href="{{ photo.file.url }}">{{ photo.file.name }} </a>
+                </td>
               </tr>
             {% endfor %}
           </tbody>
@@ -177,4 +187,6 @@
     </div>
   </div>
 </div>
+
+<input id="fromTab" type="hidden" name="fromTab"/>
 {% endblock %}
