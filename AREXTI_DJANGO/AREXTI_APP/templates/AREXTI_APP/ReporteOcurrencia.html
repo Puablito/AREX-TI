@@ -1,6 +1,6 @@
 {% extends 'base/ListadoBase.html' %}
 {% load widget_tweaks %}
-
+{% load AREXTItemplatetag %}
 {% block ListadoBaseScripts %}
 <script>
 
@@ -51,6 +51,14 @@
                 {{ filterset.form.tipoDetalle.label_tag }}
                 {% render_field filterset.form.tipoDetalle class="form-control" %}
             </div>
+            <div class="form-group col-md-3">
+                {{ filterset.form.metadato.label_tag }}
+                {% render_field filterset.form.metadato class="form-control" %}
+            </div>
+            <div class="form-group col-md-3">
+                {{ filterset.form.valormeta.label_tag }}
+                {% render_field filterset.form.valormeta class="form-control" %}
+            </div>
         </div>
         <div class="form-group col-md-4">
             <button type="submit" class="btn btn-primary">Generar</button>
@@ -63,9 +71,9 @@
 
 {% block tabla_contenido %}
 <div class="form-group col-md-3">
-<a class="btn btn-success" href="#">Exportar</a>
+<a class="btn btn-success" href="{% url 'export_imagenes_xls' %}">Exportar</a>
     </div>
-<div class="form-group col-md-3"> # total de ocurrencias: {{object_list.0.suma_ocurrencias}}</div>
+<div class="form-group col-md-3"> # total de ocurrencias: {{object_list.0.suma_total_ocu}}</div>
 <thead class="thead-dark" >
     <tr>
         <th># Ocurrencias</th>
@@ -78,56 +86,38 @@
 <tbody>
     {% for imagen in object_list %}
     <tr>
-        <td style="display:none;">{{imagen.id}}</td>
-        <td>{{imagen.num_ocurrencias}}</td>
+        <td style="display:none;">{{imagen.imagenid}}</td>
+        <td>{{imagen.total_ocurrencias}}</td>
         <td>
             <div class="cl-effect-1">
-                <a class="link" href="{% url 'ImagenEditar' imagen.id %}">
+                <a class="link" href="{% url 'ImagenEditar' imagen.imagenid %}">
                     {{imagen.nombre}}
                 </a>
             </div>
         </td>
         <td>{{imagen.extension}}</td>
         <!--<td>{{imagen.suma_ocurrencias}}</td>-->
-        <td>{{imagen.tipoImagen.id}}</td>
-        <td>
-            {% if  imagen.get_detalle %}
-                    {{obj_hash.tipoDetalle.id}}
-            {% else %}
-                <span>aa</span>
-            {% endif %}
-        </td>
+        <td>{{imagen.tipoImagen_id}}</td>
         <td>
             <table>
                 <tr>
-
                     {% for tipoHash in tipoHashes %}
-
-                    <td class="child" id="tipoHash_{{imagen.id}}{{tipoHash.id}}">
-                        {% if  imagen.get_datos  %}
-                            <a type="button" class="btn btn-hash" style="background-color:{{obj_hash.tipoHash.color}}; border-color:{{obj_hash.tipoHash.color}};" data-toggle="tooltipHash" data-original-title="{{obj_hash.valor}}" data-trigger="click">
-                                {{obj_hash.tipoHash.id}}
-                            </a>
+                        {% if tipoHash|img_hash_tags2:imagen.imagenid is None %}
+                            <td class="td_hash">&nbsp;</td>
                         {% else %}
-                            <span></span>
+                            <td class="td_hash">
+                                <a type="button" class="btn btn-hash" style="background-color:{{tipoHash.color}}; border-color:{{tipoHash.color}};" data-toggle="tooltipHash" data-original-title="{{tipoHash|img_hash_tags2:imagen.imagenid}}" data-trigger="click">
+                                    {{tipoHash.id}}
+                                </a>
+                            </td>
                         {% endif %}
-                    </td>
-
                     {% endfor %}
-
-
-
-                    <!--{% for obj_hash in imagen.imagenhash_set.all %}-->
-                            <!--<a type="button" class="btn btn-hash" style="background-color:{{obj_hash.tipoHash.color}}; border-color:{{obj_hash.tipoHash.color}};" data-toggle="tooltipHash" data-original-title="{{obj_hash.valor}}" data-trigger="click">-->
-                                <!--{{obj_hash.tipoHash.nombre}}-->
-                            <!--</a>-->
-                    <!--{% endfor %}-->
                 </tr>
             </table>
         </td>
 
     </tr>
-    <div id="Eliminar{{ imagen.id }}" class="modal fade">
+    <div id="Eliminar{{ imagen.imagenid }}" class="modal fade">
         <div class="modal-dialog modal-confirm">
             <div class="modal-content">
                 <div class="modal-header">
@@ -142,7 +132,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-info" data-dismiss="modal">Cancelar</button>
-                    <button class="btn btn-danger" onclick="window.location.href='{% url 'ImagenEliminar' imagen.id %}'">Eliminar</button>
+                    <button class="btn btn-danger" onclick="window.location.href='{% url 'ImagenEliminar' imagen.imagenid %}'">Eliminar</button>
                 </div>
             </div>
         </div>

@@ -1,5 +1,4 @@
 from django.db import models
-
 # Create your models here.
 
 
@@ -103,6 +102,7 @@ class TipoDetalle(models.Model):
     def __str__(self):
         return self.id
 
+
 class ImagenDetalle(models.Model):
     imagen = models.ForeignKey(Imagen, on_delete=models.CASCADE)
     tipoDetalle = models.ForeignKey(TipoDetalle, on_delete=models.CASCADE)
@@ -126,11 +126,14 @@ class Parametros(models.Model):
 
 
 class Metadatos(models.Model):
-    id = models.CharField(max_length=50, primary_key=True)
+    idMeta = models.CharField(max_length=50)
     idMetadatoImagen = models.CharField(max_length=50)
 
     class Meta:
-        unique_together = (('id', 'idMetadatoImagen'),)
+        unique_together = (('idMeta', 'idMetadatoImagen'),)
+
+    def __str__(self):
+        return self.idMeta
 
 class ImagenMetadatos(models.Model):
     imagen = models.ForeignKey(Imagen, on_delete=models.CASCADE)
@@ -141,6 +144,8 @@ class ImagenMetadatos(models.Model):
         indexes = [models.Index(fields=['idMetadato']),
                    models.Index(fields=['valor']),
                    models.Index(fields=['idMetadato', 'valor'])]
+    def __str__(self):
+        return self.valor
 
 
 class ImagenFile(object):
