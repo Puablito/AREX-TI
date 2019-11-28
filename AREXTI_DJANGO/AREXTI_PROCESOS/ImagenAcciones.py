@@ -4,8 +4,8 @@ import imghdr
 import datetime
 import sys
 import logging
-import RedesNeuronales, ImagenProcesar, Segmentacion, Herramientas
-import Hashes, Metadatos, BaseDatos
+from AREXTI_PROCESOS import RedesNeuronales, ImagenProcesar, Segmentacion, Herramientas, Hashes, Metadatos, BaseDatos
+# import RedesNeuronales, ImagenProcesar, Segmentacion, Herramientas, Hashes, Metadatos, BaseDatos
 
 
 def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tipoProceso, DirPrincipal, periciaid, conexionBD):
@@ -383,4 +383,4 @@ def cambiar_tipoimagen(imagenid,imagennombre, imagentipo):
     logging.info("----- Fin del proceso cambio de tipo de imagen -----")
 
 
-# cambiar_tipoimagen(155,"OTRO")
+# cambiar_tipoimagen(370,"CapturaTexto 2.jpg","OTRO")
