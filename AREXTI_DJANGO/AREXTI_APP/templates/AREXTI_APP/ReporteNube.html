@@ -1,0 +1,86 @@
+{% extends 'base/ListadoBase.html' %}
+{% load widget_tweaks %}
+{% block ListadoBaseScripts %}
+{% endblock %}
+
+{% block icon %}
+<i class="fa fa-mixcloud"></i>
+{% endblock %}
+
+{% block titulo %}
+ Reporte: Nube de palabras
+{% endblock %}
+
+{% block filtros %}
+<form>
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                {{ filterset.form.pericia.label_tag }}
+                {% render_field filterset.form.pericia class="form-control" %}
+            </div>
+            <div class="form-group col-md-3">
+                {{ filterset.form.tipoImagen.label_tag }}
+                {% render_field filterset.form.tipoImagen class="form-control" %}
+            </div>
+            <div class="form-group col-md-3">
+                {{ filterset.form.tipoDetalle.label_tag }}
+                {% render_field filterset.form.tipoDetalle class="form-control" %}
+            </div>
+            <div class="form-group col-md-3">
+                {{ filterset.form.metadato.label_tag }}
+                {% render_field filterset.form.metadato class="form-control" %}
+            </div>
+            <div class="form-group col-md-3">
+                {{ filterset.form.valormeta.label_tag }}
+                {% render_field filterset.form.valormeta class="form-control" %}
+            </div>
+        </div>
+        <div class="form-group col-md-4">
+            <button type="submit" class="btn btn-primary">Generar</button>
+        </div>
+</form>
+{% endblock %}
+
+{% block acciones %}
+{% endblock %}
+
+{% block tabla_contenido %}
+<div class="form-group col-md-3">
+<input type="hidden" name="nubee" id="nubee" value={{ nube }} />
+<a class="btn btn-success" href="{% url 'write_pdf_view' %}">Exportar</a>
+    </div>
+{#    <div id="htmlwidget-fbe46c583369b5338de1" style="width:672px;height:480px;" class="wordcloud2 html-widget html-widget-static-bound">#}
+    <div id="sourrounding_div" style="width:100%;height:500px">
+        <canvas height="500" width="672" id="canvas_cloud" name="canvas"></canvas>
+    </div>
+    <script>
+        var div = document.getElementById("sourrounding_div");
+
+        var canvas = document.getElementById("canvas_cloud");
+        var canvas = document.getElementById("canvas_cloud");
+
+        canvas.height = div.offsetHeight;
+
+        canvas.width  = div.offsetWidth;
+        var list = document.getElementById("nubee");
+        {#var options =#}
+        {#{#}
+        {#  list : [#}
+        {#      ["casa", "50"],#}
+        {#      ["auto", "23"],#}
+        {#      ["arbol", "18"],#}
+        {#      ["manzana", "9"]#}
+        {#      ],#}
+        {#  gridSize: Math.round(16 * document.getElementById('canvas_cloud').offsetWidth / 1024),#}
+        {#  weightFactor: function (size) {#}
+        {#    return Math.pow(size, 1.9) * document.getElementById('canvas_cloud').offsetWidth / 1024;#}
+        {#  }#}
+        {# } #}
+
+        {#WordCloud(document.getElementById('canvas_cloud'), options);#}
+        {#WordCloud(document.getElementById('canvas_cloud'), { list: {{ nube }} } );#}
+        WordCloud(canvas, { list: list } );
+
+    </script>
+
+{% endblock %}
