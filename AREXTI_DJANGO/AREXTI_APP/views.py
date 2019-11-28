@@ -17,7 +17,8 @@ from django.views.generic import TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, View, TemplateView
 from .models import Proyecto, Pericia, Imagen, TipoHash, ImagenHash, ImagenDetalle, ImagenFile, UploadFile, Parametros
-from .forms import ProyectoForm, PericiaForm, ImagenForm, ImagenEditForm, ProyectoConsultaForm, PericiaConsultaForm, ImagenConsultarForm, UploadFileForm
+from .forms import ProyectoForm, PericiaForm, ImagenForm, ImagenEditForm, ProyectoConsultaForm, PericiaConsultaForm, \
+    ImagenConsultarForm, UploadFileForm
 from .filters import ProyectoFilter, PericiaFilter, ImagenFilter, ReporteFilter
 from . import funcionesdb
 import numpy as np
@@ -26,9 +27,17 @@ from wordcloud import STOPWORDS, WordCloud
 import matplotlib.pyplot as plt
 import io
 import urllib, base64
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
+from datetime import date, datetime
+import locale
+from reportlab.lib.pagesizes import A4
+import itertools
+from random import randint
+from statistics import mean
 
-
-#enumerables
+# enumerables
 class messageTitle(Enum):
     Alta = "Alta exitosa"
     Modificacion = "Modificación exitosa"
@@ -42,9 +51,11 @@ class CreateTabs(Enum):
 class ParametroSistema(Enum):
     DirectorioBase = "DIRECTORIOIMAGEN"
 
+
 class FilteredListView(ListView):
     filterset_class = None
     idfil = 0
+
     def get_queryset(self):
         # Get the queryset however you usually would.  For example:
         queryset = super().get_queryset()
@@ -71,7 +82,6 @@ class Home(TemplateView):
 class ProyectoListar(FilteredListView):
     filterset_class = ProyectoFilter
     queryset = Proyecto.objects.filter(activo=1).order_by('-id')
-
 
     def get_paginate_by(self, queryset):
         paginacion = self.request.GET.get('paginate_by', self.paginate_by)
@@ -115,7 +125,7 @@ class ProyectoEditar(UpdateView):
     template_name = 'AREXTI_APP/ProyectoCrear.html'
     success_url = reverse_lazy('ProyectoListar')
 
-    def form_valid(self, form,):
+    def form_valid(self, form, ):
         form.save()
         messages.success(self.request, messageTitle.Modificacion.value, extra_tags='title')
         return redirect(self.success_url)
@@ -149,7 +159,7 @@ class ProyectoConsultar(UpdateView):
     template_name = 'AREXTI_APP/ProyectoCrear.html'
     success_url = reverse_lazy('ProyectoListar')
 
-    def form_valid(self, form,):
+    def form_valid(self, form, ):
         return redirect(self.success_url)
 
 
@@ -162,9 +172,11 @@ class PericiaListar(FilteredListView):
             proid = 0
         # queryset = super().get_queryset()
         if proid != 0:
-            queryset = Pericia.objects.filter(activo=1, proyecto=proid).annotate(num_imagenes=Count('imagen')).order_by('-proyecto', '-id')
+            queryset = Pericia.objects.filter(activo=1, proyecto=proid).annotate(num_imagenes=Count('imagen')).order_by(
+                '-proyecto', '-id')
         else:
-            queryset = Pericia.objects.filter(activo=1).annotate(num_imagenes=Count('imagen')).order_by('-proyecto', '-id')
+            queryset = Pericia.objects.filter(activo=1).annotate(num_imagenes=Count('imagen')).order_by('-proyecto',
+                                                                                                        '-id')
         self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
 
         return self.filterset.qs.distinct()
@@ -293,6 +305,7 @@ class ImagenListar(FilteredListView):
         self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
 
         return self.filterset.qs.distinct()
+
     # queryset = Imagen.objects.filter(activo=1).order_by('-id')
 
     def get_paginate_by(self, queryset):
@@ -302,7 +315,7 @@ class ImagenListar(FilteredListView):
         else:
             return 5
 
-    #Agrego al contexto la periciaId sobre el cual se obtuvo el conjunto de imagenes
+    # Agrego al contexto la periciaId sobre el cual se obtuvo el conjunto de imagenes
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         periciaId = self.kwargs.get("pericia")
@@ -403,7 +416,7 @@ class ImagenCrear(CreateView):
                 'tipoHashes': queryset,
                 'activeTab': activeTab,
                 'directorios': directorios,
-                'periciaId': pericia.id,  #ver de pasarle el fromTab para setear el mismo
+                'periciaId': pericia.id,  # ver de pasarle el fromTab para setear el mismo
             }
             return render(request, self.template_name, contexto)
 
@@ -415,7 +428,8 @@ class ImagenCrear(CreateView):
         messages.success(self.request, 'Exito en la operacion', extra_tags='title')
         messages.success(self.request, 'Inicia el procesamiento automatico de las imagenes')
 
-        return render(request, 'AREXTI_APP/ImagenListar.html', {'pericia': pericia, 'periciaId': perid}) #deberia llamar al imagenListar
+        return render(request, 'AREXTI_APP/ImagenListar.html',
+                      {'pericia': pericia, 'periciaId': perid})  # deberia llamar al imagenListar
 
 
 class ImagenEditar(UpdateView):
@@ -431,7 +445,7 @@ class ImagenEditar(UpdateView):
         return context
 
     def post(self, request, *args, **kwargs):
-        tipoImagenId = request.POST.get('TipoImagen', None)
+        tipoImagenId = request.POST.get('tipoImagen', None)
         imagen = self.get_object()
 
         isValid = True
@@ -449,12 +463,13 @@ class ImagenEditar(UpdateView):
 
             return render(request, self.template_name, {'imagen': imagen, 'periciaId': imagen.pericia.id})
 
-        call_ChangeImageType(imagen.id, imagen.nombre, tipoImagenId)
+        call_ChangeImageType.delay(imagen.id, imagen.nombre, tipoImagenId)
 
         messages.success(self.request, 'Exito en la operacion', extra_tags='title')
         messages.success(self.request, 'Inicia el procesamiento automatico de las imagenes')
 
-        return render(request, 'AREXTI_APP/ImagenListar.html', {'pericia': imagen.pericia, 'periciaId': imagen.pericia.id})
+        return render(request, 'AREXTI_APP/ImagenListar.html',
+                      {'pericia': imagen.pericia, 'periciaId': imagen.pericia.id})
 
 
 class ImagenConsultar(UpdateView):
@@ -485,6 +500,17 @@ def ImagenEliminar(request, Imagenid):
 class ReporteOcurrencia(FilteredListView):
     filterset_class = ReporteFilter
 
+    def get(self, request, *args, **kwargs):
+        if 'reporte' in self.request.GET:
+            if self.request.GET['reporte'] == 'xls':
+                # self.request.path = '/export/xls/'
+                return export_imagenes_xls(self.request)
+            if self.request.GET['reporte'] == 'pdf':
+                # self.request.path = 'export/pdf/'
+                return write_pdf_view(self.request)
+        else:
+            return super().get(request, *args, **kwargs)
+
     def get_paginate_by(self, queryset):
         paginacion = self.request.GET.get('paginate_by', self.paginate_by)
         if paginacion:
@@ -495,7 +521,6 @@ class ReporteOcurrencia(FilteredListView):
     def get_queryset(self):
         queryset = None
         self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
-
         return self.filterset.qs
 
     def get_context_data(self, **kwargs):
@@ -522,6 +547,14 @@ class ReporteNube(FilteredListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['tipoHashes'] = TipoHash.objects.filter(activo=1)
+        parametros = obtenerParametros(self.request)
+        palabras = funcionesdb.consulta('nube', [parametros['pericia'], parametros['tiposfinal'],
+                                                        parametros['detallesfinal'], parametros['metadato'],
+                                                        parametros['valormetadato']])
+        palabrasfinal = []
+        for palabra in palabras:
+            palabrasfinal.append([palabra['palabra'], str(palabra['total'])])
+        context['nube'] = palabrasfinal
         return context
 
     template_name = 'AREXTI_APP/ReporteNube.html'
@@ -543,72 +576,136 @@ class BasicUploadView(View):
             uploadFile.save()
 
             data = {'is_valid': True, 'name': uploadFile.file.name, 'url': uploadFile.file.url}
-            #data = {'is_valid': True, 'media': perid}
+            # data = {'is_valid': True, 'media': perid}
         else:
             data = {'is_valid': False}
         return JsonResponse(data)
 
 
 def export_imagenes_xls(request):
+    params = obtenerParametros(request)
+
+    resultados = funcionesdb.consulta('ocurrencias', [params['palabra'], params['pericia'], params['tiposfinal'],
+                                                      params['detallesfinal'], params['metadato'],
+                                                      params['valormetadato']], False)
     response = HttpResponse(content_type='application/ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="Ocurrencias por palabra.xls"'
+    response['Content-Disposition'] = 'attachment; filename="Reporte Ocurrencias "' + params['fechaHora'] + '".xls"'
 
     wb = xlwt.Workbook(encoding='utf-8')
-    ws = wb.add_sheet('Imagenes')
+    ws = wb.add_sheet('Imágenes')
 
     # Sheet header, first row
     row_num = 0
 
-    font_style = xlwt.XFStyle()
-    font_style.font.bold = True
+    font_style_cabecera = xlwt.XFStyle()
+    font_style_cabecera.font.bold = True
+    font_style_cabecera.font.height = 280
+    pattern = xlwt.Pattern()
+    pattern.pattern = xlwt.Pattern.SOLID_PATTERN
+    pattern.pattern_fore_colour = xlwt.Style.colour_map['gray25']
+    font_style_cabecera.pattern = pattern
 
-    columns = ['pericia', 'tipoImagen', 'nombre', 'extension']
-
+    columns = ['Id', '', 'Tipo Imagen', '', 'Nombre', '', 'Extensión', '', 'Hash MD5', '', 'Hash SHA1', '',
+               'Hash SHA256', '', 'Ocurrencias']
+    ws.write_merge(row_num, row_num + 1, 0, 3, 'Fecha: ' + params['fechacompleta'], font_style_cabecera)
+    ws.write_merge(row_num + 2, row_num + 3, 0, 3, 'Pericia: ' + params['pericia'] + ' - ' + params['periciaNombre'], font_style_cabecera)
+    ws.write_merge(row_num + 2, row_num + 3, 4, 6, 'Palabra: ' + params['palabra'], font_style_cabecera)
+    if resultados:
+        total_ocu = str(resultados[0][8])
+    else:
+        total_ocu = ''
+    ws.write_merge(row_num + 2, row_num + 3, 7, 9, 'Total Ocurrencias: ' + total_ocu, font_style_cabecera)
+    row_num = 5
+    font_style_titulos = xlwt.XFStyle()
+    font_style_titulos.font.bold = True
+    font_style_titulos.font.height = 240
+    font_style_titulos.alignment.horz = xlwt.Alignment.HORZ_CENTER
+    pattern = xlwt.Pattern()
+    pattern.pattern = xlwt.Pattern.SOLID_PATTERN
+    pattern.pattern_fore_colour = xlwt.Style.colour_map['gray25']
+    font_style_titulos.pattern = pattern
     for col_num in range(len(columns)):
-        ws.write(row_num, col_num, columns[col_num], font_style)
-
-    # Sheet body, remaining rows
-    font_style = xlwt.XFStyle()
-    palabra = 'pablito'
-    pericia = 1
-    tiposfinal = ''
-    detallesfinal = ''
-    metadato = ''
-    valormetadato = ''
-    rows = funcionesdb.consulta('ocurrencias', [palabra, pericia, tiposfinal, detallesfinal, metadato, valormetadato])
-    rows = Imagen.objects.all().values_list('pericia', 'tipoImagen', 'nombre', 'extension')
-    for row in rows:
-        row_num += 1
-        for col_num in range(len(row)):
-            ws.write(row_num, col_num, row[col_num], font_style)
-
+        if (col_num % 2) == 0:
+            ws.write_merge(row_num, row_num, col_num, col_num + 1, columns[col_num], font_style_titulos)
+    if resultados:
+        # Sheet body, remaining rows
+        font_style_detalles = xlwt.XFStyle()
+        font_style_detalles.alignment.horz = xlwt.Alignment.HORZ_CENTER
+        font_style_detalles.font.height = 220
+        if len(resultados) > 1:
+            for imagen in resultados:
+                row_num += 1
+                for col_num in range(len(imagen) - 1):
+                    ws.write_merge(row_num, row_num, col_num * 2, col_num * 2 + 1, imagen[col_num], font_style_detalles)
+        else:
+            row_num += 1
+            for col_num in range(len(resultados[0]) - 1):
+                ws.write_merge(row_num, row_num, col_num * 2, col_num * 2 + 1, resultados[0][col_num], font_style_detalles)
+    else:
+        ws.write_merge(10, 11, 0, 4, 'No se encontraron coincidencias', font_style_titulos)
     wb.save(response)
     return response
 
 
+def grouper(iterable, n):
+    args = [iter(iterable)] * n
+    return itertools.zip_longest(*args)
+
+
 def write_pdf_view(request):
+    params = obtenerParametros(request)
+
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'inline; filename="mypdf.pdf"'
-
+    response['Content-Disposition'] = 'inline; filename="Reporte Ocurrencias "' + params['fechaHora'] + '".pdf"'
     buffer = BytesIO()
-    p = canvas.Canvas(buffer)
+    p = canvas.Canvas(buffer, pagesize=letter)
+    imagenes = funcionesdb.consulta('ocurrencias', [params['palabra'], params['pericia'], params['tiposfinal'],
+                                                    params['detallesfinal'], params['metadato'], params['valormetadato']])
 
-    palabra = 'pablito'
-    pericia = 1
-    tiposfinal = ''
-    detallesfinal = ''
-    metadato = ''
-    valormetadato = ''
-    rows = funcionesdb.consulta('ocurrencias', [palabra, pericia, tiposfinal, detallesfinal, metadato, valormetadato])
-    # Start writing the PDF here
-    linea = 0
-    for fila in rows:
-        p.drawString(10, linea, str(fila['total_ocurrencias']) + ' ' + fila['nombre'] + ' ' + fila['extension'] + ' ' + fila['tipoImagen_id'] + ' ')
-        linea += 50
-    # End writing
+    logo = 'C:/Users/Mariano-Dell/Desktop/Tesis/Logo2.jpg'
+    w, h = letter
+    max_rows_per_page = 30
+    # Margenes.
+    x_offset = 50
+    y_offset = 150
+    # Espacio entre filas.
+    padding = 20
+    # p.drawImage(archivo_imagen, 20, h - 300, 300, 300, preserveAspectRatio=True)
+    p.drawImage(logo, 40, h - 100, width=100, height=75, preserveAspectRatio=True)
+    texto = p.beginText(150, h - 55)
+    # texto.setFont("Times-Roman", 16)
+    texto.textLine("Fecha: " + params['fechacompleta'])
+    texto.textLine("Pericia: " + params['pericia'] + ' - ' + params['periciaNombre'])
+    texto.textLine("Palabra: " + params['palabra'])
+    if imagenes:
+        total_ocu = str(imagenes[0]['suma_total_ocu'])
+    else:
+        total_ocu = ''
+    texto.textLine("Total Ocurrencias: " + total_ocu)
+    p.drawText(texto)
+    xlist = [x + x_offset for x in [0, 50, 130, 370, 430, 500]]
+    ylist = [h - y_offset - i * padding for i in range(max_rows_per_page + 1)]
 
-    p.showPage()
-    p.save()
+    data = [('Id', 'Tipo Imagen', 'Nombre', 'Extensión', 'Ocurrencias')]
+    if imagenes:
+        for imagen in imagenes:
+            data.append((str(imagen['imagenid']), imagen['tipoImagen_id'], imagen['nombre'], imagen['extension'],
+                        str(imagen['total_ocurrencias'])))
+        for rows in grouper(data, max_rows_per_page):
+            rows = tuple(filter(bool, rows))
+            p.grid(xlist, ylist[:len(rows) + 1])
+            for y, row in zip(ylist[:-1], rows):
+                for x, cell in zip(xlist, row):
+                    nombre = str(cell)
+                    if len(nombre) > 32:
+                        nombre = nombre[0:32] + '...'
+                    p.drawString(x + 2, y - padding + 3, nombre)
+            p.showPage()
+        p.save()
+    else:
+        p.drawString(52, 622 - padding + 3, 'No se encontraron coincidencias')
+        p.showPage()
+        p.save()
 
     pdf = buffer.getvalue()
     buffer.close()
@@ -616,18 +713,51 @@ def write_pdf_view(request):
 
     return response
 
+
+def obtenerParametros(request):
+    locale.setlocale(locale.LC_TIME, '')
+    fecha = datetime.now()
+    parametros = dict(request.GET)
+    pericia = parametros['pericia'][0]
+    tiposfinal = ''
+    if 'tipoImagen' in parametros:
+        tipos = parametros['tipoImagen']
+        for tipo in tipos:
+            tiposfinal += tipo + '.'
+    detallesfinal = ''
+    if 'tipoDetalle' in parametros:
+        detalles = parametros['tipoDetalle']
+        for detalle in detalles:
+            detallesfinal += detalle + '.'
+    texto = ''
+    if 'texto' in parametros:
+        texto = parametros['texto'][0]
+
+    parametrosfinal = {'fechacompleta': fecha.strftime("%d " + "de " + "%B, %Y"),
+                       'fechaHora': fecha.strftime("%d_%m_%Y_%H%M%S"),
+                       'palabra': texto,
+                       'pericia': parametros['pericia'][0],
+                       'tiposfinal': tiposfinal,
+                       'detallesfinal': detallesfinal,
+                       'metadato': parametros['metadato'][0],
+                       'valormetadato': parametros['valormeta'][0],
+                       'periciaNombre': Pericia.objects.filter(id=pericia)[0].descripcion
+                       }
+    return parametrosfinal
+
+
 def word_cloud(text):
     # whale_mask = np.array(Image.open("PK_t.png"))
-    stopwords ={'은','입니다'}
-    plt.figure(figsize = (20,5))
-    #plt.imshow(whale_mask , cmap = plt.cm.gray , interpolation = 'bilinear')
+    stopwords = {'은', '입니다'}
+    plt.figure(figsize=(20, 5))
+    # plt.imshow(whale_mask , cmap = plt.cm.gray , interpolation = 'bilinear')
     # font_path = 'C:/Users/Jeong Suji/NanumBarunGothic.ttf'
-    wc = WordCloud(background_color = 'white', max_words=2000,
-              stopwords = stopwords)
+    wc = WordCloud(background_color='white', max_words=2000,
+                   stopwords=stopwords)
     # wc = WordCloud(font_path=font_path, background_color='white', max_words=2000, mask=whale_mask,
     #                stopwords=stopwords)
-    wc= wc.generate(text)
-    plt.figure(figsize= (10,5))
+    wc = wc.generate(text)
+    plt.figure(figsize=(10, 5))
     plt.imshow(wc, interpolation='bilinear')
     plt.axis("off")
 
@@ -638,6 +768,7 @@ def word_cloud(text):
 
     image_64 = 'data:image/png;base64,' + urllib.parse.quote(string)
     return image_64
+
 
 def cloud_gen(request):
     text = ''

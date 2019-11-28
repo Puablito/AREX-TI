@@ -60,9 +60,23 @@
                 {% render_field filterset.form.valormeta class="form-control" %}
             </div>
         </div>
-        <div class="form-group col-md-4">
+        <div class="form-group col-md-2">
             <input type="hidden" name="paginate_by" value={{ numero_paginacion }} />
-            <button type="submit" class="btn btn-primary">Generar</button>
+            <button type="submit" class="btn btn-primary" >Visualizar</button>
+{#            <input class="btn btn-success" type="submit" name="reporte" value="xls" />#}
+{##}
+{#            <input class="btn btn-danger" type="submit" name="reporte" value="pdf" />#}
+{#            <a class="btn btn-primary" href="{% url 'export_imagenes_xls' %}"  name="reporte" value="Exportar" >Exportar</a>#}
+        </div>
+        <div class="form-group col-md-3">
+
+            <button class="btn btn-success" type="submit" name="reporte" value="xls"/>
+                <i class="fa fa-file-excel-o" style="font-size: larger"></i>
+            </button>
+
+            <button class="btn btn-danger" type="submit" name="reporte" value="pdf" />
+                <i class="fa fa-file-pdf-o" style="font-size: larger" ></i>
+            </button>
         </div>
 </form>
 {% endblock %}
@@ -72,7 +86,7 @@
 
 {% block tabla_contenido %}
 <div class="form-group col-md-2">
-<a class="btn btn-success" href="{% url 'export_imagenes_xls' %}">Exportar</a>
+{#<a class="btn btn-success" href="{% url 'export_imagenes_xls' %}">Exportar</a>#}
     </div>
 <div class="form-group col-md-3"> # total de ocurrencias: {{object_list.0.suma_total_ocu}}</div>
 <div class="form-group col-md-4" style="display:flex">
@@ -152,7 +166,7 @@
     </div>
     {% empty %}
         <tr>
-          <td colspan="5"><h1></h1></td>
+          <td colspan="11" style="color:darkgrey;text-align:center;"><i class="fa fa-exclamation-circle"></i> <b><small>No se encontraron coincidencias</small></b></td>
         </tr>
     {% endfor %}
 
