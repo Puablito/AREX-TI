@@ -8,7 +8,7 @@ from AREXTI_PROCESOS import RedesNeuronales, ImagenProcesar, Segmentacion, Herra
 # import RedesNeuronales, ImagenProcesar, Segmentacion, Herramientas, Hashes, Metadatos, BaseDatos
 
 
-def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tipoProceso, DirPrincipal):
+def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tipoProceso, DirPrincipal, periciaid, conexionBD):
     """
     Recorre "DirPrincipal" con sus subdirectorios en busqueda de archivos de imagenes, el listado de tipo de imagenes
     soportados está guardado en una varialbe "ListadoExtensiones".
@@ -27,41 +27,53 @@ def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tip
     resultadoOK = True
     msgError = ""
     if tipoProceso == "A":
-        # Leo todas las imagenes del directorio temporal y las guardo en "ImagenesDirTemp"
-        ImagenesDirTemp = []
-        for dirName, subdirList, fileList in os.walk(DirTemp):
-            for fname in fileList:
-                archivo = dirName + os.path.sep + fname
-                # Identifico si "archivo" es imagen por el contenido y NO por la extensión
-                if imghdr.what(archivo) is not None:
-                    ext = imghdr.what(archivo)
-                    if ext.upper() in ListadoExtensiones:
-                        # listado de todas las imagenes del directorio temporal
-                        ImagenesDirTemp.append([dirName, fname, ext])
+        # Recupero el listado de las imagenes subidas desde la BD
+        query = """ SELECT "nombre","extension","path" 
+                            FROM "AREXTI_APP_imagen"
+                            WHERE "id"=%s;"""
+        data = (periciaid,)
+        resultado = conexionBD.consulta(query, data)
 
-        # si encontré alguna imagen
-        if len(ImagenesDirTemp) > 0:
-            # armo el directorio destino y lo creo
-            now = datetime.datetime.now()
-            dia = now.strftime("%Y")+now.strftime("%m")+now.strftime("%d")
-            hora= now.strftime("%H")+now.strftime("%M")+now.strftime("%S")
-            DirDestino = "Upload-"+dia+"-"+hora
-            pathDestino = DirBaseDestino + os.path.sep + DirPrincipal + os.path.sep + DirDestino
+        if resultado:
+            # Leo todas las imagenes del directorio temporal y las guardo en "ImagenesDirTemp"
+            ImagenesDirTemp = []
+            for dirName, subdirList, fileList in os.walk(DirTemp):
+                for fname in fileList:
+                    # verificar los archivos de la Bd de javi
+                    # si existe seguir analizando sino continue
+                    archivo = dirName + os.path.sep + fname
+                    # Identifico si "archivo" es imagen por el contenido y NO por la extensión
+                    if imghdr.what(archivo) is not None:
+                        ext = imghdr.what(archivo)
+                        if ext.upper() in ListadoExtensiones:
+                            # listado de todas las imagenes del directorio temporal
+                            ImagenesDirTemp.append([dirName, fname, ext])
 
-            try:
-                os.makedirs(pathDestino)
-            except FileExistsError:
-                pass
+            if len(ImagenesDirTemp) > 0:
+                # si encontré alguna imagen, armo el directorio destino y lo creo
+                now = datetime.datetime.now()
+                dia = now.strftime("%Y")+now.strftime("%m")+now.strftime("%d")
+                hora= now.strftime("%H")+now.strftime("%M")+now.strftime("%S")
+                DirDestino = "Upload-"+dia+"-"+hora
+                pathDestino = DirBaseDestino + os.path.sep + DirPrincipal + os.path.sep + DirDestino
 
-            # muevo las imagenes del directorio temporal al directorio de destino
+                try:
+                    os.makedirs(pathDestino)
+                except FileExistsError:
+                    pass
 
-            while len(ImagenesDirTemp) > 0:
-                imgTemp = ImagenesDirTemp.pop(0)
-                shutil.move(imgTemp[0] + os.path.sep + imgTemp[1], pathDestino + os.path.sep + imgTemp[1])
-                ImagenesCola.put([pathDestino, imgTemp[1], imgTemp[2]])
+                # muevo las imagenes del directorio temporal al directorio de destino y se agrega a la Cola de imagenes
+                # a procesar
+                while len(ImagenesDirTemp) > 0:
+                    imgTemp = ImagenesDirTemp.pop(0)
+                    shutil.move(imgTemp[0] + os.path.sep + imgTemp[1], pathDestino + os.path.sep + imgTemp[1])
+                    ImagenesCola.put([pathDestino, imgTemp[1], imgTemp[2]])
+            else:
+                resultadoOK = False
+                msgError = "La carpeta no posee imagenes para la pericia {0}".format(periciaid)
         else:
             resultadoOK = False
-            msgError = "La carpeta no posee imagenes"
+            msgError = "No se encontraron imagenes subidas para la pericia {0}".format(periciaid)
 
     elif tipoProceso == "D":
         pathDestino = DirBaseDestino + os.path.sep + DirPrincipal
@@ -272,7 +284,7 @@ def cambiar_tipoimagen(imagenid,imagennombre, imagentipo):
                         level=logging.INFO,
                         datefmt='%d-%b-%y %H:%M:%S')
 
-    logging.info("----- Inicio del proceso cambio de tipo de imagen -----")
+    logging.info("----- Inicio del proceso canbio de tipo de imagen -----")
     logging.info("---- Parametros del proceso ----")
     logging.info("-- Imagen: {0}-{1}".format(imagenid, imagennombre))
     logging.info("-- Nuevo tipo de imagen : {0}".format(imagentipo))
@@ -368,7 +380,7 @@ def cambiar_tipoimagen(imagenid,imagennombre, imagentipo):
                     logging.error("Error al cambiar el detalle de la imagen {0}-{1} ({2})".format(imagenid,
                                                                                                   nombreImagen,
                                                                                                   conexionBD.error))
-    logging.info("----- Fin del proceso cambio de tipo de imagen -----")
+    logging.info("----- Fin del proceso canbio de tipo de imagen -----")
 
 
-# cambiar_tipoimagen(370,"CapturaTexto 2.jpg","OTRO")
+# cambiar_tipoimagen(155,"OTRO")
