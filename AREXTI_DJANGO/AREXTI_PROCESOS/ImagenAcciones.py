@@ -4,8 +4,8 @@ import imghdr
 import datetime
 import sys
 import logging
-from AREXTI_PROCESOS import RedesNeuronales, ImagenProcesar, Segmentacion, Herramientas, Hashes, Metadatos, BaseDatos
-# import RedesNeuronales, ImagenProcesar, Segmentacion, Herramientas, Hashes, Metadatos, BaseDatos
+# from AREXTI_PROCESOS import RedesNeuronales, ImagenProcesar, Segmentacion, Herramientas, Hashes, Metadatos, BaseDatos
+import RedesNeuronales, ImagenProcesar, Segmentacion, Herramientas, Hashes, Metadatos, BaseDatos
 
 
 def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tipoProceso, DirPrincipal, periciaid, conexionBD):
@@ -28,9 +28,9 @@ def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tip
     msgError = ""
     if tipoProceso == "A":
         # Recupero el listado de las imagenes subidas desde la BD
-        query = """ SELECT "nombre","extension","path" 
-                            FROM "AREXTI_APP_imagen"
-                            WHERE "id"=%s;"""
+        query = """ SELECT "file" 
+                    FROM "AREXTI_APP_uploadfile"
+                    WHERE "periciaId"=%s;"""
         data = (periciaid,)
         resultado = conexionBD.consulta(query, data)
 
@@ -39,8 +39,8 @@ def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tip
             ImagenesDirTemp = []
             for dirName, subdirList, fileList in os.walk(DirTemp):
                 for fname in fileList:
-                    # verificar los archivos de la Bd de javi
-                    # si existe seguir analizando sino continue
+# verificar los archivos de la Bd de javi
+# si existe seguir analizando sino continue
                     archivo = dirName + os.path.sep + fname
                     # Identifico si "archivo" es imagen por el contenido y NO por la extensión
                     if imghdr.what(archivo) is not None:
@@ -284,7 +284,7 @@ def cambiar_tipoimagen(imagenid,imagennombre, imagentipo):
                         level=logging.INFO,
                         datefmt='%d-%b-%y %H:%M:%S')
 
-    logging.info("----- Inicio del proceso canbio de tipo de imagen -----")
+    logging.info("----- Inicio del proceso cambio de tipo de imagen -----")
     logging.info("---- Parametros del proceso ----")
     logging.info("-- Imagen: {0}-{1}".format(imagenid, imagennombre))
     logging.info("-- Nuevo tipo de imagen : {0}".format(imagentipo))
@@ -380,7 +380,7 @@ def cambiar_tipoimagen(imagenid,imagennombre, imagentipo):
                     logging.error("Error al cambiar el detalle de la imagen {0}-{1} ({2})".format(imagenid,
                                                                                                   nombreImagen,
                                                                                                   conexionBD.error))
-    logging.info("----- Fin del proceso canbio de tipo de imagen -----")
+    logging.info("----- Fin del proceso cambio de tipo de imagen -----")
 
 
 # cambiar_tipoimagen(155,"OTRO")
