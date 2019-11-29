@@ -45,24 +45,31 @@
 {% endblock %}
 
 {% block tabla_contenido %}
-<div class="form-group col-md-3">
-<input type="hidden" name="nubee" id="nubee" value={{ nube }} />
-<a class="btn btn-success" href="{% url 'write_pdf_view' %}">Exportar</a>
-    </div>
+{#<div class="form-group col-md-3">#}
+{#<input type="hidden" name="nubee" id="nubee" value={{ nube }} />#}
+{#<a class="btn btn-success" href="{% url 'write_pdf_view' %}">Exportar</a>#}
+{#    </div>#}
 {#    <div id="htmlwidget-fbe46c583369b5338de1" style="width:672px;height:480px;" class="wordcloud2 html-widget html-widget-static-bound">#}
     <div id="sourrounding_div" style="width:100%;height:500px">
-        <canvas height="500" width="672" id="canvas_cloud" name="canvas"></canvas>
+        <canvas id="canvas_cloud" width="1707" height="484" lang=""></canvas>
+{#        <canvas height="1500" width="1750" id="canvas_cloud" name="canvas"></canvas>#}
     </div>
     <script>
-        var div = document.getElementById("sourrounding_div");
+        {#var div = document.getElementById("sourrounding_div");#}
 
         var canvas = document.getElementById("canvas_cloud");
-        var canvas = document.getElementById("canvas_cloud");
+        {#var canvas = document.getElementById("canvas_cloud");#}
 
-        canvas.height = div.offsetHeight;
-
-        canvas.width  = div.offsetWidth;
-        var list = document.getElementById("nubee");
+        {#canvas.height = div.offsetHeight;#}
+        {##}
+        {#canvas.width  = div.offsetWidth;#}
+        var list = {{nube|safe}};
+        {#list = [#}
+        {#      ["casa", "50"],#}
+        {#      ["auto", "23"],#}
+        {#      ["arbol", "18"],#}
+        {#      ["manzana", "9"]#}
+        {#      ];#}
         {#var options =#}
         {#{#}
         {#  list : [#}

@@ -538,6 +538,23 @@ class ReporteOcurrencia(FilteredListView):
 class ReporteNube(FilteredListView):
     filterset_class = ReporteFilter
 
+    # def get(self, request, *args, **kwargs):
+    #     parametros = obtenerParametros(self.request)
+    #     palabras = funcionesdb.consulta('nube', [parametros['pericia'], parametros['tiposfinal'],
+    #                                              parametros['detallesfinal'], parametros['metadato'],
+    #                                              parametros['valormetadato']])
+    #     palabrasfinal = []
+    #     for palabra in palabras:
+    #         palabrasfinal.append([palabra['palabra'], str(palabra['total'])])
+    #     # context['nube'] = palabrasfinal
+    #     contexto = {
+    #         'nube': palabrasfinal,
+    #
+    #     }
+    #
+    #     return render(request, self.template_name, contexto)
+
+
     def get_queryset(self):
         queryset = None
         self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
@@ -718,7 +735,11 @@ def obtenerParametros(request):
     locale.setlocale(locale.LC_TIME, '')
     fecha = datetime.now()
     parametros = dict(request.GET)
-    pericia = parametros['pericia'][0]
+    pericia = 0
+    pericianombre = ''
+    if 'pericia' in parametros:
+        pericia = parametros['pericia'][0]
+        pericianombre = Pericia.objects.filter(id=pericia)[0].descripcion
     tiposfinal = ''
     if 'tipoImagen' in parametros:
         tipos = parametros['tipoImagen']
@@ -733,15 +754,22 @@ def obtenerParametros(request):
     if 'texto' in parametros:
         texto = parametros['texto'][0]
 
+    metadato = ''
+    if 'metadato' in parametros:
+        texto = parametros['metadato'][0]
+    valormeta = ''
+    if 'valormeta' in parametros:
+        valormeta = parametros['valormeta'][0]
+
     parametrosfinal = {'fechacompleta': fecha.strftime("%d " + "de " + "%B, %Y"),
                        'fechaHora': fecha.strftime("%d_%m_%Y_%H%M%S"),
                        'palabra': texto,
-                       'pericia': parametros['pericia'][0],
+                       'pericia': pericia,
                        'tiposfinal': tiposfinal,
                        'detallesfinal': detallesfinal,
-                       'metadato': parametros['metadato'][0],
-                       'valormetadato': parametros['valormeta'][0],
-                       'periciaNombre': Pericia.objects.filter(id=pericia)[0].descripcion
+                       'metadato':metadato,
+                       'valormetadato': valormeta,
+                       'periciaNombre': pericianombre
                        }
     return parametrosfinal
 
