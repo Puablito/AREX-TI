@@ -20,3 +20,4 @@
 17.reportlab	3.5.32	
 18.wordcloud	1.5.0	
 19.xlwt	1.3.0	1.3.0
+20.matplotlib	3.1.1
