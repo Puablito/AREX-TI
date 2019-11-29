@@ -1,9 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.contrib import messages
+from django.db import transaction, IntegrityError, DatabaseError, DataError
 from enum import Enum
 from .tasks import getDirectories, call_ChangeImageType, call_ProcessImage
 import os
+import errno
+from datetime import datetime
 from django.http import JsonResponse, HttpResponse
 from django.db.models import Count
 from django.conf import settings
@@ -192,9 +195,24 @@ class PericiaCrear(CreateView):
     pericia = None
 
     def form_valid(self, form):
-        self.pericia = form.save()
-        messages.success(self.request, messageTitle.Alta.value, extra_tags='title')
-        return redirect(self.get_success_url())
+        try:
+            with transaction.atomic():
+                self.pericia = form.save()
+                #actualizo y creo el directorio para la pericia
+                pericia2 = get_object_or_404(Pericia, pk=self.pericia.id)
+
+                directorio = filecreation(pericia2.id, pericia2.descripcion)
+
+                Pericia.objects.filter(pk=pericia2.pk).update(directorio=directorio)
+
+                messages.success(self.request, messageTitle.Alta.value, extra_tags='title')
+            return redirect(self.get_success_url())
+        except IntegrityError:
+            messages.error(self.request, 'Error al crear la pericia', extra_tags='title')
+            messages.error(self.request, 'no pudo crearse el directorio')
+            ctx = {'form': form,
+                   'proyectoId': self.pericia.proyecto.id}
+            return render(self.request, self.template_name, ctx)
 
     def form_invalid(self, form):
         ctx = {'form': form}
@@ -572,3 +590,17 @@ def pdf_view(request):
             return response
     else:
         return HttpResponseNotFound('The requested pdf was not found in our server.')
+
+
+def filecreation(periciaId, periciaName):
+    parametro = Parametros.objects.get(id=ParametroSistema.DirectorioBase.value)
+    directorioPericia = '{}-{}-{}'.format(periciaId, periciaName, datetime.now().strftime('%Y%m%d%H%M%S'))
+    mydir = os.path.join(parametro.valorTexto, directorioPericia)
+    try:
+        os.makedirs(mydir)
+    except OSError as e:
+        return None
+        # if e.errno != errno.EEXIST:
+        #     error = e.errno
+
+    return directorioPericia
