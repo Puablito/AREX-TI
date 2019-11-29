@@ -29,6 +29,7 @@
 
   <script src="{% static '/js/moment.min.js'%}"></script>
   <script src="{% static '/js/daterangepicker.js'%}"></script>
+  <script src="{% static '/js/wordcloud2.js'%}"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.10/jquery.mask.js"></script>
   <script src="{% static '/js/component/modernizr.custom.js'%}"></script>
@@ -102,13 +103,13 @@
           </a>
           <ul class="treeview-menu">
             <li>
-              <a href="#">
-                <i class="fa fa-circle-o"></i> Reporte 1
+              <a href="{% url 'ReporteNube' %}">
+                <i class="fa fa-circle-o"></i> Reporte Nube de palabras
               </a>
             </li>
             <li>
               <a href="{% url 'ReporteOcurrencia' %}">
-                <i class="fa fa-circle-o"></i> Reporte Ocurrencia
+                <i class="fa fa-circle-o"></i> Reporte Ocurrencias
               </a>
             </li>
           </ul>
