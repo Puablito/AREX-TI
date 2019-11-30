@@ -2,91 +2,97 @@ import os
 import datetime
 import time
 import logging
-from AREXTI_PROCESOS import ImagenAcciones, Herramientas, BaseDatos
-# import ImagenAcciones, Herramientas, BaseDatos
+# from AREXTI_PROCESOS import ImagenAcciones, Herramientas, BaseDatos
+import ImagenAcciones, Herramientas, BaseDatos
 from multiprocessing import Process, Queue
 
 
 def proceso_Principal(periciaid, periciaNombre, tipoProceso, DirPrincipal, listaHash):
     if __name__ == '__main__':
+        Is_OK = True
+
         # Crea la carpeta Logs
+        DirAppBase = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'LOGS')
         try:
-            os.makedirs("./Logs")
-        except FileExistsError:
-            pass
+            if not os.path.exists(DirAppBase):
+                os.makedirs(DirAppBase)
+        except Exception:
+            Is_OK = False
 
-        # Configuración del Log
-        nombreArchivo = "Pericia_{0}-{1}_ProcesoGeneral".format(periciaid, periciaNombre)
-        logging.basicConfig(handlers=[logging.FileHandler('Logs/{0}.txt'.format(nombreArchivo), 'a', 'utf-8')],
-                            format='%(asctime)s; %(levelname)s; %(message)s',
-                            level=logging.INFO,
-                            datefmt='%d-%b-%y %H:%M:%S')
+        if Is_OK:
+            # Configuración del Log
+            nombreArchivo = "Pericia_{0}-{1}_ProcesoGeneral".format(periciaid, periciaNombre)
+            logging.basicConfig(handlers=[logging.FileHandler('{0}/{1}.txt'.format(DirAppBase, nombreArchivo), 'a', 'utf-8')],
+                                format='%(asctime)s; %(levelname)s; %(message)s',
+                                level=logging.INFO,
+                                datefmt='%d-%b-%y %H:%M:%S')
 
-        # Creo diccionario de hashes
-        dic = dict()
-        for hashTipo in listaHash:
-            dic.update({hashTipo: ""})
-        listaHash = dic
+            # Creo diccionario de hashes
+            dic = dict()
+            for hashTipo in listaHash:
+                dic.update({hashTipo: ""})
+            listaHash = dic
 
-        logging.info("----- Inicio del proceso principal pericia: {0}-{1} -----".format(periciaid, periciaNombre))
-        logging.info("---- Parametros del proceso ----")
-        logging.info("-- Pericia: {0}-{1}".format(periciaid, periciaNombre))
-        logging.info("-- Tipo de proceso: {0}".format(tipoProceso))
-        logging.info("-- Hashes a aplicar: {0}".format(listaHash))
+            logging.info("----- Inicio del proceso principal pericia: {0}-{1} -----".format(periciaid, periciaNombre))
+            logging.info("---- Parametros del proceso ----")
+            logging.info("-- Pericia: {0}-{1}".format(periciaid, periciaNombre))
+            logging.info("-- Tipo de proceso: {0}".format(tipoProceso))
+            logging.info("-- Hashes a aplicar: {0}".format(listaHash))
 
-        # Realizo la conexión a la BD
-        conexionBD = BaseDatos.Conexion()
-        Is_OK = conexionBD.conectar()
-        if not Is_OK:
-            logging.error(conexionBD.error)
-        else:
-            # Recupero parametros necesarios para ejecurar el proceso
-            """
-            RtaBD[0] indica si la consulta se realizó OK o con "ERROR"
-            RtaBD[1] si RtaBD[0] = "OK" contiene la respuesta de la consulta, caso contrario contiene el error obtenido
-            """
-            logging.info("---- Parametros generales ----")
-            RtaBD = Herramientas.parametro_get(conexionBD, 'DIRECTORIOIMAGEN')
-            if RtaBD[0] == "OK":
-                DirBase = RtaBD[1][0]["valorTexto"]
-                logging.info("-- Directorio Base: {0}".format(DirBase))
+            # Realizo la conexión a la BD
+            conexionBD = BaseDatos.Conexion()
+            Is_OK = conexionBD.conectar()
+
+            if not Is_OK:
+                logging.error(conexionBD.error)
             else:
-                Is_OK = False
-                logging.error("Error en parametro: DIRECTORIOIMAGEN ("+RtaBD[1]+")")
-
-            RtaBD = Herramientas.parametro_get(conexionBD, 'LISTAEXTENSIONES')
-            if RtaBD[0] == "OK":
-                ListadoExtensiones = RtaBD[1][0]["valorTexto"]
-                logging.info("-- Lista de Extensiones validas: {0}".format(ListadoExtensiones))
-            else:
-                Is_OK = False
-                logging.error("Error en parametro: LISTAEXTENSIONES (" + RtaBD[1] + ")")
-
-            RtaBD = Herramientas.parametro_get(conexionBD, 'TESSERACTPATH')
-            if RtaBD[0] == "OK":
-                tesseract_cmd = RtaBD[1][0]["valorTexto"]
-                logging.info("-- Ruta Tesseract: {0}".format(tesseract_cmd))
-            else:
-                Is_OK = False
-                logging.error("Error en parametro: TESSERACTPATH (" + RtaBD[1] + ")")
-
-            RtaBD = Herramientas.parametro_get(conexionBD, 'PROCESOSPARALELOS')
-            if RtaBD[0] == "OK":
-                procesos_paralelos = RtaBD[1][0]["valorNumero"]
-                logging.info("-- Cantidad Procesos paralelos: {0}".format(procesos_paralelos))
-            else:
-                Is_OK = False
-                logging.error("Error en parametro: PROCESOSPARALELOS (" + RtaBD[1] + ")")
-
-            DirTemp = ""
-            if tipoProceso == "A":
-                RtaBD = Herramientas.parametro_get(conexionBD, 'DIRECTORIOIMAGENTEMP')
+                # Recupero parametros necesarios para ejecurar el proceso
+                """
+                RtaBD[0] indica si la consulta se realizó OK o con "ERROR"
+                RtaBD[1] si RtaBD[0] = "OK" contiene la respuesta de la consulta, caso contrario contiene el error obtenido
+                """
+                logging.info("---- Parametros generales ----")
+                RtaBD = Herramientas.parametro_get(conexionBD, 'DIRECTORIOIMAGEN')
                 if RtaBD[0] == "OK":
-                    DirTemp = RtaBD[1][0]["valorTexto"]
-                    logging.info("-- Directorio Temporal: {0}".format(DirTemp))
+                    DirBase = RtaBD[1][0]["valorTexto"]
+                    logging.info("-- Directorio Base: {0}".format(DirBase))
                 else:
                     Is_OK = False
-                    logging.error("Error en parametro: DIRECTORIOIMAGENTEMP (" + RtaBD[1] + ")")
+                    logging.error("Error en parametro: DIRECTORIOIMAGEN ("+RtaBD[1]+")")
+
+                RtaBD = Herramientas.parametro_get(conexionBD, 'LISTAEXTENSIONES')
+                if RtaBD[0] == "OK":
+                    ListadoExtensiones = RtaBD[1][0]["valorTexto"]
+                    logging.info("-- Lista de Extensiones validas: {0}".format(ListadoExtensiones))
+                else:
+                    Is_OK = False
+                    logging.error("Error en parametro: LISTAEXTENSIONES (" + RtaBD[1] + ")")
+
+                RtaBD = Herramientas.parametro_get(conexionBD, 'TESSERACTPATH')
+                if RtaBD[0] == "OK":
+                    tesseract_cmd = RtaBD[1][0]["valorTexto"]
+                    logging.info("-- Ruta Tesseract: {0}".format(tesseract_cmd))
+                else:
+                    Is_OK = False
+                    logging.error("Error en parametro: TESSERACTPATH (" + RtaBD[1] + ")")
+
+                RtaBD = Herramientas.parametro_get(conexionBD, 'PROCESOSPARALELOS')
+                if RtaBD[0] == "OK":
+                    procesos_paralelos = RtaBD[1][0]["valorNumero"]
+                    logging.info("-- Cantidad Procesos paralelos: {0}".format(procesos_paralelos))
+                else:
+                    Is_OK = False
+                    logging.error("Error en parametro: PROCESOSPARALELOS (" + RtaBD[1] + ")")
+
+                DirTemp = ""
+                if tipoProceso == "A":
+                    RtaBD = Herramientas.parametro_get(conexionBD, 'DIRECTORIOIMAGENTEMP')
+                    if RtaBD[0] == "OK":
+                        DirTemp = RtaBD[1][0]["valorTexto"]
+                        logging.info("-- Directorio Temporal: {0}".format(DirTemp))
+                    else:
+                        Is_OK = False
+                        logging.error("Error en parametro: DIRECTORIOIMAGENTEMP (" + RtaBD[1] + ")")
 
         if Is_OK:
             # Si no hay error en los parametros
@@ -96,10 +102,10 @@ def proceso_Principal(periciaid, periciaNombre, tipoProceso, DirPrincipal, lista
             imagenesNoTexto_Cola = Queue()  # cola de imagenes no procesadas por no detectar texto en ellas
 
             # Lectura de las imagenes que van a ser procesadasa
-            RtaCarga = ImagenAcciones.leer_imagenes(DirBase, DirTemp, ListadoExtensiones, ImagenesCola, tipoProceso, DirPrincipal)
+            RtaCarga = ImagenAcciones.leer_imagenes(DirBase, DirTemp, ListadoExtensiones, ImagenesCola, tipoProceso, DirPrincipal, periciaid, conexionBD)
             if RtaCarga[0] == "ERROR":
                 Is_OK = False
-                logging.error("Error leyendo las imagenes (" + RtaCarga[1] + ")")
+                logging.error("Error al leer las imagenes (" + RtaCarga[1] + ")")
 
         if Is_OK:
             """
@@ -154,7 +160,7 @@ def proceso_Principal(periciaid, periciaNombre, tipoProceso, DirPrincipal, lista
 
                 # Guardado en archivo las imagenes que no se reconocieron con texto
                 if not imagenesNoTexto_Cola.empty():
-                    with open("Logs/{0}.txt".format(nombreLogSinTexto), "a") as archivo_notexto:
+                    with open('{0}/{1}.txt'.format(DirAppBase, nombreLogSinTexto), "a") as archivo_notexto:
                         while not imagenesNoTexto_Cola.empty():
                             fecha = time.strftime("%d-%m-%Y %H:%M:%S")
                             archivo_notexto.write("{0}; {1}; \n".format(fecha, imagenesNoTexto_Cola.get()))
@@ -206,13 +212,13 @@ def proceso_Principal(periciaid, periciaNombre, tipoProceso, DirPrincipal, lista
 ## para ejecutarlo desde consola descomentar
 periciaid = 1
 periciaNombre = "Celular 4"
-tipoProceso = "D"
+tipoProceso = "A"
 listaHash = ['SHA1', 'MD5', 'SHA256']
 
 #Mariano
-DirPrincipal = "Todas"
+# DirPrincipal = "Todas"
 
 #Pablo
 # DirPrincipal = r"PericiaPrueba\Dir2"
-# DirPrincipal = "CapturasPablo"
+DirPrincipal = "CapturasPablo"
 proceso_Principal(periciaid, periciaNombre, tipoProceso, DirPrincipal, listaHash)
