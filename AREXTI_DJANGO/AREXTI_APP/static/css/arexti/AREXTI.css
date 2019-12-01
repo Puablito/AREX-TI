@@ -1307,3 +1307,22 @@ label.required::after {
     width: 85px;
     padding-left: 15px;
 }
+img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.portrait {
+    height: 100px;
+    width: 100px;
+}
+
+.landscape {
+    height: 30px;
+    width: 80px;
+}
+
+.square {
+    height: 600px;
+    width: 600px;
+}

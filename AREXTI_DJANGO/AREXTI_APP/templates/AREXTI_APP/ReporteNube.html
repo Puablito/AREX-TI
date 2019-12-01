@@ -1,6 +1,8 @@
 {% extends 'base/ListadoBase.html' %}
 {% load widget_tweaks %}
+
 {% block ListadoBaseScripts %}
+
 {% endblock %}
 
 {% block icon %}
@@ -50,44 +52,47 @@
 {#<a class="btn btn-success" href="{% url 'write_pdf_view' %}">Exportar</a>#}
 {#    </div>#}
 {#    <div id="htmlwidget-fbe46c583369b5338de1" style="width:672px;height:480px;" class="wordcloud2 html-widget html-widget-static-bound">#}
-    <div id="sourrounding_div" style="width:100%;height:500px">
-        <canvas id="canvas_cloud" width="1707" height="484" lang=""></canvas>
-{#        <canvas height="1500" width="1750" id="canvas_cloud" name="canvas"></canvas>#}
-    </div>
-    <script>
-        {#var div = document.getElementById("sourrounding_div");#}
+    {% if nube is None %}
+        <td colspan="11" style="color:darkgrey;text-align:center;"><i class="fa fa-exclamation-circle"></i> <b><small>No se encontraron palabras</small></b></td>
+    {% else %}
+        <div id="sourrounding_div" style="width:100%;height:600px">
+            <canvas id="canvas_cloud" width="750" height="500" lang=""></canvas>
+    {#        <canvas height="1500" width="1750" id="canvas_cloud" name="canvas"></canvas>#}
+        </div>
 
-        var canvas = document.getElementById("canvas_cloud");
-        {#var canvas = document.getElementById("canvas_cloud");#}
+        <script>
+            var div = document.getElementById("sourrounding_div");
+            var canvas = document.getElementById("canvas_cloud");
 
-        {#canvas.height = div.offsetHeight;#}
-        {##}
-        {#canvas.width  = div.offsetWidth;#}
-        var list = {{nube|safe}};
-        {#list = [#}
-        {#      ["casa", "50"],#}
-        {#      ["auto", "23"],#}
-        {#      ["arbol", "18"],#}
-        {#      ["manzana", "9"]#}
-        {#      ];#}
-        {#var options =#}
-        {#{#}
-        {#  list : [#}
-        {#      ["casa", "50"],#}
-        {#      ["auto", "23"],#}
-        {#      ["arbol", "18"],#}
-        {#      ["manzana", "9"]#}
-        {#      ],#}
-        {#  gridSize: Math.round(16 * document.getElementById('canvas_cloud').offsetWidth / 1024),#}
-        {#  weightFactor: function (size) {#}
-        {#    return Math.pow(size, 1.9) * document.getElementById('canvas_cloud').offsetWidth / 1024;#}
-        {#  }#}
-        {# } #}
+            canvas.height = div.offsetHeight;
 
-        {#WordCloud(document.getElementById('canvas_cloud'), options);#}
-        {#WordCloud(document.getElementById('canvas_cloud'), { list: {{ nube }} } );#}
-        WordCloud(canvas, { list: list } );
+            canvas.width  = div.offsetWidth;
+            var list = {{nube|safe}};
 
-    </script>
+            var options =
+            {
+              list : {{nube|safe}},
+              shape : 'circle',
+              color : "random-light",
+              backgroundColor : "grey",
+              shuffle : true,
+              minRotation : -Math.PI/4,
+              maxRotation : Math.PI/4,
+              minSize : 9,
+              {#word : 'A', size : 2,#}
+              rotateRatio : 0.4,
+              ellipticity : 0.65,
+              gridSize: Math.round(16 * canvas.width / 1024),
+              weightFactor: function (size) {
+                return Math.pow(size, 1.3) * canvas.width / 1024;
+              }
+             }
 
+            {#WordCloud(document.getElementById('canvas_cloud'), options);#}
+            {#WordCloud(document.getElementById('canvas_cloud'), { list: {{ nube }} } );#}
+            {#WordCloud(canvas, { list: list } );#}
+            WordCloud(canvas, options );
+
+        </script>
+    {% endif %}
 {% endblock %}

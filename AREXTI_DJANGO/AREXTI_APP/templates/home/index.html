@@ -31,6 +31,7 @@
   <script src="{% static '/js/daterangepicker.js'%}"></script>
   <script src="{% static '/js/wordcloud2.js'%}"></script>
 
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.10/jquery.mask.js"></script>
   <script src="{% static '/js/component/modernizr.custom.js'%}"></script>
 
@@ -104,12 +105,12 @@
           <ul class="treeview-menu">
             <li>
               <a href="{% url 'ReporteNube' %}">
-                <i class="fa fa-circle-o"></i> Reporte Nube de palabras
+                <i class="fa fa-circle-o"></i> Nube de palabras
               </a>
             </li>
             <li>
               <a href="{% url 'ReporteOcurrencia' %}">
-                <i class="fa fa-circle-o"></i> Reporte Ocurrencias
+                <i class="fa fa-circle-o"></i> Ocurrencias por palabra
               </a>
             </li>
           </ul>
@@ -129,7 +130,12 @@
 
     {% block principal %}
       <section class="content-header">
-        Bloque principal INDEX
+      <div class="portrait">
+            <img src="{% static '/image/Logo22.png'%}">
+        </div>
+      <div class="square">
+            <img src="{% static '/image/logoHome.png'%}">
+        </div>
       </section>
     {% endblock %}
     <!-- Main content -->

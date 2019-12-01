@@ -587,10 +587,15 @@ class ReporteNube(FilteredListView):
         palabrasfinal = []
         for palabra in palabras:
             palabrasfinal.append([palabra['palabra'], str(palabra['total'])])
+        if palabrasfinal.__len__() == 0:
+            palabrasfinal = None
         context['nube'] = palabrasfinal
+        context['fecha'] = parametros['fechacompleta']
+        context['pericia'] = parametros['pericia']
+        context['pericianombre'] = parametros['periciaNombre']
         return context
 
-    template_name = 'AREXTI_APP/ReporteNube.html'
+    template_name = 'AREXTI_APP/ReporteNube2.html'
 
 
 class BasicUploadView(View):
@@ -695,7 +700,7 @@ def write_pdf_view(request):
     imagenes = funcionesdb.consulta('ocurrencias', [params['palabra'], params['pericia'], params['tiposfinal'],
                                                     params['detallesfinal'], params['metadato'], params['valormetadato']])
 
-    logo = 'C:/Users/Mariano-Dell/Desktop/Tesis/Logo2.jpg'
+    logo = 'C:/Users/Mariano-Dell/Desktop/Tesis/Logo22.jpg'
     w, h = letter
     max_rows_per_page = 30
     # Margenes.
@@ -704,7 +709,7 @@ def write_pdf_view(request):
     # Espacio entre filas.
     padding = 20
     # p.drawImage(archivo_imagen, 20, h - 300, 300, 300, preserveAspectRatio=True)
-    p.drawImage(logo, 40, h - 100, width=100, height=75, preserveAspectRatio=True)
+    p.drawImage(logo, 5, h - 125, width=150, height=100, preserveAspectRatio=True)
     texto = p.beginText(150, h - 55)
     # texto.setFont("Times-Roman", 16)
     texto.textLine("Fecha: " + params['fechacompleta'])
@@ -772,12 +777,12 @@ def obtenerParametros(request):
 
     metadato = ''
     if 'metadato' in parametros:
-        texto = parametros['metadato'][0]
+        metadato = parametros['metadato'][0]
     valormeta = ''
     if 'valormeta' in parametros:
         valormeta = parametros['valormeta'][0]
 
-    parametrosfinal = {'fechacompleta': fecha.strftime("%d " + "de " + "%B, %Y"),
+    parametrosfinal = {'fechacompleta': fecha.strftime("%d " + "de " + "%B de %Y"),
                        'fechaHora': fecha.strftime("%d_%m_%Y_%H%M%S"),
                        'palabra': texto,
                        'pericia': pericia,
