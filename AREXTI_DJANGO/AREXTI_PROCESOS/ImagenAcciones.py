@@ -4,8 +4,8 @@ import imghdr
 import datetime
 import sys
 import logging
-# from AREXTI_PROCESOS import RedesNeuronales, ImagenProcesar, Segmentacion, Herramientas, Hashes, Metadatos, BaseDatos
-import RedesNeuronales, ImagenProcesar, Segmentacion, Herramientas, Hashes, Metadatos, BaseDatos
+from AREXTI_PROCESOS import RedesNeuronales, ImagenProcesar, Segmentacion, Herramientas, Hashes, Metadatos, BaseDatos
+# import RedesNeuronales, ImagenProcesar, Segmentacion, Herramientas, Hashes, Metadatos, BaseDatos
 
 
 def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tipoProceso, DirPrincipal, periciaid, conexionBD):
