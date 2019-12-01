@@ -1,5 +1,6 @@
 import psycopg2
 import json
+import os
 
 
 class Conexion:
@@ -11,7 +12,10 @@ class Conexion:
 
     def conectar(self):
         try:
-            f = open("BDConect.txt", "r")
+            DirAppBase = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'AREXTI_PROCESOS')
+            archivo = DirAppBase + os.path.sep + "BDConect.txt"
+
+            f = open(archivo, "r")
             contenido = f.read()
             f.close()
             DBdata = json.loads(contenido)

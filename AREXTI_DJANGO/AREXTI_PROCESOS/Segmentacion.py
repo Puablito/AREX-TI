@@ -3,8 +3,8 @@ import cv2
 import numpy as np
 import pytesseract
 import math
-#import ImagenProcesar
-from AREXTI_PROCESOS import ImagenProcesar
+import ImagenProcesar
+# from AREXTI_PROCESOS import ImagenProcesar
 from PIL import Image
 import tempfile
 import re

@@ -4,8 +4,8 @@ import imghdr
 import datetime
 import sys
 import logging
-from AREXTI_PROCESOS import RedesNeuronales, ImagenProcesar, Segmentacion, Herramientas, Hashes, Metadatos, BaseDatos
-# import RedesNeuronales, ImagenProcesar, Segmentacion, Herramientas, Hashes, Metadatos, BaseDatos
+# from AREXTI_PROCESOS import RedesNeuronales, ImagenProcesar, Segmentacion, Herramientas, Hashes, Metadatos, BaseDatos
+import RedesNeuronales, ImagenProcesar, Segmentacion, Herramientas, Hashes, Metadatos, BaseDatos
 
 
 def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tipoProceso, DirPrincipal, periciaid, conexionBD):
@@ -28,49 +28,88 @@ def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tip
     msgError = ""
     if tipoProceso == "A":
         # Recupero el listado de las imagenes subidas desde la BD
-        query = """ SELECT "nombre","extension","path" 
-                            FROM "AREXTI_APP_imagen"
-                            WHERE "id"=%s;"""
+        query = """ SELECT "file"
+                    FROM "AREXTI_APP_uploadfile"
+                    WHERE "periciaId"=%s;"""
         data = (periciaid,)
-        resultado = conexionBD.consulta(query, data)
+        UploadFileResultado = conexionBD.consulta(query, data)
 
-        if resultado:
-            # Leo todas las imagenes del directorio temporal y las guardo en "ImagenesDirTemp"
+        if UploadFileResultado:
+            # Elimino la tabla de subida de archivos
+            query = """ DELETE FROM "AREXTI_APP_uploadfile"
+                        WHERE "periciaId"=%s;"""
+            data = (periciaid,)
+            ResultadoDelete = conexionBD.consulta(query, data)
+            resultado = conexionBD.conexionCommitRoll()
+
+            # Recorre la lista de imagenes subidas y las agrega al listado para cambiarla de directorio
             ImagenesDirTemp = []
-            for dirName, subdirList, fileList in os.walk(DirTemp):
-                for fname in fileList:
-                    # verificar los archivos de la Bd de javi
-                    # si existe seguir analizando sino continue
-                    archivo = dirName + os.path.sep + fname
-                    # Identifico si "archivo" es imagen por el contenido y NO por la extensión
-                    if imghdr.what(archivo) is not None:
-                        ext = imghdr.what(archivo)
-                        if ext.upper() in ListadoExtensiones:
-                            # listado de todas las imagenes del directorio temporal
-                            ImagenesDirTemp.append([dirName, fname, ext])
+            for r in UploadFileResultado:
+                """
+                    Se realiza un analisis para ver si la imagen se guardo en la carpeta raíz del temporal o 
+                    en una subcarpeta de la misma.
+                    1- Dentro del archivo leido de la tabla busco el ultimo separador de directorio
+                       ( / o \\ ), si es que hay alguno.
+                    2- Si no hay es porque es solo nombre de archivo. 
+                       Si hay, se divide el nombre del archivo, en subpath y nombre 
+                       Ej file/foto.jpg --> directorioTem = file -- archivoTemp = foto.jpg
+                """
+                x = r["file"].rfind(os.path.sep)
+                if x == -1:
+                    archivoTemp    = r["file"]
+                    directorioTemp = ""
+                else:
+                    archivoTemp    = r["file"][x+1:]
+                    directorioTemp = r["file"][:x]
 
-            if len(ImagenesDirTemp) > 0:
-                # si encontré alguna imagen, armo el directorio destino y lo creo
-                now = datetime.datetime.now()
-                dia = now.strftime("%Y")+now.strftime("%m")+now.strftime("%d")
-                hora= now.strftime("%H")+now.strftime("%M")+now.strftime("%S")
-                DirDestino = "Upload-"+dia+"-"+hora
-                pathDestino = DirBaseDestino + os.path.sep + DirPrincipal + os.path.sep + DirDestino
+                directorioTemp = DirTemp + os.path.sep + directorioTemp
+                archivoAnalizar = directorioTemp + os.path.sep + archivoTemp
 
                 try:
-                    os.makedirs(pathDestino)
-                except FileExistsError:
-                    pass
+                    # Identifico si "archivoAnalizar" es imagen por el contenido y NO por la extensión
+                    if imghdr.what(archivoAnalizar) is not None:
+                        ext = imghdr.what(archivoAnalizar)
+                        if ext.upper() in ListadoExtensiones:
+                            # listado de todas las imagenes del directorio temporal
+                            ImagenesDirTemp.append([directorioTemp, archivoTemp, ext])
 
-                # muevo las imagenes del directorio temporal al directorio de destino y se agrega a la Cola de imagenes
-                # a procesar
-                while len(ImagenesDirTemp) > 0:
-                    imgTemp = ImagenesDirTemp.pop(0)
-                    shutil.move(imgTemp[0] + os.path.sep + imgTemp[1], pathDestino + os.path.sep + imgTemp[1])
-                    ImagenesCola.put([pathDestino, imgTemp[1], imgTemp[2]])
-            else:
-                resultadoOK = False
-                msgError = "La carpeta no posee imagenes para la pericia {0}".format(periciaid)
+                except Exception as e:
+                    resultadoOK = False
+                    msgError = "No se pudo analizar la imagen: {0} - {1}".format(archivoAnalizar, e)
+
+            # si no dio error el analisis de las imagenes y
+            # encontro alguna imagen, armo el directorio destino y lo creo
+            if resultadoOK:
+                if len(ImagenesDirTemp) > 0:
+                    now = datetime.datetime.now()
+                    dia = now.strftime("%Y")+now.strftime("%m")+now.strftime("%d")
+                    hora= now.strftime("%H")+now.strftime("%M")+now.strftime("%S")
+                    DirDestino = "Upload-"+dia+"-"+hora
+                    pathDestino = DirBaseDestino + os.path.sep + DirPrincipal + os.path.sep + DirDestino
+
+                    try:
+                        if not os.path.exists(pathDestino):
+                            os.makedirs(pathDestino)
+                    except OSError as e:
+                        resultadoOK = False
+                        msgError = "No se pudo crear el directorio destino: {0} - {1}".format(pathDestino, e)
+
+                    if resultadoOK:
+                        # si existe el directorio de destino, muevo las imagenes del directorio temporal
+                        # al mismo y se agrega a la cola de imagenes a procesar
+                        try:
+                            while len(ImagenesDirTemp) > 0:
+                                imgTemp = ImagenesDirTemp.pop(0)
+                                shutil.move(imgTemp[0] + os.path.sep + imgTemp[1], pathDestino + os.path.sep + imgTemp[1])
+                                ImagenesCola.put([pathDestino, imgTemp[1], imgTemp[2]])
+                        except Exception as e:
+                            resultadoOK = False
+                            msgError = "No se pudieron mover las imagenes al directorio destino: {0}".format(e)
+
+                else:
+                    resultadoOK = False
+                    msgError = "La carpeta no posee imagenes para la pericia {0}".format(periciaid)
+
         else:
             resultadoOK = False
             msgError = "No se encontraron imagenes subidas para la pericia {0}".format(periciaid)
@@ -277,32 +316,43 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
 
 
 def cambiar_tipoimagen(imagenid,imagennombre, imagentipo):
-    # Configuración del Log
-    nombreArchivo = "CambioTipoImagen_{0}-{1}".format(imagenid, imagennombre)
-    logging.basicConfig(handlers=[logging.FileHandler('Logs/{0}.txt'.format(nombreArchivo), 'a', 'utf-8')],
-                        format='%(asctime)s; %(levelname)s; %(message)s',
-                        level=logging.INFO,
-                        datefmt='%d-%b-%y %H:%M:%S')
+    Is_OK = True
 
-    logging.info("----- Inicio del proceso canbio de tipo de imagen -----")
-    logging.info("---- Parametros del proceso ----")
-    logging.info("-- Imagen: {0}-{1}".format(imagenid, imagennombre))
-    logging.info("-- Nuevo tipo de imagen : {0}".format(imagentipo))
+    # Crea la carpeta Logs
+    DirAppBase = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'LOGS')
+    try:
+        if not os.path.exists(DirAppBase):
+            os.makedirs(DirAppBase)
+    except Exception:
+        Is_OK = False
 
-    # Realizo la conexión a la BD
-    conexionBD = BaseDatos.Conexion()
-    Is_OK = conexionBD.conectar()
-    if not Is_OK:
-        logging.error(conexionBD.error)
-    else:
-        # Si se pudo conectar a la base de datos
-        RtaBD = Herramientas.parametro_get(conexionBD, 'TESSERACTPATH')
-        if RtaBD[0] == "OK":
-            tesseract_cmd = RtaBD[1][0]["valorTexto"]
-            logging.info("-- Ruta Tesseract: {0}".format(tesseract_cmd))
+    if Is_OK:
+        # Configuración del Log
+        nombreArchivo = "CambioTipoImagen_{0}-{1}".format(imagenid, imagennombre)
+        logging.basicConfig(handlers=[logging.FileHandler('{0}/{1}.txt'.format(DirAppBase, nombreArchivo), 'a', 'utf-8')],
+                            format='%(asctime)s; %(levelname)s; %(message)s',
+                            level=logging.INFO,
+                            datefmt='%d-%b-%y %H:%M:%S')
+
+        logging.info("----- Inicio del proceso cambio de tipo de imagen -----")
+        logging.info("---- Parametros del proceso ----")
+        logging.info("-- Imagen: {0}-{1}".format(imagenid, imagennombre))
+        logging.info("-- Nuevo tipo de imagen : {0}".format(imagentipo))
+
+        # Realizo la conexión a la BD
+        conexionBD = BaseDatos.Conexion()
+        Is_OK = conexionBD.conectar()
+        if not Is_OK:
+            logging.error(conexionBD.error)
         else:
-            Is_OK = False
-            logging.error("Error en parametro: TESSERACTPATH (" + RtaBD[1] + ")")
+            # Si se pudo conectar a la base de datos
+            RtaBD = Herramientas.parametro_get(conexionBD, 'TESSERACTPATH')
+            if RtaBD[0] == "OK":
+                tesseract_cmd = RtaBD[1][0]["valorTexto"]
+                logging.info("-- Ruta Tesseract: {0}".format(tesseract_cmd))
+            else:
+                Is_OK = False
+                logging.error("Error en parametro: TESSERACTPATH (" + RtaBD[1] + ")")
 
     if Is_OK:
         # recupero la imagen a procesar
@@ -380,7 +430,7 @@ def cambiar_tipoimagen(imagenid,imagennombre, imagentipo):
                     logging.error("Error al cambiar el detalle de la imagen {0}-{1} ({2})".format(imagenid,
                                                                                                   nombreImagen,
                                                                                                   conexionBD.error))
-    logging.info("----- Fin del proceso canbio de tipo de imagen -----")
+    logging.info("----- Fin del proceso cambio de tipo de imagen -----")
 
 
 # cambiar_tipoimagen(155,"OTRO")
