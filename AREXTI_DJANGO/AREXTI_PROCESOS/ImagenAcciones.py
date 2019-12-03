@@ -4,7 +4,7 @@ import imghdr
 import datetime
 import sys
 import logging
-from . import RedesNeuronales, ImagenProcesar, Segmentacion, Herramientas, Hashes, Metadatos, BaseDatos
+from AREXTI_PROCESOS import RedesNeuronales, ImagenProcesar, Segmentacion, Herramientas, Hashes, Metadatos, BaseDatos
 # import RedesNeuronales, ImagenProcesar, Segmentacion, Herramientas, Hashes, Metadatos, BaseDatos
 
 
@@ -328,7 +328,7 @@ def cambiar_tipoimagen(imagenid,imagennombre, imagentipo):
 
     if Is_OK:
         # Configuración del Log
-        nombreArchivo = "CambioTipoImagen_{0}-{1}".format(imagenid, imagennombre)
+        nombreArchivo = "CambioTipoImagen_({0}-{1})".format(imagenid, imagennombre)
         logging.basicConfig(handlers=[logging.FileHandler('{0}/{1}.txt'.format(DirAppBase, nombreArchivo), 'a', 'utf-8')],
                             format='%(asctime)s; %(levelname)s; %(message)s',
                             level=logging.INFO,
