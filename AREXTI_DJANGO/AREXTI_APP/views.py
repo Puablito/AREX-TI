@@ -463,10 +463,10 @@ class ImagenEditar(UpdateView):
 
             return render(request, self.template_name, {'imagen': imagen, 'periciaId': imagen.pericia.id})
 
-        call_ChangeImageType.delay(imagen.id, imagen.nombre, tipoImagenId)
+        call_ChangeImageType(imagen.id, imagen.nombre, tipoImagenId)
 
-        messages.success(self.request, 'Exito en la operacion', extra_tags='title')
-        messages.success(self.request, 'Inicia el procesamiento automatico de las imagenes')
+        messages.success(self.request, 'Éxito en la operación', extra_tags='title')
+        messages.success(self.request, 'Inicia el procesamiento automático de las imágenes')
 
         return render(request, 'AREXTI_APP/ImagenListar.html',
                       {'pericia': imagen.pericia, 'periciaId': imagen.pericia.id})
@@ -577,9 +577,10 @@ class ReporteNube(FilteredListView):
         context['fecha'] = parametros['fechacompleta']
         context['pericia'] = parametros['pericia']
         context['pericianombre'] = parametros['periciaNombre']
+        context['proyectoipp'] = parametros['proyectoipp']
         return context
 
-    template_name = 'AREXTI_APP/ReporteNube2.html'
+    template_name = 'AREXTI_APP/ReporteNube.html'
 
 
 class BasicUploadView(View):
@@ -742,9 +743,13 @@ def obtenerParametros(request):
     parametros = dict(request.GET)
     pericia = 0
     pericianombre = ''
+    proyectoipp = ''
     if 'pericia' in parametros:
         pericia = parametros['pericia'][0]
-        pericianombre = Pericia.objects.filter(id=pericia)[0].descripcion
+        if pericia is not None:
+            periciaObjeto = Pericia.objects.get(id=pericia)
+            pericianombre = periciaObjeto.descripcion
+            proyectoipp = periciaObjeto.proyecto.IPP
     tiposfinal = ''
     if 'tipoImagen' in parametros:
         tipos = parametros['tipoImagen']
@@ -774,7 +779,8 @@ def obtenerParametros(request):
                        'detallesfinal': detallesfinal,
                        'metadato':metadato,
                        'valormetadato': valormeta,
-                       'periciaNombre': pericianombre
+                       'periciaNombre': pericianombre,
+                       'proyectoipp': proyectoipp
                        }
     return parametrosfinal
 

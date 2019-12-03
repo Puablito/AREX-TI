@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import TipoImagen, TipoHash, TipoDetalle, Parametros, Metadatos
+from .models import TipoImagen, TipoHash, TipoDetalle, Parametros, Metadatos, Diccionario
 
 
 admin.site.site_header = 'Administrador AREX-TI'
@@ -42,3 +42,9 @@ class TipoImagenAdmin(admin.ModelAdmin):
     list_display = ('id', 'idMetadatoImagen')
     ordering = ('id',)
     search_fields = ('id', 'idMetadatoImagen')
+
+@admin.register(Diccionario)
+class TipoImagenAdmin(admin.ModelAdmin):
+    list_display = ('palabra',)
+    ordering = ('palabra',)
+    search_fields = ('id', 'palabra')

@@ -160,3 +160,11 @@ class UploadFile(models.Model):
     file = models.FileField(max_length=255, upload_to='files/')
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
+class Diccionario(models.Model):
+    palabra = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.palabra
+
+    class Meta:
+        indexes = [models.Index(fields=['palabra'])]
