@@ -7,36 +7,22 @@ from .tasks import getDirectories, call_ChangeImageType, call_ProcessImage
 import os
 from django.http import JsonResponse, HttpResponse
 from django.db.models import Count
-from django.conf import settings
-from django.template import loader
+
 from django.http import HttpResponse, HttpResponseNotFound
-from django.core.files.storage import FileSystemStorage
 import xlwt
 from io import BytesIO
 from reportlab.pdfgen import canvas
-from django.views.generic import TemplateView
-from django.views.generic.detail import SingleObjectMixin
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, View, TemplateView
 from .models import Proyecto, Pericia, Imagen, TipoHash, ImagenHash, ImagenDetalle, ImagenFile, UploadFile, Parametros
 from .forms import ProyectoForm, PericiaForm, ImagenForm, ImagenEditForm, ProyectoConsultaForm, PericiaConsultaForm, \
     ImagenConsultarForm, UploadFileForm
 from .filters import ProyectoFilter, PericiaFilter, ImagenFilter, ReporteFilter
 from . import funcionesdb
-import numpy as np
-from PIL import Image
-from wordcloud import STOPWORDS, WordCloud
-import matplotlib.pyplot as plt
-import io
-import urllib, base64
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import Paragraph
-from reportlab.lib.styles import getSampleStyleSheet
 from datetime import date, datetime
 import locale
-from reportlab.lib.pagesizes import A4
 import itertools
-from random import randint
-from statistics import mean
+
 
 # enumerables
 class messageTitle(Enum):
@@ -808,38 +794,6 @@ def obtenerParametros(request):
                        'proyectoipp': proyectoipp
                        }
     return parametrosfinal
-
-
-def word_cloud(text):
-    # whale_mask = np.array(Image.open("PK_t.png"))
-    stopwords = {'은', '입니다'}
-    plt.figure(figsize=(20, 5))
-    # plt.imshow(whale_mask , cmap = plt.cm.gray , interpolation = 'bilinear')
-    # font_path = 'C:/Users/Jeong Suji/NanumBarunGothic.ttf'
-    wc = WordCloud(background_color='white', max_words=2000,
-                   stopwords=stopwords)
-    # wc = WordCloud(font_path=font_path, background_color='white', max_words=2000, mask=whale_mask,
-    #                stopwords=stopwords)
-    wc = wc.generate(text)
-    plt.figure(figsize=(10, 5))
-    plt.imshow(wc, interpolation='bilinear')
-    plt.axis("off")
-
-    image = io.BytesIO()
-    plt.savefig(image, format='png')
-    image.seek(0)  # rewind the data
-    string = base64.b64encode(image.read())
-
-    image_64 = 'data:image/png;base64,' + urllib.parse.quote(string)
-    return image_64
-
-
-def cloud_gen(request):
-    text = ''
-    for i in ImagenDetalle.objects.all():
-        text += i.texto
-    wordcloud = word_cloud(text)
-    return render(request, 'ReporteNube.html', {'wordcloud': wordcloud})
 
 
 def filecreation(periciaId, periciaName):
