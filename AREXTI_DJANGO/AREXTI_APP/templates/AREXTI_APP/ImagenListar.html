@@ -40,7 +40,7 @@
 
 {% load AREXTItemplatetag %}
 
-<form>
+    <form>
         <div class="form-row">
             <div class="form-group col-md-3">
                 {{ filterset.form.nombre.label_tag }}
@@ -61,8 +61,8 @@
         </div>
         <div class="form-group col-md-3">
             <input type="hidden" name="paginate_by" value={{ numero_paginacion }} />
-            <button type="submit" class="btn btn-primary">Buscar</button>
-            <a class="btn btn-default" href="?{% param_replace page=1 nombre='' extension='' tipoImagen='' hash=''  %}">Limpiar</a>
+            <button type="submit" class="btn btn-primary" title="Buscar imagenes">Buscar</button>
+            <a class="btn btn-default" href="?{% param_replace page=1 nombre='' extension='' tipoImagen='' hash=''  %}" title="Limpiar filtros">Limpiar</a>
         </div>
     </form>
 {% endblock %}
@@ -75,7 +75,7 @@
                 <div class="box-header with-border">
                         <h3 class="box-title"><i class="fa fa-info-circle"></i>&nbsp;Informacion de la pericia</h3>
                         <div class="box-tools pull-right">
-                            <button class="btn btn-box-tool" type="button" data-toggle="collapse" data-target="#collapsePericiaInfo" aria-expanded="true" aria-controls="collapsePericiaInfo">
+                            <button title="minimizar/maximizar" class="btn btn-box-tool" type="button" data-toggle="collapse" data-target="#collapsePericiaInfo" aria-expanded="true" aria-controls="collapsePericiaInfo">
                                 <i class="fa fa-minus"></i>
                             </button>
                         </div>
@@ -109,7 +109,7 @@
 
 {% block tabla_contenido %}
 <div class="form-group col-md-3">
-    <a class="btn btn-success" href="{% url 'ImagenCrear' periciaId %}">Agregar</a>
+    <a title="Agregar imagenes" class="btn btn-success" href="{% url 'ImagenCrear' periciaId %}">Agregar</a>
 </div>
 
 <div class="form-group col-md-3" style="display:flex">
@@ -190,7 +190,7 @@
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <p>Seguro que desea eliminar la imagen {{ imagen.descripcion }}?</p>
+                    <p>Seguro que desea eliminar la imagen {{ imagen.nombre }}?</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-info" data-dismiss="modal">Cancelar</button>
@@ -210,14 +210,14 @@
 {% endblock %}
 
 {% block tabla_paginacion %}
-<li class="page-item disabled">
-    <span class="page-link">Previous</span>
-</li>
-<li class="page-item"><a class="page-link" href="#">1</a></li>
-<li class="page-item active" aria-current="page">
-    <span class="page-link">2<span class="sr-only">(current)</span></span></li>
-<li class="page-item"><a class="page-link" href="#">3</a></li>
-<li class="page-item">
-                            <a class="page-link" href="#">Next</a>
-                        </li>
+    <li class="page-item disabled">
+        <span class="page-link">Previous</span>
+    </li>
+    <li class="page-item"><a class="page-link" href="#">1</a></li>
+    <li class="page-item active" aria-current="page">
+        <span class="page-link">2<span class="sr-only">(current)</span></span></li>
+    <li class="page-item"><a class="page-link" href="#">3</a></li>
+    <li class="page-item">
+        <a class="page-link" href="#">Next</a>
+    </li>
 {% endblock %}
