@@ -34,8 +34,8 @@ Proyectos
         </div>
         <div class="form-group col-md-4">
             <input type="hidden" name="paginate_by" value={{ numero_paginacion }} />
-            <button type="submit" class="btn btn-primary">Buscar</button>
-            <a class="btn btn-default" href="?{% param_replace page=1 IPP='' descripcion='' fiscalia='' %}">Limpiar</a>
+            <button type="submit" class="btn btn-primary" title="Buscar proyectos">Buscar</button>
+            <a class="btn btn-default" href="?{% param_replace page=1 IPP='' descripcion='' fiscalia='' %}" title="Limpiar filtros">Limpiar</a>
         </div>
 
     </form>
@@ -49,7 +49,7 @@ Proyectos
 
 {% block tabla_contenido %}
 <div class="form-group col-md-4">
-    <a class="btn btn-success" href="{% url 'ProyectoCrear' %}">Agregar</a>
+    <a title="Agregar un nuevo proyecto" class="btn btn-success" href="{% url 'ProyectoCrear' %}">Agregar</a>
 </div>
 <div class="form-group col-md-4" style="display:flex">
     <label>Proyectos por página: </label>&nbsp;
@@ -98,7 +98,7 @@ Proyectos
         <td>{{proyecto.IPP}}</td>
         <td>
             <div class="cl-effect-1">
-                <a class="link" href="{% url 'ProyectoConsultar' proyecto.id %}">
+                <a title="Ver proyecto" class="link" href="{% url 'ProyectoConsultar' proyecto.id %}">
                     {{proyecto.descripcion}}
                 </a>
             </div>
