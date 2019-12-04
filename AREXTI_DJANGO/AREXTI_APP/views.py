@@ -433,7 +433,7 @@ class ImagenCrear(CreateView):
             return render(request, self.template_name, contexto)
 
         if fromTab == CreateTabs.Directorio.value:
-            call_ProcessImage(perid, pericia.descripcion, fromTab, url, hashesDirectorioId)
+            call_ProcessImage(periciaid=perid, periciaNombre=pericia.descripcion, tipoProceso=fromTab, DirPrincipal=url, listaHash=hashesDirectorioId)
         else:
             call_ProcessImage(perid, pericia.descripcion, fromTab, pericia.directorio, hashesDirectorioId)
 
