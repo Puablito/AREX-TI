@@ -139,8 +139,7 @@ Pericias
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-info" data-dismiss="modal">Cancelar</button>
-                    <!--<a class="btn btn-danger" href="{% url 'PericiaEliminar' pericia.id %}">Eliminar</a>-->
-                    <button class="btn btn-danger" onclick="window.location.href='{% url 'PericiaEliminar' pericia.id %}'">Eliminar</button>
+                    <button class="btn btn-danger" onclick="window.location.href='{% url 'PericiaEliminar' pericia.id proyectoId %}'">Eliminar</button>
                 </div>
             </div>
         </div>

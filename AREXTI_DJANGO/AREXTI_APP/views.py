@@ -259,7 +259,7 @@ class PericiaEditar(UpdateView):
         return context
 
 
-def PericiaEliminar(request, Periciaid):
+def PericiaEliminar(request, Periciaid, Proyectoid):
     # model = Proyecto
     if Periciaid:
         # PRIMERO ELIMINACION LOGICA DE IMAGENES CORRESPONDIENTES A LA PERICIA
@@ -271,7 +271,7 @@ def PericiaEliminar(request, Periciaid):
         per.activo = 0
         per.save()
         pro = per.proyecto.id
-    return redirect('PericiaListar', Proyectoid=pro)
+    return redirect('PericiaListar', Proyectoid=Proyectoid)
 
 
 class PericiaConsultar(UpdateView):
@@ -515,7 +515,7 @@ class ReporteOcurrencia(FilteredListView):
         if 'reporte' in self.request.GET:
             if self.request.GET['reporte'] == 'xls':
                 # self.request.path = '/export/xls/'
-                return export_imagenes_xls(self.request, 'ocurrencia')
+                return export_imagenes_xls(self.request, 'ocurrencias')
             if self.request.GET['reporte'] == 'pdf':
                 # self.request.path = 'export/pdf/'
                 return write_pdf_view(self.request)
@@ -541,6 +541,8 @@ class ReporteOcurrencia(FilteredListView):
         if paginacion == None:
             paginacion = 5
         context['numero_paginacion'] = int(paginacion)
+        if len(self.request.GET) > 0:
+            context['mensaje'] = 'ok'
         return context
 
     template_name = 'AREXTI_APP/ReporteOcurrencia.html'
@@ -594,6 +596,8 @@ class ReporteNube(FilteredListView):
         context['pericianombre'] = parametros['periciaNombre']
         context['proyectoipp'] = parametros['proyectoipp']
         context['fechahora'] = parametros['fechaHora']
+        if len(self.request.GET) > 0:
+            context['mensaje'] = 'ok'
         return context
 
     template_name = 'AREXTI_APP/ReporteNube.html'
@@ -628,11 +632,13 @@ def export_imagenes_xls(request, reporte):
         resultados = funcionesdb.consulta('ocurrencias', [params['palabra'], params['pericia'], params['tiposfinal'],
                                                           params['detallesfinal'], params['metadato'],
                                                           params['valormetadato']], False)
+        mensaje = ' coincidencias'
         response['Content-Disposition'] = 'attachment; filename="Reporte Ocurrencias "' + params['fechaHora'] + '".xls"'
     if reporte == 'nube':
         resultados = funcionesdb.consulta('nube', [params['pericia'], params['tiposfinal'],
                                                   params['detallesfinal'], params['metadato'],
                                                   params['valormetadato']], False)
+        mensaje = ' palabras'
         response['Content-Disposition'] = 'attachment; filename="Reporte Nube de palabras "' + params['fechaHora'] + '".xls"'
 
 
@@ -698,7 +704,7 @@ def export_imagenes_xls(request, reporte):
             for col_num in range(len(resultados[0]) - 1):
                 ws.write_merge(row_num, row_num, col_num * 2, col_num * 2 + 1, resultados[0][col_num], font_style_detalles)
     else:
-        ws.write_merge(10, 11, 0, 4, 'No se encontraron coincidencias', font_style_titulos)
+        ws.write_merge(10, 11, 0, 4, 'No se encontraron' + mensaje, font_style_titulos)
     wb.save(response)
     return response
 
@@ -718,7 +724,7 @@ def write_pdf_view(request):
     imagenes = funcionesdb.consulta('ocurrencias', [params['palabra'], params['pericia'], params['tiposfinal'],
                                                     params['detallesfinal'], params['metadato'], params['valormetadato']])
 
-    logo = 'C:/Users/Mariano-Dell/Desktop/Tesis/Logo22.jpg'
+    logo = 'AREXTI_APP/static/image/Logo programa.jpg'
     w, h = letter
     max_rows_per_page = 30
     # Margenes.
