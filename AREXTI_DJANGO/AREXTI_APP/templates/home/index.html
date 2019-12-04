@@ -44,29 +44,29 @@
 <div class="wrapper" style="height: auto; min-height: 100%;">
 
   <header class="main-header bg-black">
-    <!-- Logo -->
-    <a href="/" class="logo">
-      <!-- mini logo for sidebar mini 50x50 pixels -->
-      <span class="logo-mini">A-TI</span>
-      <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg">AREX-TI</span>
-    </a>
-    <!-- Header Navbar: style can be found in header.less -->
-    <nav class="navbar navbar-static-top">
-      <!-- Sidebar toggle button-->
-      <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+    <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
         <span class="sr-only">Toggle navigation</span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </a>
 
+    <!-- Logo -->
+    <a href="/" class="logo">
+      <img src="{% static '/image/MP1.png'%}" class="img-responsive center-block"  style="height: 50px;">
+    </a>
+
+    <!-- Header Navbar: style can be found in header.less -->
+    <nav class="navbar navbar-static-top">
+      <!-- Sidebar toggle button-->
+
+
       <div class="navbar-custom-menu">
         <ul class="nav navbar-nav">
           <!-- User Account: style can be found in dropdown.less -->
           <li class="dropdown user user-menu">
             <a href="{% url 'admin:index' %}">
-              <img src="{% static '/image/Logo.jpg'%}" class="user-image" alt="User Image">
+              <img src="{% static '/image/Logo.png'%}" class="user-image" alt="User Image">
               <span class="hidden-xs">Admin</span>
             </a>
           </li>
@@ -129,8 +129,8 @@
 
     {% block principal %}
       <section class="content-header">
-      <div class="square">
-            <img src="{% static '/image/logoHome.png'%}">
+        <div style="margin-top: 10%;" >
+            <img class="img-responsive center-block" src="{% static '/image/logoHome.png'%}">
         </div>
       </section>
     {% endblock %}
