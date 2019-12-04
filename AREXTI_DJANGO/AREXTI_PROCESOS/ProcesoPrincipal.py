@@ -8,7 +8,7 @@ from multiprocessing import Process, Queue
 
 
 def proceso_Principal(periciaid, periciaNombre, tipoProceso, DirPrincipal, listaHash):
-    if __name__ == '__main__':
+    if __name__ == 'AREXTI_PROCESOS.ProcesoPrincipal':
         Is_OK = True
 
         # Crea la carpeta Logs
@@ -209,16 +209,16 @@ def proceso_Principal(periciaid, periciaNombre, tipoProceso, DirPrincipal, lista
             print("Todos los procesos han terminado")
 
 
-## para ejecutarlo desde consola descomentar
-periciaid = 1
-periciaNombre = "Celular 4"
-tipoProceso = "A"
-listaHash = ['SHA1', 'MD5', 'SHA256']
-
-#Mariano
-# DirPrincipal = "Todas"
-
-#Pablo
-# DirPrincipal = r"PericiaPrueba\Dir2"
-DirPrincipal = "CapturasPablo"
-proceso_Principal(periciaid, periciaNombre, tipoProceso, DirPrincipal, listaHash)
+# ## para ejecutarlo desde consola descomentar
+# periciaid = 1
+# periciaNombre = "Celular 4"
+# tipoProceso = "A"
+# listaHash = ['SHA1', 'MD5', 'SHA256']
+#
+# #Mariano
+# # DirPrincipal = "Todas"
+#
+# #Pablo
+# # DirPrincipal = r"PericiaPrueba\Dir2"
+# DirPrincipal = "CapturasPablo"
+# proceso_Principal(periciaid, periciaNombre, tipoProceso, DirPrincipal, listaHash)

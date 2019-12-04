@@ -515,7 +515,7 @@ class ReporteOcurrencia(FilteredListView):
         if 'reporte' in self.request.GET:
             if self.request.GET['reporte'] == 'xls':
                 # self.request.path = '/export/xls/'
-                return export_imagenes_xls(self.request)
+                return export_imagenes_xls(self.request, 'ocurrencia')
             if self.request.GET['reporte'] == 'pdf':
                 # self.request.path = 'export/pdf/'
                 return write_pdf_view(self.request)
@@ -549,21 +549,25 @@ class ReporteOcurrencia(FilteredListView):
 class ReporteNube(FilteredListView):
     filterset_class = ReporteFilter
 
-    # def get(self, request, *args, **kwargs):
-    #     parametros = obtenerParametros(self.request)
-    #     palabras = funcionesdb.consulta('nube', [parametros['pericia'], parametros['tiposfinal'],
-    #                                              parametros['detallesfinal'], parametros['metadato'],
-    #                                              parametros['valormetadato']])
-    #     palabrasfinal = []
-    #     for palabra in palabras:
-    #         palabrasfinal.append([palabra['palabra'], str(palabra['total'])])
-    #     # context['nube'] = palabrasfinal
-    #     contexto = {
-    #         'nube': palabrasfinal,
-    #
-    #     }
-    #
-    #     return render(request, self.template_name, contexto)
+    def get(self, request, *args, **kwargs):
+        if 'reporte' in self.request.GET:
+            return export_imagenes_xls(self.request, 'nube')
+        else:
+            return super().get(request, *args, **kwargs)
+        # parametros = obtenerParametros(self.request)
+        # palabras = funcionesdb.consulta('nube', [parametros['pericia'], parametros['tiposfinal'],
+        #                                          parametros['detallesfinal'], parametros['metadato'],
+        #                                          parametros['valormetadato']])
+        # palabrasfinal = []
+        # for palabra in palabras:
+        #     palabrasfinal.append([palabra['palabra'], str(palabra['total'])])
+        # # context['nube'] = palabrasfinal
+        # contexto = {
+        #     'nube': palabrasfinal,
+        #
+        # }
+
+        return render(request, self.template_name, contexto)
 
 
     def get_queryset(self):
@@ -589,6 +593,7 @@ class ReporteNube(FilteredListView):
         context['pericia'] = parametros['pericia']
         context['pericianombre'] = parametros['periciaNombre']
         context['proyectoipp'] = parametros['proyectoipp']
+        context['fechahora'] = parametros['fechaHora']
         return context
 
     template_name = 'AREXTI_APP/ReporteNube.html'
@@ -616,17 +621,24 @@ class BasicUploadView(View):
         return JsonResponse(data)
 
 
-def export_imagenes_xls(request):
+def export_imagenes_xls(request, reporte):
     params = obtenerParametros(request)
-
-    resultados = funcionesdb.consulta('ocurrencias', [params['palabra'], params['pericia'], params['tiposfinal'],
-                                                      params['detallesfinal'], params['metadato'],
-                                                      params['valormetadato']], False)
     response = HttpResponse(content_type='application/ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="Reporte Ocurrencias "' + params['fechaHora'] + '".xls"'
+    if reporte == 'ocurrencias':
+        resultados = funcionesdb.consulta('ocurrencias', [params['palabra'], params['pericia'], params['tiposfinal'],
+                                                          params['detallesfinal'], params['metadato'],
+                                                          params['valormetadato']], False)
+        response['Content-Disposition'] = 'attachment; filename="Reporte Ocurrencias "' + params['fechaHora'] + '".xls"'
+    if reporte == 'nube':
+        resultados = funcionesdb.consulta('nube', [params['pericia'], params['tiposfinal'],
+                                                  params['detallesfinal'], params['metadato'],
+                                                  params['valormetadato']], False)
+        response['Content-Disposition'] = 'attachment; filename="Reporte Nube de palabras "' + params['fechaHora'] + '".xls"'
+
+
 
     wb = xlwt.Workbook(encoding='utf-8')
-    ws = wb.add_sheet('Imágenes')
+    ws = wb.add_sheet(reporte)
 
     # Sheet header, first row
     row_num = 0
@@ -639,16 +651,22 @@ def export_imagenes_xls(request):
     pattern.pattern_fore_colour = xlwt.Style.colour_map['gray25']
     font_style_cabecera.pattern = pattern
 
-    columns = ['Id', '', 'Tipo Imagen', '', 'Nombre', '', 'Extensión', '', 'Hash MD5', '', 'Hash SHA1', '',
-               'Hash SHA256', '', 'Ocurrencias']
+    if reporte == 'ocurrencias':
+        columns = ['Id', '', 'Tipo Imagen', '', 'Nombre', '', 'Extensión', '', 'Hash MD5', '', 'Hash SHA1', '',
+                   'Hash SHA256', '', 'Ocurrencias']
+        if resultados:
+            total_ocu = str(resultados[0][8])
+        else:
+            total_ocu = ''
+    if reporte == 'nube':
+        columns = ['Palabra', '', 'Ocurrencias']
     ws.write_merge(row_num, row_num + 1, 0, 3, 'Fecha: ' + params['fechacompleta'], font_style_cabecera)
     ws.write_merge(row_num + 2, row_num + 3, 0, 3, 'Pericia: ' + params['pericia'] + ' - ' + params['periciaNombre'], font_style_cabecera)
-    ws.write_merge(row_num + 2, row_num + 3, 4, 6, 'Palabra: ' + params['palabra'], font_style_cabecera)
-    if resultados:
-        total_ocu = str(resultados[0][8])
-    else:
-        total_ocu = ''
-    ws.write_merge(row_num + 2, row_num + 3, 7, 9, 'Total Ocurrencias: ' + total_ocu, font_style_cabecera)
+    if reporte == 'ocurrencias':
+        ws.write_merge(row_num + 2, row_num + 3, 4, 6, 'Palabra: ' + params['palabra'], font_style_cabecera)
+
+    if reporte == 'ocurrencias':
+        ws.write_merge(row_num + 2, row_num + 3, 7, 9, 'Total Ocurrencias: ' + total_ocu, font_style_cabecera)
     row_num = 5
     font_style_titulos = xlwt.XFStyle()
     font_style_titulos.font.bold = True
@@ -669,7 +687,11 @@ def export_imagenes_xls(request):
         if len(resultados) > 1:
             for imagen in resultados:
                 row_num += 1
-                for col_num in range(len(imagen) - 1):
+                if reporte == 'ocurrencias':
+                    cantidad = range(len(imagen) - 1)
+                else:
+                    cantidad = range(len(imagen))
+                for col_num in cantidad:
                     ws.write_merge(row_num, row_num, col_num * 2, col_num * 2 + 1, imagen[col_num], font_style_detalles)
         else:
             row_num += 1

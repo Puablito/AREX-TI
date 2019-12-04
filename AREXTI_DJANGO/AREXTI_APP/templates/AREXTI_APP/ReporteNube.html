@@ -94,6 +94,11 @@
                                     <div class="form-group col-md-4">
                                         <button type="submit" class="btn btn-primary">Generar</button>
                                     </div>
+                                    <div class="form-group col-md-3">
+                                        <button class="btn btn-success" type="submit" name="reporte" value="xls"/>
+                                            <i class="fa fa-file-excel-o" style="font-size: larger"></i>
+                                        </button>
+                                    </div>
                                 </form>
                             {% endblock %}
                             <!--<button type="button" class="btn btn-primary pull-right">Buscar</button>-->
@@ -164,7 +169,7 @@
                                                 }
                                             }
                                         },
-                                        filename: 'Nube de palabras ',
+                                        filename: '{{ pericianombre }}_' + '{{ fechahora }}',
                                         fallbackToExportServer: false,
                                         {#menuItemDefinitions: {#}
                                         buttons: {
