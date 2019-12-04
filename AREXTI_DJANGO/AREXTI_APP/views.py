@@ -1,41 +1,28 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.contrib import messages
+from django.db import transaction, IntegrityError
 from enum import Enum
 from .tasks import getDirectories, call_ChangeImageType, call_ProcessImage
 import os
 from django.http import JsonResponse, HttpResponse
 from django.db.models import Count
-from django.conf import settings
-from django.template import loader
+
 from django.http import HttpResponse, HttpResponseNotFound
-from django.core.files.storage import FileSystemStorage
 import xlwt
 from io import BytesIO
 from reportlab.pdfgen import canvas
-from django.views.generic import TemplateView
-from django.views.generic.detail import SingleObjectMixin
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, View, TemplateView
 from .models import Proyecto, Pericia, Imagen, TipoHash, ImagenHash, ImagenDetalle, ImagenFile, UploadFile, Parametros
 from .forms import ProyectoForm, PericiaForm, ImagenForm, ImagenEditForm, ProyectoConsultaForm, PericiaConsultaForm, \
     ImagenConsultarForm, UploadFileForm
 from .filters import ProyectoFilter, PericiaFilter, ImagenFilter, ReporteFilter
 from . import funcionesdb
-import numpy as np
-from PIL import Image
-from wordcloud import STOPWORDS, WordCloud
-import matplotlib.pyplot as plt
-import io
-import urllib, base64
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import Paragraph
-from reportlab.lib.styles import getSampleStyleSheet
 from datetime import date, datetime
 import locale
-from reportlab.lib.pagesizes import A4
 import itertools
-from random import randint
-from statistics import mean
+
 
 # enumerables
 class messageTitle(Enum):
@@ -210,9 +197,24 @@ class PericiaCrear(CreateView):
     pericia = None
 
     def form_valid(self, form):
-        self.pericia = form.save()
-        messages.success(self.request, messageTitle.Alta.value, extra_tags='title')
-        return redirect(self.get_success_url())
+        try:
+            with transaction.atomic():
+                self.pericia = form.save()
+                #actualizo y creo el directorio para la pericia
+                pericia2 = get_object_or_404(Pericia, pk=self.pericia.id)
+
+                directorio = filecreation(pericia2.id, pericia2.descripcion)
+
+                Pericia.objects.filter(pk=pericia2.pk).update(directorio=directorio)
+
+                messages.success(self.request, messageTitle.Alta.value, extra_tags='title')
+            return redirect(self.get_success_url())
+        except IntegrityError:
+            messages.error(self.request, 'Error al crear la pericia', extra_tags='title')
+            messages.error(self.request, 'no pudo crearse el directorio')
+            ctx = {'form': form,
+                   'proyectoId': self.pericia.proyecto.id}
+            return render(self.request, self.template_name, ctx)
 
     def form_invalid(self, form):
         ctx = {'form': form}
@@ -351,9 +353,18 @@ class ImagenCrear(CreateView):
 
         photos_list = UploadFile.objects.filter(periciaId=perid)
         directorioBase = Parametros.objects.get(id=ParametroSistema.DirectorioBase.value)
+        directorioPericia = pericia.directorio
+        path = None
+        directorios = None
 
-        path = os.path.join(directorioBase.valorTexto, pericia.directorio)
-        directorios = getDirectories(path, "", 1)
+        if directorioPericia != '':
+            path = os.path.join(directorioBase.valorTexto, pericia.directorio)
+            directorios = getDirectories(path, "", 1)
+        else:
+            messages.warning(self.request, 'Problema encontrado', extra_tags='title')
+            messages.warning(self.request, 'La carpeta de la imagen no ha podido ser identificada.'
+                                           ' Verifique que la misma exista', extra_tags='safe')
+
         contexto = {
             'tipoHashes': queryset,
             'activeTab': activeTab,
@@ -362,6 +373,7 @@ class ImagenCrear(CreateView):
             'photos': photos_list,
             'archivoTab': "A",
             'directorioTab': "D",
+            'pepe': directorios,
         }
 
         return render(request, self.template_name, contexto)
@@ -421,15 +433,14 @@ class ImagenCrear(CreateView):
             return render(request, self.template_name, contexto)
 
         if fromTab == CreateTabs.Directorio.value:
-            call_ProcessImage(perid, pericia.descripcion, fromTab, url, hashesId)
+            call_ProcessImage(perid, pericia.descripcion, fromTab, url, hashesDirectorioId)
         else:
-            call_ProcessImage(perid, pericia.descripcion, fromTab, pericia.directorio, hashesId)
+            call_ProcessImage(perid, pericia.descripcion, fromTab, pericia.directorio, hashesDirectorioId)
 
         messages.success(self.request, 'Exito en la operacion', extra_tags='title')
         messages.success(self.request, 'Inicia el procesamiento automatico de las imagenes')
 
-        return render(request, 'AREXTI_APP/ImagenListar.html',
-                      {'pericia': pericia, 'periciaId': perid})  # deberia llamar al imagenListar
+        return render(request, 'AREXTI_APP/ImagenListar.html', {'pericia': pericia, 'periciaId': perid})
 
 
 class ImagenEditar(UpdateView):
@@ -463,10 +474,10 @@ class ImagenEditar(UpdateView):
 
             return render(request, self.template_name, {'imagen': imagen, 'periciaId': imagen.pericia.id})
 
-        call_ChangeImageType.delay(imagen.id, imagen.nombre, tipoImagenId)
+        call_ChangeImageType(imagen.id, imagen.nombre, tipoImagenId)
 
-        messages.success(self.request, 'Exito en la operacion', extra_tags='title')
-        messages.success(self.request, 'Inicia el procesamiento automatico de las imagenes')
+        messages.success(self.request, 'Éxito en la operación', extra_tags='title')
+        messages.success(self.request, 'Inicia el procesamiento automático de las imágenes')
 
         return render(request, 'AREXTI_APP/ImagenListar.html',
                       {'pericia': imagen.pericia, 'periciaId': imagen.pericia.id})
@@ -538,6 +549,23 @@ class ReporteOcurrencia(FilteredListView):
 class ReporteNube(FilteredListView):
     filterset_class = ReporteFilter
 
+    # def get(self, request, *args, **kwargs):
+    #     parametros = obtenerParametros(self.request)
+    #     palabras = funcionesdb.consulta('nube', [parametros['pericia'], parametros['tiposfinal'],
+    #                                              parametros['detallesfinal'], parametros['metadato'],
+    #                                              parametros['valormetadato']])
+    #     palabrasfinal = []
+    #     for palabra in palabras:
+    #         palabrasfinal.append([palabra['palabra'], str(palabra['total'])])
+    #     # context['nube'] = palabrasfinal
+    #     contexto = {
+    #         'nube': palabrasfinal,
+    #
+    #     }
+    #
+    #     return render(request, self.template_name, contexto)
+
+
     def get_queryset(self):
         queryset = None
         self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
@@ -554,7 +582,13 @@ class ReporteNube(FilteredListView):
         palabrasfinal = []
         for palabra in palabras:
             palabrasfinal.append([palabra['palabra'], str(palabra['total'])])
+        if palabrasfinal.__len__() == 0:
+            palabrasfinal = None
         context['nube'] = palabrasfinal
+        context['fecha'] = parametros['fechacompleta']
+        context['pericia'] = parametros['pericia']
+        context['pericianombre'] = parametros['periciaNombre']
+        context['proyectoipp'] = parametros['proyectoipp']
         return context
 
     template_name = 'AREXTI_APP/ReporteNube.html'
@@ -662,7 +696,7 @@ def write_pdf_view(request):
     imagenes = funcionesdb.consulta('ocurrencias', [params['palabra'], params['pericia'], params['tiposfinal'],
                                                     params['detallesfinal'], params['metadato'], params['valormetadato']])
 
-    logo = 'C:/Users/Mariano-Dell/Desktop/Tesis/Logo2.jpg'
+    logo = 'C:/Users/Mariano-Dell/Desktop/Tesis/Logo22.jpg'
     w, h = letter
     max_rows_per_page = 30
     # Margenes.
@@ -671,7 +705,7 @@ def write_pdf_view(request):
     # Espacio entre filas.
     padding = 20
     # p.drawImage(archivo_imagen, 20, h - 300, 300, 300, preserveAspectRatio=True)
-    p.drawImage(logo, 40, h - 100, width=100, height=75, preserveAspectRatio=True)
+    p.drawImage(logo, 5, h - 125, width=150, height=100, preserveAspectRatio=True)
     texto = p.beginText(150, h - 55)
     # texto.setFont("Times-Roman", 16)
     texto.textLine("Fecha: " + params['fechacompleta'])
@@ -718,7 +752,15 @@ def obtenerParametros(request):
     locale.setlocale(locale.LC_TIME, '')
     fecha = datetime.now()
     parametros = dict(request.GET)
-    pericia = parametros['pericia'][0]
+    pericia = 0
+    pericianombre = ''
+    proyectoipp = ''
+    if 'pericia' in parametros:
+        pericia = parametros['pericia'][0]
+        if pericia is not None:
+            periciaObjeto = Pericia.objects.get(id=pericia)
+            pericianombre = periciaObjeto.descripcion
+            proyectoipp = periciaObjeto.proyecto.IPP
     tiposfinal = ''
     if 'tipoImagen' in parametros:
         tipos = parametros['tipoImagen']
@@ -733,46 +775,36 @@ def obtenerParametros(request):
     if 'texto' in parametros:
         texto = parametros['texto'][0]
 
-    parametrosfinal = {'fechacompleta': fecha.strftime("%d " + "de " + "%B, %Y"),
+    metadato = ''
+    if 'metadato' in parametros:
+        metadato = parametros['metadato'][0]
+    valormeta = ''
+    if 'valormeta' in parametros:
+        valormeta = parametros['valormeta'][0]
+
+    parametrosfinal = {'fechacompleta': fecha.strftime("%d " + "de " + "%B de %Y"),
                        'fechaHora': fecha.strftime("%d_%m_%Y_%H%M%S"),
                        'palabra': texto,
-                       'pericia': parametros['pericia'][0],
+                       'pericia': pericia,
                        'tiposfinal': tiposfinal,
                        'detallesfinal': detallesfinal,
-                       'metadato': parametros['metadato'][0],
-                       'valormetadato': parametros['valormeta'][0],
-                       'periciaNombre': Pericia.objects.filter(id=pericia)[0].descripcion
+                       'metadato':metadato,
+                       'valormetadato': valormeta,
+                       'periciaNombre': pericianombre,
+                       'proyectoipp': proyectoipp
                        }
     return parametrosfinal
 
 
-def word_cloud(text):
-    # whale_mask = np.array(Image.open("PK_t.png"))
-    stopwords = {'은', '입니다'}
-    plt.figure(figsize=(20, 5))
-    # plt.imshow(whale_mask , cmap = plt.cm.gray , interpolation = 'bilinear')
-    # font_path = 'C:/Users/Jeong Suji/NanumBarunGothic.ttf'
-    wc = WordCloud(background_color='white', max_words=2000,
-                   stopwords=stopwords)
-    # wc = WordCloud(font_path=font_path, background_color='white', max_words=2000, mask=whale_mask,
-    #                stopwords=stopwords)
-    wc = wc.generate(text)
-    plt.figure(figsize=(10, 5))
-    plt.imshow(wc, interpolation='bilinear')
-    plt.axis("off")
+def filecreation(periciaId, periciaName):
+    parametro = Parametros.objects.get(id=ParametroSistema.DirectorioBase.value)
+    directorioPericia = '{}-{}-{}'.format(periciaId, periciaName, datetime.now().strftime('%Y%m%d%H%M%S'))
+    mydir = os.path.join(parametro.valorTexto, directorioPericia)
+    try:
+        os.makedirs(mydir)
+    except OSError as e:
+        return None
+        # if e.errno != errno.EEXIST:
+        #     error = e.errno
 
-    image = io.BytesIO()
-    plt.savefig(image, format='png')
-    image.seek(0)  # rewind the data
-    string = base64.b64encode(image.read())
-
-    image_64 = 'data:image/png;base64,' + urllib.parse.quote(string)
-    return image_64
-
-
-def cloud_gen(request):
-    text = ''
-    for i in ImagenDetalle.objects.all():
-        text += i.texto
-    wordcloud = word_cloud(text)
-    return render(request, 'ReporteNube.html', {'wordcloud': wordcloud})
+    return directorioPericia

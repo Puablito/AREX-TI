@@ -433,4 +433,4 @@ def cambiar_tipoimagen(imagenid,imagennombre, imagentipo):
     logging.info("----- Fin del proceso cambio de tipo de imagen -----")
 
 
-# cambiar_tipoimagen(155,"OTRO")
+# cambiar_tipoimagen(374,'mail 2.png',"OTRO")
