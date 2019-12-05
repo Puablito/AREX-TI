@@ -115,11 +115,11 @@
 </div>
 <thead class="thead-dark" >
     <tr>
-        <th># Ocurrencias</th>
+        <th style="min-width: 150px;"># Ocurrencias</th>
         <th style="width: 10px"></th>
         <th style="text-align:center;">Imagen</th>
-        <th style="width: 100px">Extensión</th>
-        <th style="width: 120px">Tipo Imagen</th>
+        <th style="min-width: 100px">Extensión</th>
+        <th style="min-width: 120px">Tipo Imagen</th>
         <th style="text-align:center;">Hash/es</th>
     </tr>
 </thead>
@@ -147,9 +147,9 @@
                     <tr>
                         {% for tipoHash in tipoHashes %}
                             {% if tipoHash|img_hash_tags2:imagen.imagenid is None %}
-                                <td class="td_hash">&nbsp;</td>
+                                <td style="min-width: 80px;" class="td_hash">&nbsp;</td>
                             {% else %}
-                                <td class="td_hash">
+                                <td style="min-width: 80px;" class="td_hash">
                                     <a type="button" class="btn btn-hash" style="background-color:{{tipoHash.color}}; border-color:{{tipoHash.color}};" data-toggle="tooltipHash" data-original-title="{{tipoHash|img_hash_tags2:imagen.imagenid}}" data-trigger="click">
                                         {{tipoHash.id}}
                                     </a>

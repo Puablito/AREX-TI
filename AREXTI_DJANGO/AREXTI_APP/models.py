@@ -4,7 +4,7 @@ from django.db import models
 
 class Proyecto(models.Model):
     IPP = models.CharField(max_length=20, unique=True)
-    descripcion = models.CharField(max_length=500)
+    descripcion = models.CharField(max_length=500, blank=True)
     fiscalia = models.CharField(max_length=100, blank=True)
     responsable = models.CharField(max_length=60, blank=True)
     defensoria = models.CharField(max_length=100, blank=True)
@@ -23,7 +23,7 @@ class Proyecto(models.Model):
 
 class Pericia(models.Model):
     tiposPericia = (
-        ('Movil', 'Movil'),
+        ('Pericia', 'Pericia'),
         ('Investigacion', 'Investigacion'),
         ('Otro', 'Otro'),
     )
