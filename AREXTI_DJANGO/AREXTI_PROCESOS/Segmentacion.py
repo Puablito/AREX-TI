@@ -302,5 +302,5 @@ class ExtraccionTexto:
         pytesseract.pytesseract.tesseract_cmd = tesseract_cmd  # Cachear excepcion
 
     def extraerTexto(self, img):
-        texto = pytesseract.image_to_string(img)
+        texto = pytesseract.image_to_string(img) # lang='spa_old' 'spa'
         return texto

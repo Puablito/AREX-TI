@@ -435,7 +435,7 @@ class ImagenCrear(CreateView):
         if fromTab == CreateTabs.Directorio.value:
             call_ProcessImage(periciaid=perid, periciaNombre=pericia.descripcion, tipoProceso=fromTab, DirPrincipal=url, listaHash=hashesDirectorioId)
         else:
-            call_ProcessImage(perid, pericia.descripcion, fromTab, pericia.directorio, hashesDirectorioId)
+            call_ProcessImage(perid, pericia.descripcion, fromTab, pericia.directorio, hashesArchivoId)
 
         messages.success(self.request, 'Exito en la operacion', extra_tags='title')
         messages.success(self.request, 'Inicia el procesamiento automatico de las imagenes')
