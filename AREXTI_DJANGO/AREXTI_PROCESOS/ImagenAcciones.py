@@ -54,16 +54,8 @@ def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tip
                        Si hay, se divide el nombre del archivo, en subpath y nombre 
                        Ej file/foto.jpg --> directorioTem = file -- archivoTemp = foto.jpg
                 """
-                x = r["file"].rfind(os.path.sep)
-                if x == -1:
-                    archivoTemp    = r["file"]
-                    directorioTemp = ""
-                else:
-                    archivoTemp    = r["file"][x+1:]
-                    directorioTemp = r["file"][:x]
-
-                directorioTemp = DirTemp + os.path.sep + directorioTemp
-                archivoAnalizar = directorioTemp + os.path.sep + archivoTemp
+                archivoTemp = r["file"]
+                archivoAnalizar = DirTemp + os.path.sep + r["file"]
 
                 try:
                     # Identifico si "archivoAnalizar" es imagen por el contenido y NO por la extensión
@@ -71,7 +63,7 @@ def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tip
                         ext = imghdr.what(archivoAnalizar)
                         if ext.upper() in ListadoExtensiones:
                             # listado de todas las imagenes del directorio temporal
-                            ImagenesDirTemp.append([directorioTemp, archivoTemp, ext])
+                            ImagenesDirTemp.append([DirTemp, archivoTemp, ext])
 
                 except Exception as e:
                     resultadoOK = False
