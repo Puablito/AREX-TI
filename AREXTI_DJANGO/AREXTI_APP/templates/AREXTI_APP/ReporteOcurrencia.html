@@ -102,7 +102,7 @@
 {% endblock %}
 
 {% block tabla_contenido %}
-<div class="form-group col-md-3"> # total de ocurrencias: {{object_list.0.suma_total_ocu}}</div>
+<div class="form-group col-md-4"> # total de ocurrencias: {{object_list.0.suma_total_ocu}} {% if cant_imagenes > 0 %} en {{cant_imagenes}} imágenes {% endif %}</div>
 <div class="form-group col-md-4" style="display:flex">
     <label>Imágenes por página: </label>&nbsp;
     <select name="paginate_by" onchange="location = this.value;" style="width:15%;text-align-last:center">
@@ -116,6 +116,7 @@
 <thead class="thead-dark" >
     <tr>
         <th># Ocurrencias</th>
+        <th style="width: 10px"></th>
         <th style="text-align:center;">Imagen</th>
         <th style="width: 100px">Extensión</th>
         <th style="width: 120px">Tipo Imagen</th>
@@ -128,6 +129,10 @@
         <tr>
             <td style="display:none;">{{imagen.imagenid}}</td>
             <td>{{imagen.total_ocurrencias}}</td>
+            <td>
+{#            {{imagen.miniatura}}#}
+                <img src= "../../static/image/thumbnail.png">
+            </td>
             <td>
                 <div class="cl-effect-1">
                 <a class="link" href="{% url 'ImagenConsultar' imagen.imagenid 1 %}" target="_blank">

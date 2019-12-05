@@ -63,6 +63,7 @@ class PericiaFilter(django_filters.FilterSet):
             {'empty_label': 'Todas'})
         self.filters['proyecto'].extra.update(
             {'empty_label': 'Todos'})
+        self.filters['proyecto'].label = 'IPP'
 
 
 class ImagenFilter(django_filters.FilterSet):
@@ -113,6 +114,9 @@ class ReporteFilter(django_filters.FilterSet):
             {'empty_label': 'Todos'})
         self.filters['proyecto'].extra.update(
             {'empty_label': 'Todos'})
+        self.filters['proyecto'].label = 'IPP'
+        # self.filters['texto'].extra.update(
+        #     {'required': True})
         if 'proyecto' in self.data:
             try:
                 proyectoId = int(self.data.get('proyecto'))

@@ -18,7 +18,7 @@ class Proyecto(models.Model):
                    models.Index(fields=['IPP', 'descripcion', 'fiscalia'])]
 
     def __str__(self):
-        return self.descripcion
+        return self.IPP
 
 
 class Pericia(models.Model):

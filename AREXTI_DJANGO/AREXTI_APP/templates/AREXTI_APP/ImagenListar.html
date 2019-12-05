@@ -148,7 +148,10 @@
             </a>
         </td>
         <td style="display:none;">{{imagen.id}}</td>
-        <td>{{imagen.miniatura}}</td>
+        <td>
+{#            {{imagen.miniatura}}#}
+            <img src= "../../static/image/thumbnail.png">
+        </td>
         <td>
             <div class="cl-effect-1">
                 <a class="link" href="{% url 'ImagenConsultar' imagen.id 0 %}">

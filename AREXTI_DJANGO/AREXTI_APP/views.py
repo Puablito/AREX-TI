@@ -548,6 +548,7 @@ class ReporteOcurrencia(FilteredListView):
         if paginacion == None:
             paginacion = 5
         context['numero_paginacion'] = int(paginacion)
+        context['cant_imagenes'] = self.object_list.__len__()
         if len(self.request.GET) > 0:
             context['mensaje'] = 'ok'
         return context
