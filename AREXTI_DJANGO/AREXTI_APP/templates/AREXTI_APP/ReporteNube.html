@@ -71,6 +71,10 @@
                                 <form>
                                     <div class="form-row">
                                         <div class="form-group col-md-3">
+                                            {{ filterset.form.proyecto.label_tag }}
+                                            {% render_field filterset.form.proyecto class="form-control" %}
+                                        </div>
+                                        <div class="form-group col-md-3">
                                             {{ filterset.form.pericia.label_tag }}
                                             {% render_field filterset.form.pericia class="form-control" %}
                                         </div>
@@ -89,6 +93,10 @@
                                         <div class="form-group col-md-3">
                                             {{ filterset.form.valormeta.label_tag }}
                                             {% render_field filterset.form.valormeta class="form-control" %}
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            {{ filterset.form.limite.label_tag }}
+                                            {% render_field filterset.form.limite class="form-control" %}
                                         </div>
                                     </div>
                                     <div class="form-group col-md-3">
@@ -116,123 +124,157 @@
 {#                        <div id="sourrounding_div" style="width:100%;height:500px">#}
 {#                            <canvas id="canvas_cloud" width="1707" height="484" lang=""></canvas>#}
 {#                        </div>#}
-                    {% if nube is None %}
-                        {% if mensaje %}
+                    {% if mensaje %}
+                        {% if nube is None %}
                             <td colspan="11" style="color:darkgrey;text-align:center;"><i class="fa fa-exclamation-circle"></i> <b><small>No se encontraron palabras</small></b></td>
-                        {% endif %}
-                    {% else %}
-                        <div id="sourrounding_div" style="width:100%;height:700px">
-                            <div id="container" style="width:100%;height:700px"></div>
-                        </div>
-                            <script>
-                                texto = 'IPP: ' + '{{proyectoipp}} ' + 'Pericia: '+ '{{pericianombre}}';
-                                fecha = 'Generado: ' + '{{fecha}}';
-                                {#texto = 'subtitulo';#}
-                                {#texto = {{pericianombre}};#}
-                                {#var texto = ''.concat({{fecha|safe}},'  Pericia: ',{{pericia|safe}},' ',{{pericianombre|safe}});#}
-                                {#texto.concat('  Pericia: ');#}
-                                data = {{nube|safe}};
-                                function random_hsl_color(min, max, cant) {
-                                    var i;
-                                    var colores = [];
-                                    for (i = 0; i < cant; i++) {
-                                      colores.push('hsl(' +
-                                        (Math.random() * 360).toFixed() + ',' +
-                                        (Math.random() * 30 + 70).toFixed() + '%,' +
-                                        (Math.random() * (max - min) + min).toFixed() + '%)');
-                                    }
 
-                                      return colores;
-                                    };
-                                Highcharts.setOptions({
-                                        lang: {
-                                            contextButtonTitle: 'Menu exportar',
-                                            downloadCSV: 'Descargar CSV',
-                                            downloadPNG: 'Descargar PNG',
-                                            downloadJPEG:'Descargar JPEG',
-                                            downloadPDF: 'Descargar PDF',
-                                            viewFullscreen: 'Ver en pantalla completa',
-                                            printChart: 'Imprimir'
+                        {% else %}
+                            <div id="sourrounding_div" style="width:100%;height:700px">
+                                <div id="container" style="width:100%;height:700px"></div>
+                            </div>
+                                <script>
+                                    texto = 'IPP: ' + '{{proyectoipp}} ' + 'Pericia: '+ '{{pericianombre}}';
+                                    fecha = 'Generado: ' + '{{fecha}}';
+                                    {#texto = 'subtitulo';#}
+                                    {#texto = {{pericianombre}};#}
+                                    {#var texto = ''.concat({{fecha|safe}},'  Pericia: ',{{pericia|safe}},' ',{{pericianombre|safe}});#}
+                                    {#texto.concat('  Pericia: ');#}
+                                    data = {{nube|safe}};
+                                    function random_hsl_color(min, max, cant) {
+                                        var i;
+                                        var colores = [];
+                                        for (i = 0; i < cant; i++) {
+                                          colores.push('hsl(' +
+                                            (Math.random() * 360).toFixed() + ',' +
+                                            (Math.random() * 30 + 70).toFixed() + '%,' +
+                                            (Math.random() * (max - min) + min).toFixed() + '%)');
                                         }
-                                    });
-                                Highcharts.chart('container', {
-                                    chart: {
-                                        {#backgroundColor: '#919191'#}
-                                        backgroundColor: '#222d32'
-                                        {#,margin: [10, 0, 0, 0]#}
-                                    },
-                                    exporting: {
-                                        chartOptions: { // specific options for the exported image
-                                            plotOptions: {
-                                                series: {
-                                                    dataLabels: {
-                                                        enabled: true
+
+                                          return colores;
+                                        };
+                                    Highcharts.setOptions({
+                                            lang: {
+                                                contextButtonTitle: 'Menu exportar',
+                                                downloadCSV: 'Descargar CSV',
+                                                downloadPNG: 'Descargar PNG',
+                                                downloadJPEG:'Descargar JPEG',
+                                                downloadPDF: 'Descargar PDF',
+                                                viewFullscreen: 'Ver en pantalla completa',
+                                                printChart: 'Imprimir'
+                                            }
+                                        });
+                                    Highcharts.chart('container', {
+                                        chart: {
+                                            {#backgroundColor: '#919191'#}
+                                            backgroundColor: '#222d32'
+                                            {#,margin: [10, 0, 0, 0]#}
+                                        },
+                                        exporting: {
+                                            chartOptions: { // specific options for the exported image
+                                                chart: {
+                                                    width: document.getElementById('container').clientWidth,
+                                                    height: document.getElementById('container').clientHeight
+                                                  },
+                                                plotOptions: {
+                                                    series: {
+                                                        dataLabels: {
+                                                            enabled: true
+                                                        }
                                                     }
                                                 }
+                                            },
+                                            filename: '{{ pericianombre }}_' + '{{ fechahora }}',
+                                            fallbackToExportServer: false,
+                                            {#menuItemDefinitions: {#}
+                                            buttons: {
+                                                contextButton: {
+                                                    menuItems:["viewFullscreen",
+                                                    "printChart", "separator",
+                                                    "downloadPNG", "downloadJPEG",
+                                                    "downloadPDF"],
+                                                    text: 'Exportar',
+                                                    {#titleKey: 'Exportar',#}
+                                                    {#symbol:'menuball',#}
+                                            {#        symbolFill: 'gray',#}
+                                                    height:50,
+                                                }
+                                            }
+                                            {#p}#}
+                                        },
+                                        series: [{
+                                            type: 'wordcloud',
+                                            data: data,
+                                            name: 'Ocurrencias',
+                                            colors: random_hsl_color(60,90,50),
+                                            {#colors: random_hsl_color(10,50,50),#}
+                                            {#colors: random_hsl_color(10,90,50),#}
+                                            {#placementStrategy: 'random',#}
+                                            {#spiral: 'archimedean',#}
+                                            {#animation: {#}
+                                            {#    duration: 10000000000000000000000000000,#}
+                                            {#    #}
+                                            {#,#}
+                                            minFontSize: 6,
+                                            maxFontSize: 40,
+                                            {#rotation: {#}
+                                            {#    from: -45,#}
+                                            {#    to: 45,#}
+                                            {#    orientations: 8#}
+                                            {#P},#}
+                                            selected: true
+                                        }],
+                                        title: {
+                                            text: texto,
+                                            widthAdjust: -200,
+                                            style: {
+                                                color: '#d3d3d3',
+                                                fontWeight: 'bold',
+                                                fontSize: "26px"
                                             }
                                         },
-                                        filename: '{{ pericianombre }}_' + '{{ fechahora }}',
-                                        fallbackToExportServer: false,
-                                        {#menuItemDefinitions: {#}
-                                        buttons: {
-                                            contextButton: {
-                                                menuItems:["viewFullscreen",
-                                                "printChart", "separator",
-                                                "downloadPNG", "downloadJPEG",
-                                                "downloadPDF"],
-                                                text: 'Exportar',
-                                                {#titleKey: 'Exportar',#}
-                                                {#symbol:'menuball',#}
-                                        {#        symbolFill: 'gray',#}
-                                                height:50,
+                                        subtitle: {
+                                            text: fecha,
+                                            style: {
+                                                color: '#d3d3d3',
+                                                fontWeight: 'bold',
+                                                fontSize: "20px",
                                             }
                                         }
-                                        {#p}#}
-                                    },
-                                    series: [{
-                                        type: 'wordcloud',
-                                        data: data,
-                                        name: 'Ocurrencias',
-                                        colors: random_hsl_color(60,90,50),
-                                        {#colors: random_hsl_color(10,50,50),#}
-                                        {#colors: random_hsl_color(10,90,50),#}
-                                        {#placementStrategy: 'random',#}
-                                        {#spiral: 'archimedean',#}
-                                        {#animation: {#}
-                                        {#    duration: 10000000000000000000000000000,#}
-                                        {#    #}
-                                        {#,#}
-                                        minFontSize: 6,
-                                        maxFontSize: 40,
-                                        {#rotation: {#}
-                                        {#    from: -45,#}
-                                        {#    to: 45,#}
-                                        {#    orientations: 8#}
-                                        {#P},#}
-                                        selected: true
-                                    }],
-                                    title: {
-                                        text: texto,
-                                        widthAdjust: -200,
-                                        style: {
-                                            color: '#d3d3d3',
-                                            fontWeight: 'bold',
-                                            fontSize: "26px"
-                                        }
-                                    },
-                                    subtitle: {
-                                        text: fecha,
-                                        style: {
-                                            color: '#d3d3d3',
-                                            fontWeight: 'bold',
-                                            fontSize: "20px",
-                                        }
-                                    }
-                                });
-                            </script>
-                    {% endif %}
+                                    });
+                                </script>
+                        {% endif %}
+                {% endif %}
                 </div>
             </div>
+            {% if mensaje %}
+            <div class="box-body table-responsive">
+                        <!-- Grilla -->
+                <table class="table table-bordered">
+                    <thead class="thead-dark" >
+                        <tr>
+                            <th style="text-align:center;">Palabra</th>
+                            <th style="text-align:center;">Ocurrencias</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for palabra in nube|slice:":10" %}
+
+                        <tr>
+                            <td style="text-align:center;">{{palabra.0}}</td>
+                            <td style="text-align:center;">{{palabra.1}}</td>
+                        </tr>
+                        {% empty %}
+                            {% if mensaje %}
+                                <tr>
+                                  <td colspan="11" style="color:darkgrey;text-align:center;"><i class="fa fa-exclamation-circle"></i> <b><small>No se encontraron palabras</small></b></td>
+                                </tr>
+                             {% endif %}
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
         </div>
     <!--</div>-->
 </section>

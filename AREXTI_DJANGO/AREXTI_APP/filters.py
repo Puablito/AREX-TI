@@ -103,7 +103,10 @@ class ReporteFilter(django_filters.FilterSet):
     texto = django_filters.CharFilter(method='filter_texto', label='Palabra')
     tipoDetalle = django_filters.ModelMultipleChoiceFilter(queryset=TipoDetalle.objects, label='Tipo Detalle')
     metadato = django_filters.ModelChoiceFilter(queryset=Metadatos.objects.distinct('idMeta'), label='Tipo Metadato', )
+    proyecto = django_filters.ModelChoiceFilter(queryset=Proyecto.objects.all(), label='Proyecto', )
+    pericia = django_filters.ModelChoiceFilter(queryset=Pericia.objects.all(), label='Pericia', )
     valormeta = django_filters.CharFilter(label='Valor Metadato')
+    limite = django_filters.NumberFilter(label='Cantidad de palabras')
 
     class Meta:
         model = Imagen
@@ -114,8 +117,10 @@ class ReporteFilter(django_filters.FilterSet):
         # self.filters['tipoImagen'].extra.update(
         #     {'empty_label': 'Todas'})
         self.filters['pericia'].extra.update(
-            {'empty_label': None})
+            {'empty_label': 'Todas'})
         self.filters['metadato'].extra.update(
+            {'empty_label': 'Todos'})
+        self.filters['proyecto'].extra.update(
             {'empty_label': 'Todos'})
 
     def filter_queryset(self, queryset):
@@ -129,6 +134,7 @@ class ReporteFilter(django_filters.FilterSet):
         filtros = self.form.cleaned_data
         palabra = filtros['texto']
         detalles = filtros['tipoDetalle']
+        limite = filtros['limite']
         detallesfinal = ''
         for detalle in detalles:
             detallesfinal += detalle.id + '.'
@@ -143,6 +149,13 @@ class ReporteFilter(django_filters.FilterSet):
             pericia = 0
         else:
             pericia = filtros['pericia'].id
+
+        proyecto = filtros['proyecto']
+        if proyecto is None:
+            proyecto = 0
+        else:
+            proyecto = filtros['proyecto'].id
+
         metadato = filtros['metadato']
         if metadato is None:
             metadato = ''
@@ -152,7 +165,8 @@ class ReporteFilter(django_filters.FilterSet):
         results = []
         if not(palabra is None or palabra == ''):
             try:
-                 results = funcionesdb.consulta('ocurrencias', [palabra, pericia, tiposfinal, detallesfinal, metadato, valormetadato])
+                results = funcionesdb.consulta('ocurrencias', [palabra, pericia, proyecto, tiposfinal, detallesfinal
+                                                , metadato, valormetadato])
 
             except Exception as e:
                 aa = e

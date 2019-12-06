@@ -40,8 +40,20 @@
                 {% render_field filterset.form.texto class="form-control" %}
             </div>
             <div class="form-group col-md-2">
+                {{ filterset.form.proyecto.label_tag }}
+                {% render_field filterset.form.proyecto class="form-control" %}
+            </div>
+            <div class="form-group col-md-2">
                 {{ filterset.form.pericia.label_tag }}
                 {% render_field filterset.form.pericia class="form-control" %}
+            </div>
+            <div class="form-group col-md-2">
+                {{ filterset.form.metadato.label_tag }}
+                {% render_field filterset.form.metadato class="form-control" %}
+            </div>
+            <div class="form-group col-md-2">
+                {{ filterset.form.valormeta.label_tag }}
+                {% render_field filterset.form.valormeta class="form-control" %}
             </div>
             <div class="form-group col-md-2">
                 {{ filterset.form.tipoImagen.label_tag }}
@@ -51,14 +63,7 @@
                 {{ filterset.form.tipoDetalle.label_tag }}
                 {% render_field filterset.form.tipoDetalle class="form-control" %}
             </div>
-            <div class="form-group col-md-3">
-                {{ filterset.form.metadato.label_tag }}
-                {% render_field filterset.form.metadato class="form-control" %}
-            </div>
-            <div class="form-group col-md-2">
-                {{ filterset.form.valormeta.label_tag }}
-                {% render_field filterset.form.valormeta class="form-control" %}
-            </div>
+
         </div>
         <div class="form-group col-md-3">
             <input type="hidden" name="paginate_by" value={{ numero_paginacion }} />
@@ -74,9 +79,6 @@
                 <i class="fa fa-file-excel-o" style="font-size: larger"></i>
             </button>
 
-            <button title="Exportar a PDF" class="btn btn-danger" type="submit" name="reporte" value="pdf" />
-                <i class="fa fa-file-pdf-o" style="font-size: larger" ></i>
-            </button>
         </div>
 </form>
 {% endblock %}
@@ -111,67 +113,46 @@
     </tr>
 </thead>
 <tbody>
-    {% for imagen in object_list %}
-    <tr>
-        <td style="display:none;">{{imagen.imagenid}}</td>
-        <td>{{imagen.total_ocurrencias}}</td>
-        <td>
-            <div class="cl-effect-1">
-                <a class="link" href="{% url 'ImagenEditar' imagen.imagenid %}">
-                    {{imagen.nombre}}
-                </a>
-            </div>
-        </td>
-        <td>{{imagen.extension}}</td>
-        <!--<td>{{imagen.suma_ocurrencias}}</td>-->
-        <td>{{imagen.tipoImagen_id}}</td>
-        <td>
-            <table>
+    {% if mensaje %}
+        {% for imagen in object_list %}
+        <tr>
+            <td style="display:none;">{{imagen.imagenid}}</td>
+            <td>{{imagen.total_ocurrencias}}</td>
+            <td>
+                <div class="cl-effect-1">
+                    <a class="link" href="{% url 'ImagenEditar' imagen.imagenid %}">
+                        {{imagen.nombre}}
+                    </a>
+                </div>
+            </td>
+            <td>{{imagen.extension}}</td>
+            <!--<td>{{imagen.suma_ocurrencias}}</td>-->
+            <td>{{imagen.tipoImagen_id}}</td>
+            <td>
+                <table>
+                    <tr>
+                        {% for tipoHash in tipoHashes %}
+                            {% if tipoHash|img_hash_tags2:imagen.imagenid is None %}
+                                <td class="td_hash">&nbsp;</td>
+                            {% else %}
+                                <td class="td_hash">
+                                    <a type="button" class="btn btn-hash" style="background-color:{{tipoHash.color}}; border-color:{{tipoHash.color}};" data-toggle="tooltipHash" data-original-title="{{tipoHash|img_hash_tags2:imagen.imagenid}}" data-trigger="click">
+                                        {{tipoHash.id}}
+                                    </a>
+                                </td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                </table>
+            </td>
+
+        </tr>
+        {% empty %}
                 <tr>
-                    {% for tipoHash in tipoHashes %}
-                        {% if tipoHash|img_hash_tags2:imagen.imagenid is None %}
-                            <td class="td_hash">&nbsp;</td>
-                        {% else %}
-                            <td class="td_hash">
-                                <a type="button" class="btn btn-hash" style="background-color:{{tipoHash.color}}; border-color:{{tipoHash.color}};" data-toggle="tooltipHash" data-original-title="{{tipoHash|img_hash_tags2:imagen.imagenid}}" data-trigger="click">
-                                    {{tipoHash.id}}
-                                </a>
-                            </td>
-                        {% endif %}
-                    {% endfor %}
+                  <td colspan="11" style="color:darkgrey;text-align:center;"><i class="fa fa-exclamation-circle"></i> <b><small>No se encontraron coincidencias</small></b></td>
                 </tr>
-            </table>
-        </td>
-
-    </tr>
-    <div id="Eliminar{{ imagen.imagenid }}" class="modal fade">
-        <div class="modal-dialog modal-confirm">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div class="icon-box">
-                        <i class="material-icons">&#xE5CD;</i>
-                    </div>
-                    <h4 class="modal-title">Atención!</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <p>Seguro que desea eliminar la imagen {{ imagen.descripcion }}?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-info" data-dismiss="modal">Cancelar</button>
-                    <button class="btn btn-danger" onclick="window.location.href='{% url 'ImagenEliminar' imagen.imagenid %}'">Eliminar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% empty %}
-        {% if mensaje %}
-            <tr>
-              <td colspan="11" style="color:darkgrey;text-align:center;"><i class="fa fa-exclamation-circle"></i> <b><small>No se encontraron coincidencias</small></b></td>
-            </tr>
-         {% endif %}
-    {% endfor %}
-
+        {% endfor %}
+    {% endif %}
 </tbody>
 
 {% endblock %}

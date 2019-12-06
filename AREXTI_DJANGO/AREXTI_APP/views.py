@@ -105,6 +105,12 @@ class ProyectoCrear(CreateView):
         ctx = {'form': form}
         return render(self.request, self.template_name, ctx)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['modo'] = 'c'
+        return context
+
+
 
 class ProyectoEditar(UpdateView):
     model = Proyecto
@@ -121,6 +127,10 @@ class ProyectoEditar(UpdateView):
         ctx = {'form': form}
         return render(self.request, self.template_name, ctx)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['modo'] = 'e'
+        return context
 
 def ProyectoEliminar(request, Proyectoid):
     # model = Proyecto
@@ -229,6 +239,7 @@ class PericiaCrear(CreateView):
         if proid is None:
             proid = 0
         context['proyectoId'] = proid
+        context['modo'] = 'c'
         return context
 
 
@@ -256,6 +267,7 @@ class PericiaEditar(UpdateView):
         if proid is None:
             proid = 0
         context['proyectoId'] = proid
+        context['modo'] = 'e'
         return context
 
 
@@ -453,6 +465,7 @@ class ImagenEditar(UpdateView):
         context = super().get_context_data(*args, **kwargs)
         context['detalles'] = ImagenDetalle.objects.filter(imagen=imagen).order_by('id')
         context['periciaId'] = imagen.pericia.id
+        context['modo'] = 'e'
         return context
 
     def post(self, request, *args, **kwargs):
@@ -582,9 +595,9 @@ class ReporteNube(FilteredListView):
         context = super().get_context_data(**kwargs)
         context['tipoHashes'] = TipoHash.objects.filter(activo=1)
         parametros = obtenerParametros(self.request)
-        palabras = funcionesdb.consulta('nube', [parametros['pericia'], parametros['tiposfinal'],
+        palabras = funcionesdb.consulta('nube', [parametros['pericia'], parametros['proyecto'], parametros['tiposfinal'],
                                                         parametros['detallesfinal'], parametros['metadato'],
-                                                        parametros['valormetadato']])
+                                                        parametros['valormetadato'], parametros['limite']])
         palabrasfinal = []
         for palabra in palabras:
             palabrasfinal.append([palabra['palabra'], str(palabra['total'])])
@@ -629,15 +642,15 @@ def export_imagenes_xls(request, reporte):
     params = obtenerParametros(request)
     response = HttpResponse(content_type='application/ms-excel')
     if reporte == 'ocurrencias':
-        resultados = funcionesdb.consulta('ocurrencias', [params['palabra'], params['pericia'], params['tiposfinal'],
+        resultados = funcionesdb.consulta('ocurrencias', [params['palabra'], params['pericia'], params['proyecto'], params['tiposfinal'],
                                                           params['detallesfinal'], params['metadato'],
                                                           params['valormetadato']], False)
         mensaje = ' coincidencias'
         response['Content-Disposition'] = 'attachment; filename="Reporte Ocurrencias "' + params['fechaHora'] + '".xls"'
     if reporte == 'nube':
-        resultados = funcionesdb.consulta('nube', [params['pericia'], params['tiposfinal'],
+        resultados = funcionesdb.consulta('nube', [params['pericia'], params['proyecto'], params['tiposfinal'],
                                                   params['detallesfinal'], params['metadato'],
-                                                  params['valormetadato']], False)
+                                                  params['valormetadato'], params['limite']], False)
         mensaje = ' palabras'
         response['Content-Disposition'] = 'attachment; filename="Reporte Nube de palabras "' + params['fechaHora'] + '".xls"'
 
@@ -667,13 +680,14 @@ def export_imagenes_xls(request, reporte):
     if reporte == 'nube':
         columns = ['Palabra', '', 'Ocurrencias']
     ws.write_merge(row_num, row_num + 1, 0, 3, 'Fecha: ' + params['fechacompleta'], font_style_cabecera)
-    ws.write_merge(row_num + 2, row_num + 3, 0, 3, 'Pericia: ' + params['pericia'] + ' - ' + params['periciaNombre'], font_style_cabecera)
+    ws.write_merge(row_num + 2, row_num + 3, 0, 3, 'IPP: ' + params['proyectoipp'], font_style_cabecera)
+    ws.write_merge(row_num + 4, row_num + 5, 0, 3, 'Pericia: ' + params['periciaNombre'], font_style_cabecera)
     if reporte == 'ocurrencias':
         ws.write_merge(row_num + 2, row_num + 3, 4, 6, 'Palabra: ' + params['palabra'], font_style_cabecera)
 
     if reporte == 'ocurrencias':
         ws.write_merge(row_num + 2, row_num + 3, 7, 9, 'Total Ocurrencias: ' + total_ocu, font_style_cabecera)
-    row_num = 5
+    row_num = 7
     font_style_titulos = xlwt.XFStyle()
     font_style_titulos.font.bold = True
     font_style_titulos.font.height = 240
@@ -781,14 +795,35 @@ def obtenerParametros(request):
     fecha = datetime.now()
     parametros = dict(request.GET)
     pericia = 0
+    proyecto = 0
+    limite = 100
+    if 'limite' in parametros:
+        if parametros['limite'][0] == '':
+            limite = 100
+        else:
+            limite = int(parametros['limite'][0])
+    if limite > 500:
+        limite = 500
     pericianombre = ''
     proyectoipp = ''
     if 'pericia' in parametros:
         pericia = parametros['pericia'][0]
         if pericia is not None:
-            periciaObjeto = Pericia.objects.get(id=pericia)
-            pericianombre = periciaObjeto.descripcion
-            proyectoipp = periciaObjeto.proyecto.IPP
+            if pericia == '':
+                pericianombre = 'Todas'
+                pericia = 0
+            else:
+                periciaObjeto = Pericia.objects.get(id=pericia)
+                pericianombre = periciaObjeto.descripcion
+    if 'proyecto' in parametros:
+        proyecto = parametros['proyecto'][0]
+        if proyecto is not None:
+            if proyecto == '':
+                proyectoipp = 'Todos'
+                proyecto = 0
+            else:
+                proyectoObjeto = Proyecto.objects.get(id=proyecto)
+                proyectoipp = proyectoObjeto.IPP
     tiposfinal = ''
     if 'tipoImagen' in parametros:
         tipos = parametros['tipoImagen']
@@ -819,7 +854,9 @@ def obtenerParametros(request):
                        'metadato':metadato,
                        'valormetadato': valormeta,
                        'periciaNombre': pericianombre,
-                       'proyectoipp': proyectoipp
+                       'proyectoipp': proyectoipp,
+                       'proyecto': proyecto,
+                       'limite': limite
                        }
     return parametrosfinal
 

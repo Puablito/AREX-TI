@@ -137,6 +137,16 @@
 
 {% endblock %}
 
+{% block btnaceptar%}
+    {% if modo %}
+        <button type="submit" class="btn btn-primary">Aceptar</button>
+    {% else %}
+        <a class="btn btn-primary" href="{% url 'ImagenListar' imagen.pericia.id %}">Volver</a>
+    {% endif %}
+{% endblock %}
+
 {% block btnCancelar %}
-    <a type="" href="{% url 'ImagenListar' imagen.pericia.id %}" class="btn btn-default">Cancelar</a>
+    {% if modo %}
+        <a type="" href="{% url 'ImagenListar' imagen.pericia.id %}" class="btn btn-default">Cancelar</a>
+    {% endif %}
 {% endblock %}

@@ -21,12 +21,18 @@
 {% block body %}
     {{ form.as_p }}
 {% endblock %}
-
+{% block btnaceptar%}
+    {% if modo %}
+        <button type="submit" class="btn btn-primary">Aceptar</button>
+    {% else %}
+        <a class="btn btn-primary" href="{% url 'PericiaListar' proyectoId %}">Volver</a>
+    {% endif %}
+{% endblock %}
 {% block btnCancelar %}
-  <!--<button class="btn btn-default" onclick="location.href={% url 'PericiaListar' 0 %}">Cancelar</button>-->
-    <a type="" href="{% url 'PericiaListar' proyectoId %}" class="btn btn-default">Cancelar</a>
+    {% if modo %}
+        <a type="" href="{% url 'PericiaListar' proyectoId %}" class="btn btn-default">Cancelar</a>
+    {% endif %}
 {% endblock %}
 {% block btnListar %}
-  <!--<button type="button" onclick="location.href={% url 'PericiaListar' 0 %}" class="btn btn-success pull-right">Ver Imagenes</button>-->
     <a type="" href="{% url 'ImagenListar' pericia.id %}" class="btn btn-success pull-right" title="VEr imagenes de la pericia">Ver Imagenes</a>
 {% endblock %}

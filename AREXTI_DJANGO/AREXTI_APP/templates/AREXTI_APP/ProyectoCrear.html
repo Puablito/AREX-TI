@@ -23,12 +23,19 @@
 {% block body %}
     {{ form.as_p }}
 {% endblock %}
-
+{% block btnaceptar%}
+    {% if modo %}
+        <button type="submit" class="btn btn-primary">Aceptar</button>
+    {% else %}
+        <a class="btn btn-primary" href="{% url 'ProyectoListar' %}">Volver</a>
+    {% endif %}
+{% endblock %}
 {% block btnCancelar %}
-  <a class="btn btn-default" href="{% url 'ProyectoListar' %}">Cancelar</a>
+    {% if modo %}
+        <a class="btn btn-default" href="{% url 'ProyectoListar' %}">Cancelar</a>
+    {% endif %}
 {% endblock %}
 
 {% block btnListar %}
-  <!--<button type="button" onclick="location.href={% url 'PericiaListar' 0 %}" class="btn btn-success pull-right">Ver Pericias</button>-->
   <a href="{% url 'PericiaListar' proyecto.id %}" class="btn btn-success pull-right">Ver Pericias</a>
 {% endblock %}
