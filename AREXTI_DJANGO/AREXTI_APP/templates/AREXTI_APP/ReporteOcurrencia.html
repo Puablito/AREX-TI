@@ -133,13 +133,12 @@
             <td>{{imagen.total_ocurrencias}}</td>
             <td>
                 <div class="cl-effect-1">
-                <a class="link" href="{% url 'ImagenConsultar' imagen.imagenid %}" target="_blank">
+                <a class="link" href="{% url 'ImagenConsultar' imagen.imagenid 1 %}" target="_blank">
                     {{imagen.nombre}}
                 </a>
                 </div>
             </td>
             <td>{{imagen.extension}}</td>
-            <!--<td>{{imagen.suma_ocurrencias}}</td>-->
             <td>{{imagen.tipoImagen_id}}</td>
             <td>
                 <table>

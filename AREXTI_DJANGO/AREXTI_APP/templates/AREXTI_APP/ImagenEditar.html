@@ -10,7 +10,9 @@
 
 
 {% block linkVolver %}
-  <a type="" href="{% url 'ImagenListar' periciaId %}" style="color:black"> Volver a imagen</a>
+    {% if modoReport is None or modoReport == 0 %}
+        <a type="" href="{% url 'ImagenListar' periciaId %}" style="color:black"> Volver a imagen</a>
+    {% endif %}
 {% endblock %}
 
 {% block body%}
@@ -141,7 +143,9 @@
     {% if modo %}
         <button type="submit" class="btn btn-primary">Aceptar</button>
     {% else %}
-        <a class="btn btn-primary" href="{% url 'ImagenListar' imagen.pericia.id %}">Volver</a>
+        {% if modoReport is None or modoReport == 0 %}
+            <a class="btn btn-primary" href="{% url 'ImagenListar' imagen.pericia.id %}">Volver</a>
+        {% endif %}
     {% endif %}
 {% endblock %}
 

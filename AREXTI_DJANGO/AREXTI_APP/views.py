@@ -506,6 +506,7 @@ class ImagenConsultar(UpdateView):
         context = super().get_context_data(*args, **kwargs)
         context['detalles'] = ImagenDetalle.objects.filter(imagen=imagen).order_by('id')
         context['periciaId'] = imagen.pericia.id
+        context['modoReport'] = self.kwargs.get('modoReport')
         return context
 
     # def get_success_url(self):
