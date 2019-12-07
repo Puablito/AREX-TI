@@ -11,3 +11,6 @@ https://www.flaticon.es/icono-gratis/paisaje-marco_71619#term=imagen&page=1&posi
 
 Icono de lupa
 https://www.flaticon.es/icono-gratis/lupa_49116#term=lupa&page=1&position=18
+
+Icono Balanza
+https://www.flaticon.es/icono-gratis/esquema-de-equilibrio-de-escala_28543?term=balanza&page=1&position=30

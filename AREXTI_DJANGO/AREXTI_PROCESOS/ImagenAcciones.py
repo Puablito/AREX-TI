@@ -124,7 +124,7 @@ def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tip
 
 
 # Funcion que procesa la imagen recibida por paramentro
-def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto, listado_hashes, tesseract_cmd, RNTexto_procesa, mensajes_Cola):
+def procesar_imagen(imagenes_cola, imagenes_guardar, imagenes_notexto, listado_hashes, tesseract_cmd, RNTexto_procesa, mensajes_Cola, DirAppMiniatura):
     Is_OK = True
     # instancio las RN
     if RNTexto_procesa:
@@ -224,6 +224,7 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
 
                     # Crea la miniatura
                     try:
+                        # DirAppMiniatura
                         thumbnail = Herramientas.miniaturaCrea(imagen_with_path, img_extension)
                         imagen_procesada.set_thumbnail(thumbnail)
                     except:
