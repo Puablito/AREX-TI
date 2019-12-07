@@ -21,6 +21,23 @@
     $(function () {
         $('[data-toggle="tooltipHash"]').tooltip()
     })
+
+    $(function(){
+        $("#id_proyecto").change(function () {
+            var url = $("#filterForm").attr("data-pericia-url");  // get the url of the `load_cities` view
+            var proyectoId = $(this).val();  // get the selected country ID from the HTML input
+
+            $.ajax({                       // initialize an AJAX request
+                url: url,                    // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+                data: {
+                    'proyectoId': proyectoId       // add the country id to the GET parameters
+                },
+                success: function (data) {   // `data` is the return of the `load_cities` view function
+                    $("#id_pericia").html(data);  // replace the contents of the city input with the data that came from the server
+                }
+            });
+        });
+    })
 </script>
 {% endblock %}
 
@@ -33,7 +50,7 @@
 {% endblock %}
 
 {% block filtros %}
-<form>
+<form id="filterForm" data-pericia-url="{% url 'ajax_load_pericias' %}">
         <div class="form-row">
             <div class="form-group col-md-3">
                 {{ filterset.form.texto.label_tag }}
