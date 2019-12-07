@@ -307,7 +307,7 @@ def procesar_imagen(procesoid, imagenes_cola, imagenes_guardar, imagenes_notexto
                         imagenes_guardar.put(imagen_procesada)
 
 
-def cambiar_tipoimagen(imagenid,imagennombre, imagentipo):
+def cambiar_tipoimagen(imagenid, imagennombre, imagentipo, periciaDir):
     Is_OK = True
 
     # Crea la carpeta Logs
@@ -319,42 +319,67 @@ def cambiar_tipoimagen(imagenid,imagennombre, imagentipo):
         Is_OK = False
 
     if Is_OK:
-        # Configuración del Log
-        nombreArchivo = "CambioTipoImagen_({0}-{1})".format(imagenid, imagennombre)
-        logging.basicConfig(handlers=[logging.FileHandler('{0}/{1}.txt'.format(DirAppBase, nombreArchivo), 'a', 'utf-8')],
-                            format='%(asctime)s; %(levelname)s; %(message)s',
-                            level=logging.INFO,
-                            datefmt='%d-%b-%y %H:%M:%S')
+        # Configuración del Log General
+        fhGeneral = logging.FileHandler('{0}/Log_Errores.txt'.format(DirAppBase), 'a', 'utf-8')
+        fhGeneral.setLevel(logging.WARNING)
+        fhGeneral.setFormatter(logging.Formatter('%(asctime)s; %(levelname)s; %(message)s'))
 
-        logging.info("----- Inicio del proceso cambio de tipo de imagen -----")
-        logging.info("---- Parametros del proceso ----")
-        logging.info("-- Imagen: {0}-{1}".format(imagenid, imagennombre))
-        logging.info("-- Nuevo tipo de imagen : {0}".format(imagentipo))
+        loggerGeneral = logging.getLogger('LogGeneral')
+        loggerGeneral.setLevel(logging.INFO)
+        loggerGeneral.addHandler(fhGeneral)
 
         # Realizo la conexión a la BD
         conexionBD = BaseDatos.Conexion()
         Is_OK = conexionBD.conectar()
         if not Is_OK:
-            logging.error(conexionBD.error)
+            loggerGeneral.error(conexionBD.error)
         else:
             # Si se pudo conectar a la base de datos
+            RtaBD = Herramientas.parametro_get(conexionBD, 'DIRECTORIOIMAGEN')
+            if RtaBD[0] == "OK":
+                DirBase = RtaBD[1][0]["valorTexto"]
+            else:
+                Is_OK = False
+                loggerGeneral.error("Error en parametro: DIRECTORIOIMAGEN (" + RtaBD[1] + ")")
+
             RtaBD = Herramientas.parametro_get(conexionBD, 'TESSERACTPATH')
             if RtaBD[0] == "OK":
                 tesseract_cmd = RtaBD[1][0]["valorTexto"]
                 logging.info("-- Ruta Tesseract: {0}".format(tesseract_cmd))
             else:
                 Is_OK = False
-                logging.error("Error en parametro: TESSERACTPATH (" + RtaBD[1] + ")")
+                loggerGeneral.error("Error en parametro: TESSERACTPATH (" + RtaBD[1] + ")")
 
     if Is_OK:
-        # recupero la imagen a procesar
+        # Se inicia el proceso de Cambio de Tipo de Imagen
+        # Configuración del Log del cambio tipo de imagen
+        DirAppPericia = DirBase + os.path.sep + periciaDir
+        fhImagen = logging.FileHandler('{0}/CambioTipoImagen.txt'.format(DirAppPericia), 'a', 'utf-8')
+        fhImagen.setLevel(logging.INFO)
+        fhImagen.setFormatter(logging.Formatter('%(asctime)s; %(levelname)s; %(message)s'))
+
+        loggerImagen = logging.getLogger('LogImagen')
+        loggerImagen.setLevel(logging.INFO)
+        loggerImagen.addHandler(fhImagen)
+
+        # Inicializo el Log del cambio de tipo
+        loggerImagen.info("**************************************************************************************")
+        loggerImagen.info("----- Inicio del cambio de tipo de imagen ({0}) -----".format(imagennombre))
+        loggerImagen.info("---- Parametros generales ----")
+        loggerImagen.info("-- Directorio Base: {0}".format(DirBase))
+        loggerImagen.info("-- Ruta Tesseract: {0}".format(tesseract_cmd))
+        loggerImagen.info("---- Parametros del proceso ----")
+        loggerImagen.info("-- Imagen: {0}-{1}".format(imagenid, imagennombre))
+        loggerImagen.info("-- Nuevo tipo de imagen : {0}".format(imagentipo))
+
+        # Recupera la imagen a procesar
         imagen_procesar = ImagenProcesar.Imagen()
         query = """ SELECT "nombre","extension","path" 
                     FROM "AREXTI_APP_imagen"
                     WHERE "id"=%s;"""
         data = (imagenid,)
         resultado = conexionBD.consulta(query, data)
-        logging.info("recupero la imagen a procesar")
+        loggerImagen.info("Se recupera la imagen a procesar")
 
         if resultado:
             # Creo el objeto Imagen para usarlo en el segmentador
@@ -363,27 +388,27 @@ def cambiar_tipoimagen(imagenid,imagennombre, imagentipo):
             imagen_procesar.set_extension(resultado[0]["extension"])
             imagen_procesar.set_path(resultado[0]["path"])
 
-            # instancio el segmentador
+            # Instancia el segmentador
             try:
                 segmentador = Segmentacion.Segmentador(tesseract_cmd)
             except:
                 Is_OK = False
-                logging.error('Error al instanciar el segmentador - ({0} - {1})'.format(sys.exc_info()[0],
-                                                                                        sys.exc_info()[1]))
+                loggerImagen.error('Error al instanciar el segmentador - ({0} - {1})'.format(sys.exc_info()[0],
+                                                                                             sys.exc_info()[1]))
 
             if Is_OK:
                 try:
                     # ejecuto el tipo de segmentación pasado por parametro
                     segmentador.set_imagen(imagen_procesar)
 
-                    logging.info("Ejecuto el segmentador")
+                    loggerImagen.info("Se ejecuta el segmentador")
 
                     if imagentipo == "CHAT":
                         RtaSeg = segmentador.segmentarChat()
                         if RtaSeg[0] == "OK":
                             imagen_procesar.set_detalles(RtaSeg[1])
                         else:
-                            logging.error('Error ejecutando la segmentación - ({0})'.format(RtaSeg[1]))
+                            loggerImagen.error('Error ejecutando la segmentación - ({0})'.format(RtaSeg[1]))
                             Is_OK = False
 
                     elif imagentipo == "MAIL":
@@ -391,7 +416,7 @@ def cambiar_tipoimagen(imagenid,imagennombre, imagentipo):
                         if RtaSeg[0] == "OK":
                             imagen_procesar.set_detalles(RtaSeg[1])
                         else:
-                            logging.error('Error ejecutando la segmentación - ({0})'.format(RtaSeg[1]))
+                            loggerImagen.error('Error ejecutando la segmentación - ({0})'.format(RtaSeg[1]))
                             Is_OK = False
 
                     elif imagentipo == "OTRO":
@@ -399,11 +424,11 @@ def cambiar_tipoimagen(imagenid,imagennombre, imagentipo):
                         if RtaSeg[0] == "OK":
                             imagen_procesar.set_detalles(RtaSeg[1])
                         else:
-                            logging.error('Error ejecutando la segmentación - ({0})'.format(RtaSeg[1]))
+                            loggerImagen.error('Error ejecutando la segmentación - ({0})'.format(RtaSeg[1]))
                             Is_OK = False
                 except:
                     Is_OK = False
-                    logging.error('Error ejecutando la segmentación - ({0} - {1})'.format(sys.exc_info()[0],
+                    loggerImagen.error('Error ejecutando la segmentación - ({0} - {1})'.format(sys.exc_info()[0],
                                                                                           sys.exc_info()[1]))
 
             if Is_OK:
@@ -416,13 +441,11 @@ def cambiar_tipoimagen(imagenid,imagennombre, imagentipo):
                 resultado = conexionBD.conexionCommitRoll()
 
                 if resultado:
-                    logging.info("Cambio de tipo de la imagen {0}-{1} realizado correctamente".format(imagenid,
-                                                                                                      nombreImagen))
+                    loggerImagen.info("Cambio de tipo de la imagen {0}-{1} realizado correctamente".format(imagenid,
+                                                                                                           nombreImagen))
                 else:
-                    logging.error("Error al cambiar el detalle de la imagen {0}-{1} ({2})".format(imagenid,
-                                                                                                  nombreImagen,
-                                                                                                  conexionBD.error))
-    logging.info("----- Fin del proceso cambio de tipo de imagen -----")
-
-
-# cambiar_tipoimagen(374,'mail 2.png',"OTRO")
+                    loggerImagen.error("Error al cambiar el detalle de la imagen {0}-{1} ({2})".format(imagenid,
+                                                                                                       nombreImagen,
+                                                                                                       conexionBD.error))
+    loggerImagen.info("----- Fin del proceso cambio de tipo de imagen -----")
+    loggerImagen.info("**************************************************************************************")
