@@ -103,8 +103,8 @@ class ReporteFilter(django_filters.FilterSet):
     texto = django_filters.CharFilter(method='filter_texto', label='Palabra')
     tipoDetalle = django_filters.ModelMultipleChoiceFilter(queryset=TipoDetalle.objects, label='Tipo Detalle')
     metadato = django_filters.ModelChoiceFilter(queryset=Metadatos.objects.distinct('idMeta'), label='Tipo Metadato', )
-    proyecto = django_filters.ModelChoiceFilter(queryset=Proyecto.objects.all(), label='Proyecto', )
-    pericia = django_filters.ModelChoiceFilter(queryset=Pericia.objects.all(), label='Pericia', )
+    proyecto = django_filters.ModelChoiceFilter(queryset=Proyecto.objects.filter(activo=1), label='Proyecto', )
+    pericia = django_filters.ModelChoiceFilter(queryset=Pericia.objects.none(), label='Pericia', )
     valormeta = django_filters.CharFilter(label='Valor Metadato')
     limite = django_filters.NumberFilter(label='Cantidad de palabras')
 

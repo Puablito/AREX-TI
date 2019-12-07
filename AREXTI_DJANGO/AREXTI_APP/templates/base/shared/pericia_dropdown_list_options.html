@@ -1,0 +1,4 @@
+<option value="">Todas</option>
+{% for pericia in pericias %}
+<option value="{{ pericia.pk }}">{{ pericia.descripcion }}</option>
+{% endfor %}
