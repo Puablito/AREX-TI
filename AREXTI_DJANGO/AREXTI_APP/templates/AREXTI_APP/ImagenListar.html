@@ -29,7 +29,7 @@
 {% endblock %}
 
 {% block titulo %}
- Imagenes
+ Imágenes
 {% endblock %}
 
 {% block linkVolver %}
@@ -73,7 +73,7 @@
         <div class="col-md-12">
             <div class="box-filter">
                 <div class="box-header with-border">
-                        <h3 class="box-title"><i class="fa fa-info-circle"></i>&nbsp;Informacion de la pericia</h3>
+                        <h3 class="box-title"><i class="fa fa-info-circle"></i>&nbsp;Información de la pericia</h3>
                         <div class="box-tools pull-right">
                             <button title="minimizar/maximizar" class="btn btn-box-tool" type="button" data-toggle="collapse" data-target="#collapsePericiaInfo" aria-expanded="true" aria-controls="collapsePericiaInfo">
                                 <i class="fa fa-minus"></i>
@@ -113,7 +113,7 @@
 </div>
 
 <div class="form-group col-md-4" style="display:flex">
-    <label>Imagenes por página:</label>&nbsp;
+    <label>Imágenes por página:</label>&nbsp;
     <form action="." method="get">
         <select name="paginate_by" class="form-control" onchange="this.form.submit();" style="width:20%">
             <option value="5" {% if 5 == numero_paginacion %}selected{% endif %}>5</option>
@@ -201,7 +201,7 @@
     </div>
     {% empty %}
         <tr>
-          <td colspan="8" style="color:darkgrey;text-align:center;"><i class="fa fa-exclamation-circle"></i> <b><small>No se encontraron imagenes</small></b></td>
+          <td colspan="8" style="color:darkgrey;text-align:center;"><i class="fa fa-exclamation-circle"></i> <b><small>No se encontraron imágenes</small></b></td>
         </tr>
     {% endfor %}
 

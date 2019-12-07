@@ -24,10 +24,10 @@ class ProyectoForm(forms.ModelForm):
 
         labels = {
             'IPP': 'IPP',
-            'descripcion': 'Descripcion',
-            'fiscalia': 'Fiscalia',
+            'descripcion': 'Descripción',
+            'fiscalia': 'Fiscalía',
             'responsable': 'Responsable',
-            'defensoria': 'Defensoria',
+            'defensoria': 'Defensoría',
             'juzgado': 'Juzgado',
         }
 
@@ -58,7 +58,7 @@ class PericiaForm(forms.ModelForm):
 
         labels = {
             'proyecto': 'Proyecto',
-            'descripcion': 'Descripcion',
+            'descripcion': 'Descripción',
             'nombrePerito': 'Nombre perito',
             'fecha': 'Fecha',
             'tipoPericia': 'Tipo Pericia',
@@ -176,7 +176,7 @@ class PericiaConsultaForm(forms.ModelForm):
 
         labels = {
             'proyecto': 'Proyecto',
-            'descripcion': 'Descripcion',
+            'descripcion': 'Descripción',
             'nombrePerito': 'Nombre perito',
             'fecha': 'Fecha',
             'tipoPericia': 'Tipo Pericia',
