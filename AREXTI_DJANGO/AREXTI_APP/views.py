@@ -6,7 +6,7 @@ from enum import Enum
 from .tasks import getDirectories, call_ChangeImageType, call_ProcessImage
 import os
 from django.http import JsonResponse, HttpResponse
-from django.db.models import Count
+from django.db.models import Count, Q
 
 from django.http import HttpResponse, HttpResponseNotFound
 import xlwt
@@ -172,7 +172,7 @@ class PericiaListar(FilteredListView):
             queryset = Pericia.objects.filter(activo=1, proyecto=proid).annotate(num_imagenes=Count('imagen')).order_by(
                 '-proyecto', '-id')
         else:
-            queryset = Pericia.objects.filter(activo=1).annotate(num_imagenes=Count('imagen')).order_by('-proyecto',
+            queryset = Pericia.objects.filter(activo=1).annotate(num_imagenes=Count('imagen',filter=Q(imagen__activo=1))).order_by('-proyecto',
                                                                                                         '-id')
         self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
 
@@ -447,7 +447,7 @@ class ImagenCrear(CreateView):
         if fromTab == CreateTabs.Directorio.value:
             call_ProcessImage(periciaid=perid, periciaNombre=pericia.descripcion, tipoProceso=fromTab, DirPrincipal=url, listaHash=hashesDirectorioId, periciaDir=pericia.directorio)
         else:
-            call_ProcessImage(perid, pericia.descripcion, fromTab, pericia.directorio, hashesArchivoId, pericia.directorio)
+            call_ProcessImage(perid, pericia.descripcion, fromTab, pericia.directorio, hashesArchivoId)
 
         messages.success(self.request, 'Exito en la operacion', extra_tags='title')
         messages.success(self.request, 'Inicia el procesamiento automatico de las imagenes')

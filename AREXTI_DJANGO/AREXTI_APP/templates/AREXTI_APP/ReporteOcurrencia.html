@@ -48,14 +48,6 @@
                 {% render_field filterset.form.pericia class="form-control" %}
             </div>
             <div class="form-group col-md-2">
-                {{ filterset.form.metadato.label_tag }}
-                {% render_field filterset.form.metadato class="form-control" %}
-            </div>
-            <div class="form-group col-md-2">
-                {{ filterset.form.valormeta.label_tag }}
-                {% render_field filterset.form.valormeta class="form-control" %}
-            </div>
-            <div class="form-group col-md-2">
                 {{ filterset.form.tipoImagen.label_tag }}
                 {% render_field filterset.form.tipoImagen class="form-control" %}
             </div>
@@ -64,22 +56,29 @@
                 {% render_field filterset.form.tipoDetalle class="form-control" %}
             </div>
 
-        </div>
-        <div class="form-group col-md-3">
-            <input type="hidden" name="paginate_by" value={{ numero_paginacion }} />
-            <button type="submit" class="btn btn-primary" >Visualizar</button>
-{#            <input class="btn btn-success" type="submit" name="reporte" value="xls" />#}
-{##}
-{#            <input class="btn btn-danger" type="submit" name="reporte" value="pdf" />#}
-{#            <a class="btn btn-primary" href="{% url 'export_imagenes_xls' %}"  name="reporte" value="Exportar" >Exportar</a>#}
-        </div>
-        <div class="form-group col-md-3">
 
-            <button title="Exportar a Excel" class="btn btn-success" type="submit" name="reporte" value="xls"/>
-                <i class="fa fa-file-excel-o" style="font-size: larger"></i>
-            </button>
+            <div class="form-group col-md-3">
+                <input type="hidden" name="paginate_by" value={{ numero_paginacion }} />
+                <button type="submit" class="btn btn-primary" >Visualizar</button>
+                <a class="btn btn-default" href="{% url 'ReporteOcurrencia'  %}" title="Limpiar filtros">Limpiar</a>
+            </div>
+            <div class="form-group col-md-3">
+                <button title="Exportar a Excel" class="btn btn-success" type="submit" name="reporte" value="xls"/>
+                    <i class="fa fa-file-excel-o" style="font-size: larger"></i>
+                </button>
+            </div>
+
+            <div class="form-group col-md-2">
+                {{ filterset.form.metadato.label_tag }}
+                {% render_field filterset.form.metadato class="form-control" %}
+            </div>
+            <div class="form-group col-md-2">
+                {{ filterset.form.valormeta.label_tag }}
+                {% render_field filterset.form.valormeta class="form-control" %}
+            </div>
 
         </div>
+
 </form>
 {% endblock %}
 
@@ -87,9 +86,6 @@
 {% endblock %}
 
 {% block tabla_contenido %}
-<div class="form-group col-md-2">
-{#<a class="btn btn-success" href="{% url 'export_imagenes_xls' %}">Exportar</a>#}
-    </div>
 <div class="form-group col-md-3"> # total de ocurrencias: {{object_list.0.suma_total_ocu}}</div>
 <div class="form-group col-md-4" style="display:flex">
     <label>Imágenes por página: </label>&nbsp;
@@ -120,9 +116,9 @@
             <td>{{imagen.total_ocurrencias}}</td>
             <td>
                 <div class="cl-effect-1">
-                    <a class="link" href="{% url 'ImagenEditar' imagen.imagenid %}">
-                        {{imagen.nombre}}
-                    </a>
+                <a class="link" href="{% url 'ImagenConsultar' imagen.imagenid %}" target="_blank">
+                    {{imagen.nombre}}
+                </a>
                 </div>
             </td>
             <td>{{imagen.extension}}</td>
