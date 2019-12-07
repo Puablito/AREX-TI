@@ -35,7 +35,7 @@ class Pericia(models.Model):
     proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, limit_choices_to={'activo': 1})
     activo = models.IntegerField(default=1)
     directorio = models.CharField(max_length=100, blank=True)
-    # proyecto = ChainedForeignKey(
+    # pericianueva = ChainedForeignKey(
     #     Proyecto,
     #     chained_field="proyecto",
     #     chained_model_field="Proyecto",

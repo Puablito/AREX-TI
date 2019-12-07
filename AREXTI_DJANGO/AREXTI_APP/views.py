@@ -6,7 +6,7 @@ from enum import Enum
 from .tasks import getDirectories, call_ChangeImageType, call_ProcessImage
 import os
 from django.http import JsonResponse, HttpResponse
-from django.db.models import Count
+from django.db.models import Count, Q
 
 from django.http import HttpResponse, HttpResponseNotFound
 import xlwt
@@ -172,7 +172,7 @@ class PericiaListar(FilteredListView):
             queryset = Pericia.objects.filter(activo=1, proyecto=proid).annotate(num_imagenes=Count('imagen')).order_by(
                 '-proyecto', '-id')
         else:
-            queryset = Pericia.objects.filter(activo=1).annotate(num_imagenes=Count('imagen')).order_by('-proyecto',
+            queryset = Pericia.objects.filter(activo=1).annotate(num_imagenes=Count('imagen',filter=Q(imagen__activo=1))).order_by('-proyecto',
                                                                                                         '-id')
         self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
 
@@ -445,9 +445,9 @@ class ImagenCrear(CreateView):
             return render(request, self.template_name, contexto)
 
         if fromTab == CreateTabs.Directorio.value:
-            call_ProcessImage(periciaid=perid, periciaNombre=pericia.descripcion, tipoProceso=fromTab, DirPrincipal=url, listaHash=hashesDirectorioId)
+            call_ProcessImage.delay(periciaid=perid, periciaNombre=pericia.descripcion, tipoProceso=fromTab, DirPrincipal=url, listaHash=hashesDirectorioId)
         else:
-            call_ProcessImage(perid, pericia.descripcion, fromTab, pericia.directorio, hashesArchivoId)
+            call_ProcessImage.delay(perid, pericia.descripcion, fromTab, pericia.directorio, hashesArchivoId)
 
         messages.success(self.request, 'Exito en la operacion', extra_tags='title')
         messages.success(self.request, 'Inicia el procesamiento automatico de las imagenes')
@@ -487,7 +487,7 @@ class ImagenEditar(UpdateView):
 
             return render(request, self.template_name, {'imagen': imagen, 'periciaId': imagen.pericia.id})
 
-        call_ChangeImageType(imagen.id, imagen.nombre, tipoImagenId)
+        call_ChangeImageType.delay(imagen.id, imagen.nombre, tipoImagenId)
 
         messages.success(self.request, 'Éxito en la operación', extra_tags='title')
         messages.success(self.request, 'Inicia el procesamiento automático de las imágenes')

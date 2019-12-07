@@ -100,7 +100,7 @@ def filter_not_empty(queryset, name, value):
 
 class ReporteFilter(django_filters.FilterSet):
     tipoImagen = django_filters.ModelMultipleChoiceFilter(queryset=TipoImagen.objects.filter(activo=1), label='Tipo Imagen')
-    texto = django_filters.CharFilter(method='filter_texto', label='Palabra')
+    texto = django_filters.CharFilter(method='filter_texto', label='Palabra',)
     tipoDetalle = django_filters.ModelMultipleChoiceFilter(queryset=TipoDetalle.objects, label='Tipo Detalle')
     metadato = django_filters.ModelChoiceFilter(queryset=Metadatos.objects.distinct('idMeta'), label='Tipo Metadato', )
     proyecto = django_filters.ModelChoiceFilter(queryset=Proyecto.objects.all(), label='Proyecto', )
@@ -122,6 +122,9 @@ class ReporteFilter(django_filters.FilterSet):
             {'empty_label': 'Todos'})
         self.filters['proyecto'].extra.update(
             {'empty_label': 'Todos'})
+        # self.filters['limite'].extra.update(
+        #     {'required': True})
+        # self.filters['limite'].field.initial= 100
 
     def filter_queryset(self, queryset):
         """
