@@ -20,18 +20,12 @@ Pericias
 <form>
         <div class="form-row">
             <div class="form-group col-md-3">
-                <!--<div class="form-group">-->
                 {{ filterset.form.proyecto.label_tag }}
                 {% render_field filterset.form.proyecto class="form-control" value="1" %}
-                    <!--</div>-->
-                <!--</div>-->
             </div>
             <div class="form-group col-md-3">
-                <!--<div class="form-group">-->
                     {{ filterset.form.descripcion.label_tag }}
                     {% render_field filterset.form.descripcion class="form-control" %}
-                    <!--</div>-->
-                <!--</div>-->
             </div>
             <div class="form-group col-md-3">
                     {{ filterset.form.tipoPericia.label_tag }}
@@ -46,7 +40,7 @@ Pericias
                     {% render_field filterset.form.fecha class="form-control" id="fechaa" value="" %}
                     </div>
             </div>
-            <!--<input class="form-control" type="text" id="fechaa" data-toggle="daterangepicker" maxlength="23" name="timestamp" data-filter-type="date-range">-->
+
         </div>
 
         <div class="form-group col-md-3">
@@ -68,7 +62,7 @@ Pericias
 </div>
 <div class="form-group col-md-4" style="display:flex">
     <label>Pericias por página:</label>&nbsp;
-    <form action="." method="get">
+    <form action="" method="get">
         <select name="paginate_by" class="form-control" onchange="this.form.submit();" style="width:20%">
             <option value="5" {% if 5 == numero_paginacion %}selected{% endif %}>5</option>
             <option value="10" {% if 10 == numero_paginacion %}selected{% endif %}>10</option>
