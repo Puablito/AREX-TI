@@ -129,6 +129,14 @@ def proceso_Principal(periciaid, periciaNombre, tipoProceso, DirPrincipal, lista
                 loggerPericia.error("Error al leer las imagenes (" + RtaCarga[1] + ")")
 
         if Is_OK:
+            # Creo la carpeta de las miniaturas para la pericia si no existe
+            DirAppMiniatura = DirAppPericia + os.path.sep + ".thumbnail"
+            try:
+                if not os.path.exists(DirAppMiniatura):
+                    os.makedirs(DirAppMiniatura)
+            except Exception as e:
+                loggerPericia.error("Error al crear el directorio de las miniaturas ({0})".format(e))
+
             """
             Inicio del procesamiento en paralelo
         
@@ -165,8 +173,8 @@ def proceso_Principal(periciaid, periciaNombre, tipoProceso, DirPrincipal, lista
             while len(procesos_ejecucion) < procesos_paralelos:
                 p = Process(name="Proceso {0}".format(indiceProceso),
                             target=ImagenAcciones.procesar_imagen,
-                            args=(indiceProceso, ImagenesCola, ImagenesGuardar_Cola, imagenesNoTexto_Cola,
-                                  listaHash, tesseract_cmd, RNTexto_procesa, mensajes_Cola,)
+                            args=(ImagenesCola, ImagenesGuardar_Cola, imagenesNoTexto_Cola,listaHash, tesseract_cmd,
+                                  RNTexto_procesa, mensajes_Cola, DirAppMiniatura,)
                             )
                 p.start()
                 procesos_ejecucion.append(p)
