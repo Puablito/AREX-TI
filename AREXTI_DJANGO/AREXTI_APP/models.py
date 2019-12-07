@@ -1,5 +1,4 @@
 from django.db import models
-from smart_selects.db_fields import ChainedForeignKey
 # Create your models here.
 
 
@@ -35,13 +34,6 @@ class Pericia(models.Model):
     proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, limit_choices_to={'activo': 1})
     activo = models.IntegerField(default=1)
     directorio = models.CharField(max_length=100, blank=True)
-    # pericianueva = ChainedForeignKey(
-    #     Proyecto,
-    #     chained_field="proyecto",
-    #     chained_model_field="Proyecto",
-    #     show_all=False,
-    #     auto_choose=True,
-    #     sort=True)
 
     class Meta:
         indexes = [models.Index(fields=['proyecto']),

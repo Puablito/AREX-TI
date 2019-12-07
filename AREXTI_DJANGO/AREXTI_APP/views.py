@@ -445,7 +445,7 @@ class ImagenCrear(CreateView):
             return render(request, self.template_name, contexto)
 
         if fromTab == CreateTabs.Directorio.value:
-            call_ProcessImage.delay(periciaid=perid, periciaNombre=pericia.descripcion, tipoProceso=fromTab, DirPrincipal=url, listaHash=hashesDirectorioId)
+            call_ProcessImage.delay(periciaid=perid, periciaNombre=pericia.descripcion, tipoProceso=fromTab, DirPrincipal=url, listaHash=hashesDirectorioId, periciaDir=pericia.directorio)
         else:
             call_ProcessImage.delay(perid, pericia.descripcion, fromTab, pericia.directorio, hashesArchivoId)
 
@@ -487,7 +487,7 @@ class ImagenEditar(UpdateView):
 
             return render(request, self.template_name, {'imagen': imagen, 'periciaId': imagen.pericia.id})
 
-        call_ChangeImageType.delay(imagen.id, imagen.nombre, tipoImagenId)
+        call_ChangeImageType.delay(imagen.id, imagen.nombre, tipoImagenId, imagen.pericia.directorio)
 
         messages.success(self.request, 'Éxito en la operación', extra_tags='title')
         messages.success(self.request, 'Inicia el procesamiento automático de las imágenes')
@@ -873,3 +873,8 @@ def filecreation(periciaId, periciaName):
         #     error = e.errno
 
     return directorioPericia
+
+def load_pericias(request):
+    proyectoId = request.GET.get('proyectoId')
+    pericias = Pericia.objects.filter(proyecto=proyectoId, activo=1).order_by('descripcion')
+    return render(request, 'base/shared/pericia_dropdown_list_options.html', {'pericias': pericias})
