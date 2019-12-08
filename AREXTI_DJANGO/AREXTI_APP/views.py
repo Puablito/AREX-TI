@@ -698,7 +698,7 @@ def write_pdf_view(request):
     imagenes = funcionesdb.consulta('ocurrencias', [params['palabra'], params['pericia'], params['tiposfinal'],
                                                     params['detallesfinal'], params['metadato'], params['valormetadato']])
 
-    logo = 'AREXTI_APP/static/image/Logo programa.jpg'
+    logo = 'AREXTI_APP/static/image/log.jpg'
     w, h = letter
     max_rows_per_page = 30
     # Margenes.
