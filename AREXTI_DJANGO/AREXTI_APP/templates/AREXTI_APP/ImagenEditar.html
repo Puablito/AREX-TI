@@ -20,7 +20,7 @@
       <div class="row">
         <div class="col-md-4 col-sm-6 col-xs-12">
           <div class="info-box">
-            <img src="#" style="margin:15px; height:250px;">
+            <img src="#" class="img-responsive center-block">
           </div>
         </div>
         <div class="col-md-8 col-sm-6 col-xs-12">
@@ -49,12 +49,12 @@
             <div class="collapse in" id="collapseInformacionBasica">
                 <div class="box-body">
               <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-6">
                   <b>Nombre</b>
                   <br/>
                   {{imagen.nombre}}
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-2">
                   <b>Extensión</b>
                   <br/>
                   {{imagen.extension}}
@@ -123,10 +123,10 @@
                     <th>Atributo</th>
                     <th>Valor</th>
                   </tr>
-                  {% for obj_hash in imagen.imagenhash_set.all %}
+                  {% for obj_meta in imagen.imagenmetadatos_set.all %}
                     <tr>
-                      <td></td>
-                      <td></td>
+                      <td>{{obj_meta.idMetadato}}</td>
+                      <td>{{obj_meta.valor}}</td>
                     </tr>
                   {% endfor %}
                 </tbody>

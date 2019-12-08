@@ -7,7 +7,7 @@ class Imagen:
         self.__imagentipo = ""
         self.__hashes = {}
         self.__metadatos = dict()
-        self.__thumbnail = ""
+        self.__miniatura = ""
         self.__detalles = []
 
 
@@ -30,8 +30,8 @@ class Imagen:
     def get_metadatos(self):
         return self.__metadatos
 
-    def get_thumbnail(self):
-        return self.__thumbnail
+    def get_miniatura(self):
+        return self.__miniatura
 
     def get_detalles(self):
         return self.__detalles
@@ -55,8 +55,8 @@ class Imagen:
     def set_metadatos(self, metadatos):
         self.__metadatos = metadatos
 
-    def set_thumbnail(self, thumbnail):
-        self.__thumbnail = thumbnail
+    def set_miniatura(self, miniatura):
+        self.__miniatura = miniatura
 
     def set_detalles(self, detalles):
         self.__detalles = detalles

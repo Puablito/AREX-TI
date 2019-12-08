@@ -201,7 +201,7 @@ class PericiaCrear(CreateView):
                 #actualizo y creo el directorio para la pericia
                 pericia2 = get_object_or_404(Pericia, pk=self.pericia.id)
 
-                directorio = filecreation(pericia2.id, pericia2.descripcion)
+                directorio = filecreation(pericia2.proyecto.IPP, pericia2.descripcion)
 
                 Pericia.objects.filter(pk=pericia2.pk).update(directorio=directorio)
 
@@ -428,7 +428,7 @@ class ImagenCrear(CreateView):
         if fromTab == CreateTabs.Directorio.value:
             call_ProcessImage.delay(periciaid=perid, periciaNombre=pericia.descripcion, tipoProceso=fromTab, DirPrincipal=url, listaHash=hashesDirectorioId, periciaDir=pericia.directorio)
         else:
-            call_ProcessImage.delay(perid, pericia.descripcion, fromTab, pericia.directorio, hashesArchivoId, pericia.directorio)
+            call_ProcessImage.delay(periciaid=perid, periciaNombre=pericia.descripcion, tipoProceso=fromTab, DirPrincipal=pericia.directorio, listaHash=hashesArchivoId, periciaDir=pericia.directorio)
 
         messages.success(self.request, 'Exito en la operacion', extra_tags='title')
         messages.success(self.request, 'Inicia el procesamiento automatico de las imagenes')
@@ -821,9 +821,9 @@ def obtenerParametros(request):
     return parametrosfinal
 
 
-def filecreation(periciaId, periciaName):
+def filecreation(IPP, periciaName):
     parametro = Parametros.objects.get(id=ParametroSistema.DirectorioBase.value)
-    directorioPericia = '{}-{}-{}'.format(periciaId, periciaName, datetime.now().strftime('%Y%m%d%H%M%S'))
+    directorioPericia = '{}_{}_{}'.format(IPP, periciaName, datetime.now().strftime('%Y%m%d'))
     mydir = os.path.join(parametro.valorTexto, directorioPericia)
     try:
         os.makedirs(mydir)
