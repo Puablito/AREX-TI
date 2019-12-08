@@ -1,25 +1,25 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
 from django.contrib import messages
 from django.db import transaction, IntegrityError
 from enum import Enum
 from .tasks import getDirectories, call_ChangeImageType, call_ProcessImage
 import os
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.db.models import Count, Q
 
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse
 import xlwt
 from io import BytesIO
 from reportlab.pdfgen import canvas
-from django.views.generic import ListView, CreateView, UpdateView, DetailView, View, TemplateView
-from .models import Proyecto, Pericia, Imagen, TipoHash, ImagenHash, ImagenDetalle, ImagenFile, UploadFile, Parametros
-from .forms import ProyectoForm, PericiaForm, ImagenForm, ImagenEditForm, ProyectoConsultaForm, PericiaConsultaForm, \
+from django.views.generic import ListView, CreateView, UpdateView, View, TemplateView
+from .models import Proyecto, Pericia, Imagen, TipoHash, ImagenDetalle, ImagenFile, UploadFile, Parametros
+from .forms import ProyectoForm, PericiaForm, ImagenEditForm, ProyectoConsultaForm, PericiaConsultaForm, \
     ImagenConsultarForm, UploadFileForm
 from .filters import ProyectoFilter, PericiaFilter, ImagenFilter, ReporteFilter
 from . import funcionesdb
 from reportlab.lib.pagesizes import letter
-from datetime import date, datetime
+from datetime import datetime
 import locale
 import itertools
 
@@ -44,20 +44,12 @@ class FilteredListView(ListView):
     idfil = 0
 
     def get_queryset(self):
-        # Get the queryset however you usually would.  For example:
         queryset = super().get_queryset()
-        # Then use the query parameters and the queryset to
-        # instantiate a filterset and save it as an attribute
-        # on the view instance for later.
-
-        # self.idfil = self.extra_context['id']
         self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
-        # Return the filtered queryset
         return self.filterset.qs.distinct()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Pass the filterset to the template - it provides the form.
         context['filterset'] = self.filterset
         return context
 
@@ -79,12 +71,10 @@ class ProyectoListar(FilteredListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # context['numero_paginacion'] = self.kwargs.get('paginate_by')
         paginacion = self.request.GET.get('paginate_by')
         if paginacion == None:
             paginacion = 5
         context['numero_paginacion'] = int(paginacion)
-        # self.paginate_by = paginacion
         return context
 
     template_name = 'AREXTI_APP/ProyectoListar.html'
@@ -133,7 +123,6 @@ class ProyectoEditar(UpdateView):
         return context
 
 def ProyectoEliminar(request, Proyectoid):
-    # model = Proyecto
     if Proyectoid:
         # PRIMERO ELIMINACION LOGICA DE PERICIAS E IMAGENES CORRESPONDIENTES AL PROYECTO
         pericias = Pericia.objects.filter(proyecto=Proyectoid)
@@ -167,7 +156,6 @@ class PericiaListar(FilteredListView):
         proid = self.kwargs.get("Proyectoid")
         if proid is None:
             proid = 0
-        # queryset = super().get_queryset()
         if proid != 0:
             queryset = Pericia.objects.filter(activo=1, proyecto=proid).annotate(num_imagenes=Count('imagen')).order_by(
                 '-proyecto', '-id')
@@ -272,7 +260,6 @@ class PericiaEditar(UpdateView):
 
 
 def PericiaEliminar(request, Periciaid, Proyectoid):
-    # model = Proyecto
     if Periciaid:
         # PRIMERO ELIMINACION LOGICA DE IMAGENES CORRESPONDIENTES A LA PERICIA
         imagenes = Imagen.objects.filter(pericia=Periciaid)
@@ -311,7 +298,6 @@ class ImagenListar(FilteredListView):
 
     def get_queryset(self):
         perid = self.kwargs.get("pericia")
-        # queryset = super().get_queryset()
         if perid != 0:
             queryset = Imagen.objects.filter(activo=1, pericia=perid).order_by('-id')
         else:
@@ -319,8 +305,6 @@ class ImagenListar(FilteredListView):
         self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
 
         return self.filterset.qs.distinct()
-
-    # queryset = Imagen.objects.filter(activo=1).order_by('-id')
 
     def get_paginate_by(self, queryset):
         paginacion = self.request.GET.get('paginate_by', self.paginate_by)
@@ -343,7 +327,6 @@ class ImagenListar(FilteredListView):
         context['numero_paginacion'] = int(paginacion)
 
         return context
-
     paginate_by = 10
     template_name = 'AREXTI_APP/ImagenListar.html'
 
@@ -355,9 +338,7 @@ class ImagenCrear(CreateView):
     def get(self, request, *args, **kwargs):
         queryset = TipoHash.objects.filter(activo=1)
         activeTab = False
-
         perid = self.kwargs.get("pericia")
-
         if Imagen.objects.filter(pericia=perid).count() > 0:
             activeTab = True
 
@@ -447,7 +428,7 @@ class ImagenCrear(CreateView):
         if fromTab == CreateTabs.Directorio.value:
             call_ProcessImage.delay(periciaid=perid, periciaNombre=pericia.descripcion, tipoProceso=fromTab, DirPrincipal=url, listaHash=hashesDirectorioId, periciaDir=pericia.directorio)
         else:
-            call_ProcessImage.delay(perid, pericia.descripcion, fromTab, pericia.directorio, hashesArchivoId)
+            call_ProcessImage.delay(perid, pericia.descripcion, fromTab, pericia.directorio, hashesArchivoId, pericia.directorio)
 
         messages.success(self.request, 'Exito en la operacion', extra_tags='title')
         messages.success(self.request, 'Inicia el procesamiento automatico de las imagenes')
@@ -509,10 +490,6 @@ class ImagenConsultar(UpdateView):
         context['modoReport'] = self.kwargs.get('modoReport')
         return context
 
-    # def get_success_url(self):
-    #     print(self.kwargs)
-    #     return reverse('ImagenListar', kwargs={'pericia': 5})
-
 
 def ImagenEliminar(request, Imagenid):
     if Imagenid:
@@ -570,26 +547,11 @@ class ReporteNube(FilteredListView):
             return export_imagenes_xls(self.request, 'nube')
         else:
             return super().get(request, *args, **kwargs)
-        # parametros = obtenerParametros(self.request)
-        # palabras = funcionesdb.consulta('nube', [parametros['pericia'], parametros['tiposfinal'],
-        #                                          parametros['detallesfinal'], parametros['metadato'],
-        #                                          parametros['valormetadato']])
-        # palabrasfinal = []
-        # for palabra in palabras:
-        #     palabrasfinal.append([palabra['palabra'], str(palabra['total'])])
-        # # context['nube'] = palabrasfinal
-        # contexto = {
-        #     'nube': palabrasfinal,
-        #
-        # }
-
         return render(request, self.template_name, contexto)
-
 
     def get_queryset(self):
         queryset = None
         self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
-
         return self.filterset.qs
 
     def get_context_data(self, **kwargs):
@@ -655,12 +617,9 @@ def export_imagenes_xls(request, reporte):
         mensaje = ' palabras'
         response['Content-Disposition'] = 'attachment; filename="Reporte Nube de palabras "' + params['fechaHora'] + '".xls"'
 
-
-
     wb = xlwt.Workbook(encoding='utf-8')
     ws = wb.add_sheet(reporte)
 
-    # Sheet header, first row
     row_num = 0
 
     font_style_cabecera = xlwt.XFStyle()
@@ -701,7 +660,7 @@ def export_imagenes_xls(request, reporte):
         if (col_num % 2) == 0:
             ws.write_merge(row_num, row_num, col_num, col_num + 1, columns[col_num], font_style_titulos)
     if resultados:
-        # Sheet body, remaining rows
+
         font_style_detalles = xlwt.XFStyle()
         font_style_detalles.alignment.horz = xlwt.Alignment.HORZ_CENTER
         font_style_detalles.font.height = 220
