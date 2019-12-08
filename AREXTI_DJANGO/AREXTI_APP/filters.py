@@ -125,6 +125,15 @@ class ReporteFilter(django_filters.FilterSet):
         # self.filters['limite'].extra.update(
         #     {'required': True})
         # self.filters['limite'].field.initial= 100
+        if 'proyecto' in self.data:
+            try:
+                proyectoId = int(self.data.get('proyecto'))
+                self.filters['pericia'].queryset = Pericia.objects.filter(proyecto=proyectoId, activo=1).order_by('descripcion')
+            except (ValueError, TypeError):
+                pass
+        else:
+            self.filters['pericia'].queryset = Pericia.objects.none()
+
 
     def filter_queryset(self, queryset):
         """

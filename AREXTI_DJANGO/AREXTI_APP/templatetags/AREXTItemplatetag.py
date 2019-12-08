@@ -1,5 +1,5 @@
 from django import template
-from AREXTI_APP.models import ImagenHash
+from AREXTI_APP.models import ImagenHash, Imagen, ImagenDetalle
 
 register = template.Library()
 
@@ -21,6 +21,43 @@ def img_hash_tags2(tipo_hash, id):
             break
     else:
         return None
+
+@register.simple_tag
+def get_color_by_tipoImgen(tipoImagen):
+    if tipoImagen == 'CHAT':
+        color = 'primary'
+    elif tipoImagen == 'MAIL':
+        color = 'success'
+    else:
+        color = 'secondary'
+
+    return color
+
+
+@register.inclusion_tag('base/shared/ImagenDetalle.html')
+def list_detail_text(imagenDetalles, tipoImagen, color):
+    isChat = tipoImagen == 'CHAT'
+    cabeceraText = ''
+    mailText = ''
+    imagenDetalleObjectMail = imagenDetalles.filter(tipoDetalle_id='MAIL')
+    if imagenDetalleObjectMail:
+        mailText = imagenDetalleObjectMail[0]
+        mailText = mailText.texto
+
+    if isChat:
+        imagenDetalleObjectCabecera = imagenDetalles.filter(tipoDetalle_id='CABECERA')
+        if imagenDetalleObjectCabecera:
+            cabeceraText = imagenDetalleObjectCabecera[0]
+            cabeceraText = cabeceraText.texto
+    return {
+        'imagenDetalle': imagenDetalles,
+        'cabeceraText': cabeceraText,
+        'mailText': mailText,
+        'isChat': isChat,
+        'color': color
+    }
+
+
 
 @register.simple_tag(takes_context=True)
 def param_replace(context, **kwargs):

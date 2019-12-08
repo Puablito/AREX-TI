@@ -835,6 +835,7 @@ def filecreation(IPP, periciaName):
     return directorioPericia
 
 def load_pericias(request):
-    proyectoId = request.GET.get('proyectoId')
-    pericias = Pericia.objects.filter(proyecto=proyectoId, activo=1).order_by('descripcion')
-    return render(request, 'base/shared/pericia_dropdown_list_options.html', {'pericias': pericias})
+    if request.method == 'GET':
+        proyectoId = request.GET.get('proyectoId')
+        pericias = Pericia.objects.filter(proyecto=proyectoId, activo=1).order_by('descripcion')
+        return render(request, 'base/shared/pericia_dropdown_list_options.html', {'pericias': pericias})

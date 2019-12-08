@@ -21,6 +21,25 @@
     <script src="{% static '/js/wordcloud/offline-exporting.js' %}"></script>
     {% block ListadoBaseScripts %}
 
+    <script>
+        $(function(){
+            $("#id_proyecto").change(function () {
+                var url = $("#filterForm").attr("data-pericia-url");
+                var proyectoId = $(this).val();
+
+                $.ajax({
+                    url: url,
+                    data: {
+                        'proyectoId': proyectoId
+                    },
+                    success: function (data) {
+                        $("#id_pericia").html(data);
+                    }
+                });
+            });
+        })
+    </script>
+
     {% endblock %}
 {% endblock %}
 
@@ -68,7 +87,7 @@
                     <div class="collapse in" id="collapseFiltros">
                         <div class="box-body">
                             {% block filtros %}
-                                <form>
+                                <form id="filterForm" data-pericia-url="{% url 'ajax_load_pericias' %}">
                                     <div class="form-row">
                                         <div class="form-group col-md-3">
                                             {{ filterset.form.proyecto.label_tag }}
