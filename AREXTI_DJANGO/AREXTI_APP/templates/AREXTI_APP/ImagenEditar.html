@@ -8,12 +8,15 @@
    Imagen
 {% endblock %}
 
+{% load AREXTItemplatetag %}
 
 {% block linkVolver %}
   <a type="" href="{% url 'ImagenListar' periciaId %}" style="color:black"> Volver a imagen</a>
 {% endblock %}
 
 {% block body%}
+
+{% get_color_by_tipoImgen tipoImagen=imagen.tipoImagen.id as color %}
 
       <div class="row">
         <div class="col-md-4 col-sm-6 col-xs-12">
@@ -22,13 +25,7 @@
           </div>
         </div>
         <div class="col-md-8 col-sm-6 col-xs-12">
-          <div class="info-box">
-            <label style="margin:15px; height:250px;">
-              {% for obj_detalle in detalles %}
-                {{ obj_detalle.texto |safe}}
-              {% endfor %}
-            </label>
-          </div>
+          {% list_detail_text imagenDetalles=detalles tipoImagen=imagen.tipoImagen.id color=color %}
         </div>
 
       </div>
@@ -36,7 +33,7 @@
       <div class="row">
         <div class="col-md-12">
           <div class="box-filter">
-            <div class="box-header with-border" style="background-color:#1d567f !important;">
+            <div class="box-header bg-{{color}} with-border">
               <h3 class="box-title" style="color:#fff !important;"><i class="fa fa-image"></i>&nbsp;Información básica</h3>
               <div class="box-tool pull-right">
                 <button type="button" class="btn btn-box-tool" data-toggle="collapse" data-target="#collapseInformacionBasica" aria-expanded="true" aria-controls="collapseInformacionBasica">
@@ -72,7 +69,7 @@
       <div class="row">
         <div class="col-md-12">
           <div class="box-filter">
-            <div class="box-header with-border" style="background-color:#0e5032 !important;">
+            <div class="box-header bg-{{color}} with-border">
               <h3 class="box-title" style="color:#fff !important;"><i class="fa fa-key"></i>&nbsp;Hashes</h3>
               <div class="box-tool pull-right">
                 <button type="button" class="btn btn-box-tool" data-toggle="collapse" data-target="#collapseHash" aria-expanded="true" aria-controls="collapseHash">
@@ -105,7 +102,7 @@
       <div class="row">
         <div class="col-md-12">
           <div class="box-filter">
-            <div class="box-header with-border" style="background-color:#841616 !important;">
+            <div class="box-header bg-{{color}} with-border">
               <h3 class="box-title" style="color:#fff !important;"><i class="fa fa-search"></i>&nbsp;Metadatos</h3>
               <div class="box-tool pull-right">
                 <button type="button" class="btn btn-box-tool" data-toggle="collapse" data-target="#collapseMetadato" aria-expanded="true" aria-controls="collapseMetadato">

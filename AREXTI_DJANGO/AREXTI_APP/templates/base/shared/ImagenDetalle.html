@@ -1,0 +1,85 @@
+{%if isChat %}
+		<!-- DIRECT CHAT -->
+        <div class="box box-{{color}} direct-chat direct-chat-{{color}}">
+
+		<div class="box-header with-border" style="border-radius:0px;">
+                <h3 class="box-title">{{cabeceraText|safe}}</h3>
+			</div>
+	        <div class="box-body">
+		        <div class="direct-chat-messages">
+
+			        {% for detalle in imagenDetalle%}
+
+	                    {% if detalle.tipoDetalle_id == 'GLOBOIZQUIERDA'%}
+	                        <!-- Message. Default to the left -->
+                            <div class="direct-chat-msg">
+                                <div class="direct-chat-text">
+			                        {{detalle.texto|safe}}
+                                </div>
+                                <!-- /.direct-chat-text -->
+                            </div>
+                            <!-- /.direct-chat-msg -->
+	                    {% endif %}
+
+	                    {% if detalle.tipoDetalle_id == 'GLOBODERECHA'%}
+                            <!-- Message to the right -->
+                            <div class="direct-chat-msg right">
+	                            <div class="direct-chat-text">
+		                            {{detalle.texto|safe}}
+	                            </div>
+	                            <!-- /.direct-chat-text -->
+                            </div>
+                            <!-- /.direct-chat-msg -->
+	                    {% endif %}
+
+	                    {% if detalle.tipoDetalle_id == 'GLOBOINDEFINIDO'%}
+                            <!-- Message to the right -->
+	                        <div class="direct-chat-msg center">
+	                            <div class="direct-chat-text" style="position:inherit;margin-left:50px;margin-right:50px;">
+		                            {{detalle.texto|safe}}
+	                            </div>
+	                            <!-- /.direct-chat-text -->
+                            </div>
+                            <!-- /.direct-chat-msg -->
+	                    {% endif %}
+
+	                {% endfor %}
+		        </div>
+	        </div>
+
+	        <div class="box-footer with-border" style="border-radius:0px;">
+                <h3 class="box-title">{{mailText|safe}}</h3>
+		        <div class="box-tools pull-left">
+                    <span class="label label-{{color}}">Mails encontrados</span>
+                  </div>
+			</div>
+
+        </div>
+        <!--/.direct-chat -->
+
+{% else %}
+
+	<div class="box box-{{color}} direct-chat direct-chat-{{color}}">
+
+		<div class="box-body">
+			<div class="direct-chat-messages">
+				{% for detalle in imagenDetalle%}
+
+					<div>
+						{{detalle.texto|safe}}
+					</div>
+
+				{% endfor %}
+			</div>
+
+			<div class="box-footer with-border" style="border-radius:0px;">
+                <h3 class="box-title">{{mailText|safe}}</h3>
+		        <div class="box-tools pull-left">
+                    <span class="label label-{{color}}">Mails encontrados</span>
+                  </div>
+			</div>
+		</div>
+
+	</div>
+
+{% endif %}

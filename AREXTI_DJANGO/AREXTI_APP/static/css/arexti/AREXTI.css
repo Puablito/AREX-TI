@@ -705,7 +705,7 @@ a:focus {
   display: inline;
 }
 
-.bg-gray {
+.bg-gray, .bg-secondary {
   color: #000;
   background-color: #b5bbc8 !important;
 }
@@ -1322,4 +1322,7 @@ label.required::after {
 .square {
     height: 600px;
     width: 600px;
+}
+
+.infoTab{
 }
