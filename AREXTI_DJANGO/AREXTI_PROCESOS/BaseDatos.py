@@ -100,7 +100,12 @@ class Conexion:
         """
         Funcion que devuelve el ultimo id añadido
         """
-        return self.cursor.fetchone()[0]
+        try:
+            idRetorno = self.cursor.fetchone()[0]
+            return idRetorno
+        except Exception as e:
+            self.error = "Error: {0}".format(e)
+            return 0
 
     def desconectar(self):
         self.conectado = False

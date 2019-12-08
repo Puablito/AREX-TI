@@ -1,5 +1,6 @@
 import cv2
-import psycopg2
+import os
+from random import randint
 
 def parametro_get(conexion, parametro_id):
     query = """ SELECT "valorTexto","valorNumero","valorBooleano" 
@@ -17,24 +18,25 @@ def parametro_get(conexion, parametro_id):
 def imagenInsertar(conexion, periciaid,  imagen):
     # Inserta Tabla Imagen
     query = """ INSERT INTO "AREXTI_APP_imagen" 
-                ("nombre", "miniatura", "thumbnail", "path", "extension", "activo", "pericia_id", "tipoImagen_id")
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;"""
+                ("nombre", "miniatura", "path", "extension", "activo", "pericia_id", "tipoImagen_id")
+                VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id;"""
 
-    miniatura = ""
     nombre = imagen.get_nombre()
     extension = imagen.get_extension()
     path = imagen.get_path()
 
     tipoImagen = imagen.get_imagentipo()
+    miniatura = imagen.get_miniatura()
 
-    thumbnail = imagen.get_thumbnail()
-    thumbnail_binary = psycopg2.Binary(thumbnail)  # lo hago binario o serializo
-
-    data = (nombre, miniatura, thumbnail_binary, path, extension, 1, periciaid, tipoImagen)
+    data = (nombre, miniatura, path, extension, 1, periciaid, tipoImagen)
 
     conexion.consulta(query, data, False)
 
     imagenId = conexion.lastId()
+    # Si no pudo recuperar el ultimo ID Corta el guardado
+    if imagenId == 0:
+        return ["ERROR", conexion.error]
+
     # insert de las otras tablas
     hashes = imagen.get_hashes()
     hashesInsertar(hashes, imagenId, conexion)
@@ -49,7 +51,6 @@ def imagenInsertar(conexion, periciaid,  imagen):
     if resultado:
         return ["OK", resultado]
     else:
-        # GUARDAR EN LOG????
         return ["ERROR", conexion.error]
 
 
@@ -89,7 +90,7 @@ def detallesInsertar(detalles, imagenId, conexion):
             conexion.consulta(query, data, False)
 
 
-def miniaturaCrea(imagen, ext):
+def miniaturaCrea(imagen, img_nombre, DirAppMiniatura):
     # leo la imagen
     img = cv2.imread(imagen, cv2.IMREAD_UNCHANGED)
     # calculo el porcentaje de escalado a partir del alto que quiero (64px)
@@ -100,9 +101,16 @@ def miniaturaCrea(imagen, ext):
     dim = (width, height)
     # genero la imagen reescalada
     img_resized = cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
-    # Encodeo la imagen para guardarla en la BD
-    retval, buf = cv2.imencode('.' + ext, img_resized)
-    return buf
+
+    # Genero valor aleatorio y se lo agrego al nombre
+    nroImg = randint(1, 99999999)
+    nroImgS = "_{0}.".format(nroImg)
+    img_nombre = img_nombre.replace(".", nroImgS)
+
+    img_save = DirAppMiniatura + os.path.sep + img_nombre
+    cv2.imwrite(img_save, img_resized)
+
+    return img_save
 
 
 def imagenTipoActualizar(conexion, imagenId, imagentipo, detalles):
