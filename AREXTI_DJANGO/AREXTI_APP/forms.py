@@ -97,6 +97,10 @@ class ImagenEditForm(forms.ModelForm):
     error_css_class = 'error'
     required_css_class = 'required'
 
+    def __init__(self, *args, **kwargs):
+        super(ImagenEditForm, self).__init__(*args, **kwargs)
+        self.fields['tipoImagen'].empty_label = None
+
     class Meta:
         model = Imagen
 

@@ -17,7 +17,6 @@
 {% endblock %}
 
 {% block principal %}
-<!--<Main Content>-->
 <section class="content-header">
     <h1>
         {% block icon %}
@@ -36,7 +35,6 @@
     {% block TopBody %}
     {% endblock %}
 
-    <!--<div class="col-md-12">-->
         <!-- Filtros -->
         <div class="row">
             <div class="col-md-12">
@@ -54,7 +52,6 @@
                         <div class="box-body">
                             {% block filtros %}
                             {% endblock %}
-                            <!--<button type="button" class="btn btn-primary pull-right">Buscar</button>-->
                         </div>
                     </div>
                 </div>
@@ -72,14 +69,10 @@
                             {% endblock %}
                         </table>
                         <!-- Contenedor de paginación -->
-                    <!--</div>-->
                         <div class="text-center">
                             <ul class="pagination text-center">
-                                <!--{% block tabla_paginacion %}-->
-                                <!--{% endblock %}-->
                                 {% if is_paginated %}
                                     {% if page_obj.has_previous %}
-                                        <!--<li><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>-->
                                         <li><a href="?{% param_replace page=page_obj.previous_page_number %}">&laquo;</a></li>
                                     {% else %}
                                         <li class="disabled"><span>&laquo;</span></li>
@@ -88,12 +81,10 @@
                                         {% if page_obj.number == i %}
                                             <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
                                         {% else %}
-                                            <!--<li><a href="?page={{i}}">{{ i }}</a></li>-->
                                             <li><a href="?{% param_replace page=i  %}">{{ i }}</a></li>
                                         {% endif %}
                                     {% endfor %}
                                     {% if page_obj.has_next %}
-                                        <!--<li><a href="?page={{page_obj.next_page_number}}">&raquo;</a></li>-->
                                         <li><a href="?{% param_replace page=page_obj.next_page_number %}">&raquo;</a></li>
                                     {% else %}
                                         <li class="disabled"><span>&raquo;</span></li>
@@ -105,7 +96,5 @@
                 </div>
             </div>
         </div>
-    <!--</div>-->
 </section>
-<!--</Main Content>-->
 {% endblock %}

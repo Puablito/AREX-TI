@@ -126,6 +126,7 @@ class Metadatos(models.Model):
     def __str__(self):
         return self.idMeta
 
+
 class ImagenMetadatos(models.Model):
     imagen = models.ForeignKey(Imagen, on_delete=models.CASCADE)
     idMetadato = models.CharField(max_length=50)
@@ -135,6 +136,7 @@ class ImagenMetadatos(models.Model):
         indexes = [models.Index(fields=['idMetadato']),
                    models.Index(fields=['valor']),
                    models.Index(fields=['idMetadato', 'valor'])]
+
     def __str__(self):
         return self.valor
 
@@ -150,6 +152,7 @@ class UploadFile(models.Model):
     title = models.CharField(max_length=255, blank=True)
     file = models.FileField(max_length=255)
     uploaded_at = models.DateTimeField(auto_now_add=True)
+
 
 class Diccionario(models.Model):
     palabra = models.CharField(max_length=50, unique=True)

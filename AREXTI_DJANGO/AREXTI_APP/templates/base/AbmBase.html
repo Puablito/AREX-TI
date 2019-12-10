@@ -13,23 +13,14 @@
     {% block AbmBaseScripts %}
     {% endblock %}
 {% endblock %}
-  <!-- Bootstrap core CSS -->
-  <!-- Custom fonts for this template -->
 
-  <!-- Custom styles for this template -->
 
 {% block error %}
     {% include 'base/Messages.html' %}
 {% endblock %}
 
 {% block principal %}
-<!--<body>-->
-
-  <!-- Main Content -->
-  <!--<div class="content-wrapper">-->
-
     <section class="content-header">
-        <!--<div class="jumbotron" style="margin-bottom:0">-->
             <h1>
                 {% block icon %}
                 {% endblock %}
@@ -52,7 +43,6 @@
                 {% block linkVolver %}
                 {% endblock %}
             </h6>
-        <!--</div>-->
     </section>
     <section class="content">
     <div class="row">
@@ -83,7 +73,4 @@
       </div>
     </div>
     </section>
-  <!--</div>-->
-
-<!--</body>-->
 {% endblock %}

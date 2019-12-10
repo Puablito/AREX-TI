@@ -15,9 +15,6 @@ class ProyectoFilter(django_filters.FilterSet):
 
     def __init__(self, data, *args, **kwargs):
         data = data.copy()
-        # data.setdefault('IPP', '111')
-        # data.setdefault('fiscalia', 'Fiscalia 1')
-        # data.setdefault('order', '-added')
         super().__init__(data, *args, **kwargs)
 
     class Meta:
@@ -48,16 +45,12 @@ class FechaRangoFilter(filters.Filter):
 
 
 class PericiaFilter(django_filters.FilterSet):
-    # fecha = django_filters.DateFromToRangeFilter()
     fecha = FechaRangoFilter(label='Fecha')
     descripcion = django_filters.CharFilter(lookup_expr='icontains', label='Descripción')
     tipoPericia = django_filters.ChoiceFilter(choices=Pericia.tiposPericia, label='Tipo Pericia')
 
     def __init__(self, data, *args, **kwargs):
         data = data.copy()
-        # data.setdefault('IPP', '111')
-        # data.setdefault('fiscalia', 'Fiscalia 1')
-        # data.setdefault('order', '-added')
         super().__init__(data, *args, **kwargs)
 
     class Meta:
@@ -114,17 +107,12 @@ class ReporteFilter(django_filters.FilterSet):
 
     def __init__(self, *args, **kwargs):
         super(ReporteFilter, self).__init__(*args, **kwargs)
-        # self.filters['tipoImagen'].extra.update(
-        #     {'empty_label': 'Todas'})
         self.filters['pericia'].extra.update(
             {'empty_label': 'Todas'})
         self.filters['metadato'].extra.update(
             {'empty_label': 'Todos'})
         self.filters['proyecto'].extra.update(
             {'empty_label': 'Todos'})
-        # self.filters['limite'].extra.update(
-        #     {'required': True})
-        # self.filters['limite'].field.initial= 100
         if 'proyecto' in self.data:
             try:
                 proyectoId = int(self.data.get('proyecto'))
