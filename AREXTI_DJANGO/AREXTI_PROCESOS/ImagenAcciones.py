@@ -96,15 +96,15 @@ def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tip
                                 ImagenesCola.put([pathDestino, imgTemp[1], imgTemp[2]])
                         except Exception as e:
                             resultadoOK = False
-                            msgError = "No se pudieron mover las imagenes al directorio destino: {0}".format(e)
+                            msgError = "No se pudieron mover las imágenes al directorio destino: {0}".format(e)
 
                 else:
                     resultadoOK = False
-                    msgError = "La carpeta no posee imagenes para la pericia {0}".format(periciaid)
+                    msgError = "La carpeta no posee imágenes para la pericia {0}".format(periciaid)
 
         else:
             resultadoOK = False
-            msgError = "No se encontraron imagenes subidas para la pericia {0}".format(periciaid)
+            msgError = "No se encontraron imágenes subidas para la pericia {0}".format(periciaid)
 
     elif tipoProceso == "D":
         pathDestino = DirBaseDestino + os.path.sep + DirPrincipal
@@ -365,10 +365,10 @@ def cambiar_tipoimagen(imagenid, imagennombre, imagentipo, periciaDir):
         # Inicializo el Log del cambio de tipo
         loggerImagen.info("**************************************************************************************")
         loggerImagen.info("----- Inicio del cambio de tipo de imagen ({0}) -----".format(imagennombre))
-        loggerImagen.info("---- Parametros generales ----")
+        loggerImagen.info("---- Parámetros generales ----")
         loggerImagen.info("-- Directorio Base: {0}".format(DirBase))
         loggerImagen.info("-- Ruta Tesseract: {0}".format(tesseract_cmd))
-        loggerImagen.info("---- Parametros del proceso ----")
+        loggerImagen.info("---- Parámetros del proceso ----")
         loggerImagen.info("-- Imagen: {0}-{1}".format(imagenid, imagennombre))
         loggerImagen.info("-- Nuevo tipo de imagen : {0}".format(imagentipo))
 

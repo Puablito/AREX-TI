@@ -77,6 +77,13 @@ class ProyectoListar(FilteredListView):
         context['numero_paginacion'] = int(paginacion)
         return context
 
+    def get(self, request, *args, **kwargs):
+
+        activeTab = False
+        # contexto = super().get_context_data(**kwargs)
+        return super(ProyectoListar, self).get(request)
+        # return render(request, self.template_name, contexto)
+
     template_name = 'AREXTI_APP/ProyectoListar.html'
 
 
@@ -157,7 +164,7 @@ class PericiaListar(FilteredListView):
         if proid is None:
             proid = 0
         if proid != 0:
-            queryset = Pericia.objects.filter(activo=1, proyecto=proid).annotate(num_imagenes=Count('imagen')).order_by(
+            queryset = Pericia.objects.filter(activo=1, proyecto=proid).annotate(num_imagenes=Count('imagen',filter=Q(imagen__activo=1))).order_by(
                 '-proyecto', '-id')
         else:
             queryset = Pericia.objects.filter(activo=1).annotate(num_imagenes=Count('imagen',filter=Q(imagen__activo=1))).order_by('-proyecto',
@@ -327,7 +334,6 @@ class ImagenListar(FilteredListView):
         context['numero_paginacion'] = int(paginacion)
 
         return context
-    paginate_by = 10
     template_name = 'AREXTI_APP/ImagenListar.html'
 
 
@@ -384,7 +390,7 @@ class ImagenCrear(CreateView):
 
         if not fromTab or fromTab not in [CreateTabs.Archivo.value, CreateTabs.Directorio.value]:
             isValid = False
-            stringList.append('Debe seleccionar una opcion para cargar imagenes')
+            stringList.append('Debe seleccionar una opción para cargar imágenes')
 
         if not perid or perid == 0:
             isValid = False
@@ -392,11 +398,11 @@ class ImagenCrear(CreateView):
 
         if fromTab == CreateTabs.Directorio.value and not url:
             isValid = False
-            stringList.append('Seleccione un directorio de cual se extraeran las imagenes')
+            stringList.append('Seleccione un directorio de cual se extraerán las imágenes')
 
         if fromTab == CreateTabs.Directorio.value and not hashesDirectorioId:
             isValid = False
-            stringList.append('Seleccione uno o mas hashes para aplicar a las imagenes del directorio')
+            stringList.append('Seleccione uno o mas hashes para aplicar a las imágenes del directorio')
 
         if fromTab == CreateTabs.Archivo.value and not hashesArchivoId:
             isValid = False
@@ -430,10 +436,14 @@ class ImagenCrear(CreateView):
         else:
             call_ProcessImage.delay(periciaid=perid, periciaNombre=pericia.descripcion, tipoProceso=fromTab, DirPrincipal=pericia.directorio, listaHash=hashesArchivoId, periciaDir=pericia.directorio)
 
-        messages.success(self.request, 'Exito en la operacion', extra_tags='title')
-        messages.success(self.request, 'Inicia el procesamiento automatico de las imagenes')
+        messages.success(self.request, 'Éxito en la operación', extra_tags='title')
+        messages.success(self.request, 'Inicia el procesamiento automático de las imágenes')
 
-        return render(request, 'AREXTI_APP/ImagenListar.html', {'pericia': pericia, 'periciaId': perid})
+        return redirect(self.get_success_url(perid))
+        # return render(request, 'AREXTI_APP/ImagenListar.html', {'pericia': pericia, 'periciaId': perid})
+
+    def get_success_url(self, pericia):
+        return reverse_lazy('ImagenListar', kwargs={'pericia': pericia})
 
 
 class ImagenEditar(UpdateView):
@@ -473,8 +483,14 @@ class ImagenEditar(UpdateView):
         messages.success(self.request, 'Éxito en la operación', extra_tags='title')
         messages.success(self.request, 'Inicia el procesamiento automático de las imágenes')
 
-        return render(request, 'AREXTI_APP/ImagenListar.html',
-                      {'pericia': imagen.pericia, 'periciaId': imagen.pericia.id})
+        return redirect(self.get_success_url())
+
+        # return render(request, 'AREXTI_APP/ImagenListar.html',
+        #               {'pericia': imagen.pericia, 'periciaId': imagen.pericia.id})
+
+    def get_success_url(self):
+        imagen = self.get_object()
+        return reverse_lazy('ImagenListar', kwargs={'pericia': imagen.pericia.id})
 
 
 class ImagenConsultar(UpdateView):
@@ -631,7 +647,7 @@ def export_imagenes_xls(request, reporte):
     font_style_cabecera.pattern = pattern
 
     if reporte == 'ocurrencias':
-        columns = ['Id', '', 'Tipo Imagen', '', 'Nombre', '', 'Extensión', '', 'Hash MD5', '', 'Hash SHA1', '',
+        columns = ['Id', '', 'Tipo Imagen', '', 'Nombre', '', 'Texto', '', 'Extensión', '', 'Hash MD5', '', 'Hash SHA1', '',
                    'Hash SHA256', '', 'Ocurrencias']
         if resultados:
             total_ocu = str(resultados[0][8])

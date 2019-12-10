@@ -98,16 +98,16 @@ def proceso_Principal(periciaid, periciaNombre, tipoProceso, DirPrincipal, lista
 
             # Inicializo log de la pericia
             loggerPericia.info("**************************************************************************************")
-            loggerPericia.info("----- Inicio Procesamiento Imagenes -----")
-            loggerPericia.info("---- Parametros generales ----")
+            loggerPericia.info("----- Inicio Procesamiento Imágenes -----")
+            loggerPericia.info("---- Parámetros generales ----")
             loggerPericia.info("-- Directorio Base: {0}".format(DirBase))
-            loggerPericia.info("-- Lista de Extensiones validas: {0}".format(ListadoExtensiones))
+            loggerPericia.info("-- Lista de Extensiones válidas: {0}".format(ListadoExtensiones))
             loggerPericia.info("-- Ruta Tesseract: {0}".format(tesseract_cmd))
             loggerPericia.info("-- Cantidad Procesos paralelos: {0}".format(procesos_paralelos))
             if tipoProceso == "A":
                 loggerPericia.info("-- Directorio Temporal: {0}".format(DirTemp))
 
-            loggerPericia.info("---- Parametros del proceso ----")
+            loggerPericia.info("---- Parámetros del proceso ----")
             loggerPericia.info("-- Pericia: {0}-{1}".format(periciaid, periciaNombre))
             if tipoProceso == "A":
                 loggerPericia.info("-- Tipo de proceso: Archivos")
@@ -126,7 +126,7 @@ def proceso_Principal(periciaid, periciaNombre, tipoProceso, DirPrincipal, lista
             RtaCarga = ImagenAcciones.leer_imagenes(DirBase, DirTemp, ListadoExtensiones, ImagenesCola, tipoProceso, DirPrincipal, periciaid, conexionBD)
             if RtaCarga[0] == "ERROR":
                 Is_OK = False
-                loggerPericia.error("Error al leer las imagenes (" + RtaCarga[1] + ")")
+                loggerPericia.error("Error al leer las imágenes (" + RtaCarga[1] + ")")
 
         if Is_OK:
             # Creo la carpeta de las miniaturas para la pericia si no existe
@@ -153,7 +153,7 @@ def proceso_Principal(periciaid, periciaNombre, tipoProceso, DirPrincipal, lista
             """
             ImagenesCola_cantidad = ImagenesCola.qsize()
 
-            loggerPericia.info("{0} Imagenes a procesar".format(ImagenesCola_cantidad))
+            loggerPericia.info("{0} Imágenes a procesar".format(ImagenesCola_cantidad))
 
             # Cantidad de procesos maximos a utilizar
             if procesos_paralelos > ImagenesCola_cantidad:
@@ -226,7 +226,7 @@ def proceso_Principal(periciaid, periciaNombre, tipoProceso, DirPrincipal, lista
 
             TiempoFinal = datetime.datetime.now()
 
-            loggerPericia.info("-- Estadistica --")
+            loggerPericia.info("-- Estadística --")
             loggerPericia.info("Inicio del proceso: {0}".format(TiempoInicial))
             loggerPericia.info("Fin del proceso: {0}".format(TiempoFinal))
             loggerPericia.info("Tiempo transcurrido: {0}".format(TiempoFinal - TiempoInicial))

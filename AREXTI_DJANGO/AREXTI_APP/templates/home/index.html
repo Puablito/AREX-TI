@@ -56,14 +56,10 @@
       <img src="{% static '/image/menu.png'%}" class="img-responsive center-block"  style="height: 50px;">
     </a>
 
-    <!-- Header Navbar: style can be found in header.less -->
     <nav class="navbar navbar-static-top">
-      <!-- Sidebar toggle button-->
-
 
       <div class="navbar-custom-menu">
         <ul class="nav navbar-nav">
-          <!-- User Account: style can be found in dropdown.less -->
           <li class="dropdown user user-menu">
             <a href="{% url 'admin:index' %}">
               <img src="{% static '/image/icono.png'%}" class="user-image" alt="User Image">
@@ -74,11 +70,8 @@
       </div>
     </nav>
   </header>
-  <!-- Left side column. contains the logo and sidebar -->
   <aside class="main-sidebar bg-black">
-    <!-- sidebar: style can be found in sidebar.less -->
     <section class="sidebar">
-      <!-- sidebar menu: : style can be found in sidebar.less -->
       <ul class="sidebar-menu tree" data-widget="tree">
         <li class="header"></li>
         <li class="active">
@@ -116,16 +109,11 @@
         </li>
       </ul>
     </section>
-    <!-- /.sidebar -->
   </aside>
 
-  <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper" style="height: auto;">
-    <!-- Content Header (Page header) -->
-    <!--<div class="box-body">-->
       {% block error %}
       {% endblock %}
-    <!--</div>-->
 
     {% block principal %}
       <section class="content-header">
@@ -134,14 +122,9 @@
         </div>
       </section>
     {% endblock %}
-    <!-- Main content -->
-
-    <!-- /.content -->
   </div>
-  <!-- /.content-wrapper -->
 
 </div>
-<!-- ./wrapper -->
 
 </body>
 </html>

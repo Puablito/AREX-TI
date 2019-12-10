@@ -52,15 +52,12 @@
 {% block filtros %}
 <form id="filterForm" data-pericia-url="{% url 'ajax_load_pericias' %}">
         <div class="form-row">
+
             <div class="form-group col-md-3">
-                {{ filterset.form.texto.label_tag }}
-                {% render_field filterset.form.texto class="form-control" %}
-            </div>
-            <div class="form-group col-md-2">
                 {{ filterset.form.proyecto.label_tag }}
                 {% render_field filterset.form.proyecto class="form-control" %}
             </div>
-            <div class="form-group col-md-2">
+            <div class="form-group col-md-3">
                 {{ filterset.form.pericia.label_tag }}
                 {% render_field filterset.form.pericia class="form-control" %}
             </div>
@@ -68,32 +65,34 @@
                 {{ filterset.form.tipoImagen.label_tag }}
                 {% render_field filterset.form.tipoImagen class="form-control" %}
             </div>
-            <div class="form-group col-md-2">
+            <div class="form-group col-md-3">
                 {{ filterset.form.tipoDetalle.label_tag }}
                 {% render_field filterset.form.tipoDetalle class="form-control" %}
             </div>
-
-
-            <div class="form-group col-md-3">
-                <input type="hidden" name="paginate_by" value={{ numero_paginacion }} />
-                <button type="submit" class="btn btn-primary" >Visualizar</button>
-                <a class="btn btn-default" href="{% url 'ReporteOcurrencia'  %}" title="Limpiar filtros">Limpiar</a>
-            </div>
-            <div class="form-group col-md-3">
-                <button title="Exportar a Excel" class="btn btn-success" type="submit" name="reporte" value="xls"/>
-                    <i class="fa fa-file-excel-o" style="font-size: larger"></i>
-                </button>
+            <div class="form-group col-md-4">
+                {{ filterset.form.texto.label_tag }}
+                {% render_field filterset.form.texto class="form-control" %}
             </div>
 
-            <div class="form-group col-md-2">
+            <div class="form-group col-md-3">
                 {{ filterset.form.metadato.label_tag }}
                 {% render_field filterset.form.metadato class="form-control" %}
             </div>
-            <div class="form-group col-md-2">
+            <div class="form-group col-md-3">
                 {{ filterset.form.valormeta.label_tag }}
                 {% render_field filterset.form.valormeta class="form-control" %}
             </div>
 
+        </div>
+        <div class="form-group col-md-4">
+            <input type="hidden" name="paginate_by" value={{ numero_paginacion }} />
+            <button type="submit" class="btn btn-primary" >Visualizar</button>
+            <a class="btn btn-default" href="{% url 'ReporteOcurrencia'  %}" title="Limpiar filtros">Limpiar</a>
+        </div>
+        <div class="form-group col-md-3">
+            <button title="Exportar a Excel" class="btn btn-success" type="submit" name="reporte" value="xls"/>
+                <i class="fa fa-file-excel-o" style="font-size: larger"></i>
+            </button>
         </div>
 
 </form>
@@ -106,15 +105,13 @@
 <div class="form-group col-md-3"> # total de ocurrencias: {{object_list.0.suma_total_ocu}}</div>
 <div class="form-group col-md-4" style="display:flex">
     <label>Imágenes por página: </label>&nbsp;
-    <form action="." method="get">
-        <select name="paginate_by" class="form-control" onchange="this.form.submit();" style="width:15%">
-            <option value="5" {% if 5 == numero_paginacion %}selected{% endif %}>5</option>
-            <option value="10" {% if 10 == numero_paginacion %}selected{% endif %}>10</option>
-            <option value="15" {% if 15 == numero_paginacion %}selected{% endif %}>15</option>
-            <option value="20" {% if 20 == numero_paginacion %}selected{% endif %}>20</option>
-            <option value="50" {% if 50 == numero_paginacion %}selected{% endif %}>50</option>
-        </select>
-    </form>
+    <select name="paginate_by" onchange="location = this.value;" style="width:15%;text-align-last:center">
+        <option value="?{% param_replace page=1 paginate_by=5 %}" {% if 5 == numero_paginacion %}selected{% endif %}>5</option>
+        <option value="?{% param_replace page=1 paginate_by=10 %}" {% if 10 == numero_paginacion %}selected{% endif %}>10</option>
+        <option value="?{% param_replace page=1 paginate_by=15 %}" {% if 15 == numero_paginacion %}selected{% endif %}>15</option>
+        <option value="?{% param_replace page=1 paginate_by=20 %}" {% if 20 == numero_paginacion %}selected{% endif %}>20</option>
+        <option value="?{% param_replace page=1 paginate_by=50 %}" {% if 50 == numero_paginacion %}selected{% endif %}>50</option>
+    </select>
 </div>
 <thead class="thead-dark" >
     <tr>
