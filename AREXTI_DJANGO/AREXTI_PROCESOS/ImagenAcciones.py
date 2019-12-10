@@ -301,7 +301,7 @@ def procesar_imagen(imagenes_cola, imagenes_guardar, imagenes_notexto, listado_h
                                     else:
                                         imagen_procesada.set_detalles(RtaSeg[1])
 
-                        mensaje = ["INFO", 'Fin del procesamiento de la imagen: {0}'.format(imagen_with_path)]
+                        mensaje = ["INFO", 'Fin del procesamiento de la imagen: {0} - Clasificada como {1}'.format(imagen_with_path, imagen_procesada.get_imagentipo())]
                         mensajes_Cola.put(mensaje)
                         # Guarda en Cola para guardar en BD
                         imagenes_guardar.put(imagen_procesada)
