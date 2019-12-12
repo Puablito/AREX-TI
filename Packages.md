@@ -16,7 +16,7 @@
 13. pytz	    2019.1	
 14. six	        1.12.0	
 15. sqlparse	0.3.0	
-16. celery 4.3.0
+16. celery 4.3.0------->se cambio a 3.1.25 
 17.reportlab	3.5.32	
 18.wordcloud	1.5.0	
 19.xlwt	1.3.0	1.3.0
