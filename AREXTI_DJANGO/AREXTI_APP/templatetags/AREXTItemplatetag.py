@@ -41,8 +41,7 @@ def list_detail_text(imagenDetalles, tipoImagen, color):
     mailText = ''
     imagenDetalleObjectMail = imagenDetalles.filter(tipoDetalle_id='MAIL')
     if imagenDetalleObjectMail:
-        mailText = imagenDetalleObjectMail[0]
-        mailText = mailText.texto
+        mailText = [p.texto for p in imagenDetalleObjectMail]
 
     if isChat:
         imagenDetalleObjectCabecera = imagenDetalles.filter(tipoDetalle_id='CABECERA')

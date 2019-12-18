@@ -63,6 +63,7 @@ class PericiaFilter(django_filters.FilterSet):
             {'empty_label': 'Todas'})
         self.filters['proyecto'].extra.update(
             {'empty_label': 'Todos'})
+        self.filters['proyecto'].label = 'IPP'
 
 
 class ImagenFilter(django_filters.FilterSet):
@@ -96,7 +97,7 @@ class ReporteFilter(django_filters.FilterSet):
     texto = django_filters.CharFilter(method='filter_texto', label='Palabra',)
     tipoDetalle = django_filters.ModelMultipleChoiceFilter(queryset=TipoDetalle.objects, label='Tipo Detalle')
     metadato = django_filters.ModelChoiceFilter(queryset=Metadatos.objects.distinct('idMeta'), label='Tipo Metadato', )
-    proyecto = django_filters.ModelChoiceFilter(queryset=Proyecto.objects.filter(activo=1), label='Proyecto', )
+    proyecto = django_filters.ModelChoiceFilter(queryset=Proyecto.objects.filter(activo=1), label='IPP', )
     pericia = django_filters.ModelChoiceFilter(queryset=Pericia.objects.none(), label='Pericia', )
     valormeta = django_filters.CharFilter(label='Valor Metadato')
     limite = django_filters.NumberFilter(label='Cantidad de palabras')

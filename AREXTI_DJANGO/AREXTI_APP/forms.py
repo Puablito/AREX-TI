@@ -57,7 +57,7 @@ class PericiaForm(forms.ModelForm):
         ]
 
         labels = {
-            'proyecto': 'Proyecto',
+            'proyecto': 'IPP',
             'descripcion': 'Descripción',
             'nombrePerito': 'Nombre perito',
             'fecha': 'Fecha',
@@ -179,7 +179,7 @@ class PericiaConsultaForm(forms.ModelForm):
         ]
 
         labels = {
-            'proyecto': 'Proyecto',
+            'proyecto': 'IPP',
             'descripcion': 'Descripción',
             'nombrePerito': 'Nombre perito',
             'fecha': 'Fecha',
