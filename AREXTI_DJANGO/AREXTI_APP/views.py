@@ -15,7 +15,7 @@ from reportlab.pdfgen import canvas
 from django.views.generic import ListView, CreateView, UpdateView, View, TemplateView
 from .models import Proyecto, Pericia, Imagen, TipoHash, ImagenDetalle, ImagenFile, UploadFile, Parametros
 from .forms import ProyectoForm, PericiaForm, ImagenEditForm, ProyectoConsultaForm, PericiaConsultaForm, \
-    ImagenConsultarForm, UploadFileForm
+    ImagenConsultarForm, UploadFileForm, PericiaCrearForm
 from .filters import ProyectoFilter, PericiaFilter, ImagenFilter, ReporteFilter
 from . import funcionesdb
 from reportlab.lib.pagesizes import letter
@@ -203,7 +203,7 @@ class PericiaListar(FilteredListView):
 
 class PericiaCrear(CreateView):
     model = Pericia
-    form_class = PericiaForm
+    form_class = PericiaCrearForm
     template_name = 'AREXTI_APP/PericiaCrear.html'
     pericia = None
 

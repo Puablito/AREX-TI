@@ -79,6 +79,38 @@ class PericiaForm(forms.ModelForm):
         self.fields['descripcion'].widget.attrs['readonly'] = True
 
 
+class PericiaCrearForm(forms.ModelForm):
+    error_css_class = 'error'
+    required_css_class = 'required'
+
+    class Meta:
+        model = Pericia
+
+        fields = [
+            'proyecto',
+            'descripcion',
+            'nombrePerito',
+            'fecha',
+            'tipoPericia',
+        ]
+
+        labels = {
+            'proyecto': 'IPP',
+            'descripcion': 'Descripción',
+            'nombrePerito': 'Nombre perito',
+            'fecha': 'Fecha',
+            'tipoPericia': 'Tipo Pericia',
+        }
+
+        widgets = {
+            'proyecto': forms.Select(attrs={'class': 'form-control'}),
+            'descripcion': forms.TextInput(attrs={'class': 'form-control', 'id': 'descripcion'}),
+            'nombrePerito': forms.TextInput(attrs={'class': 'form-control'}),
+            'fecha': forms.TextInput(attrs={'class': 'form-control'}),
+            'tipoPericia': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+
 
 class ImagenForm(forms.ModelForm):
     error_css_class = 'error'
