@@ -17,7 +17,7 @@ import re
 
 class Segmentador:
 
-    def __init__(self, tesseract_cmd):
+    def __init__(self):
         self.__imagen = None
         self.ancho = 0
         self.alto = 0  # math.trunc(ancho * (16 / 9))
@@ -27,7 +27,6 @@ class Segmentador:
         self.canny = None
         self.difRango = 20          # PARAMETRO PARA MARCAR UMBRAL DE DIFERENCIA MAXIMA ENTRE IZQ Y DERECHA PARA CLASIFICAR GLOBO INDEFINIDO
         self.horizontal = False
-        self.tesseract_cmd = tesseract_cmd
         self.extractor = None
 
     def get_imagen(self):
@@ -103,7 +102,7 @@ class Segmentador:
         (contornos_optimizados, _) = cv2.findContours(self.canny, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         for contorno in reversed(contornos_optimizados):
-             if cv2.contourArea(contorno) > self.areaMinima:
+            if cv2.contourArea(contorno) > self.areaMinima:
                 globos.append(contorno)
         return globos
 
@@ -164,9 +163,7 @@ class Segmentador:
         return globos
 
     def extraerTextoImagen(self, img):
-        if not self.extractor:
-            self.extractor = ExtraccionTexto(self.tesseract_cmd)
-        texto = self.extractor.extraerTexto(img)
+        texto = ExtraccionTexto.extraerTexto(self,img)
         texto = texto.strip()
         texto = texto.replace('"', "")
         texto = texto.replace("'", "")
@@ -296,11 +293,9 @@ class Segmentador:
 
         return RtaSeg
 
+
 class ExtraccionTexto:
-    def __init__(self, tesseract_cmd):
-        # self.imagen = img
-        pytesseract.pytesseract.tesseract_cmd = tesseract_cmd  # Cachear excepcion
 
     def extraerTexto(self, img):
-        texto = pytesseract.image_to_string(img) # lang='spa_old' 'spa'
+        texto = pytesseract.image_to_string(img)  # lang='spa_old' 'spa'
         return texto

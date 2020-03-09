@@ -151,7 +151,7 @@ def procesar_imagen(imagenes_cola, imagenes_guardar, imagenes_notexto, listado_h
 
     # instancio el segmentador
     try:
-        segmentador = Segmentacion.Segmentador(tesseract_cmd)
+        segmentador = Segmentacion.Segmentador()
     except:
         Is_OK = False
         mensaje = ["ERROR", 'Error al instanciar el segmentador - {0} {1}'.format(sys.exc_info()[0], sys.exc_info()[1])]
