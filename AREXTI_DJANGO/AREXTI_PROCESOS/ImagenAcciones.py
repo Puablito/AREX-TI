@@ -124,7 +124,7 @@ def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tip
 
 
 # Funcion que procesa la imagen recibida por paramentro
-def procesar_imagen(imagenes_cola, imagenes_guardar, imagenes_notexto, listado_hashes, tesseract_cmd, RNTexto_procesa, mensajes_Cola, DirAppMiniatura):
+def procesar_imagen(imagenes_cola, imagenes_guardar, imagenes_notexto, listado_hashes, RNTexto_procesa, mensajes_Cola, DirAppMiniatura):
     Is_OK = True
     # instancio las RN
     if RNTexto_procesa:

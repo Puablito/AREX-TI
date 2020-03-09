@@ -55,13 +55,6 @@ def proceso_Principal(periciaid, periciaNombre, tipoProceso, DirPrincipal, lista
                     Is_OK = False
                     loggerGeneral.error("Error en parametro: LISTAEXTENSIONES (" + RtaBD[1] + ")")
 
-                RtaBD = Herramientas.parametro_get(conexionBD, 'TESSERACTPATH')
-                if RtaBD[0] == "OK":
-                    tesseract_cmd = RtaBD[1][0]["valorTexto"]
-                else:
-                    Is_OK = False
-                    loggerGeneral.error("Error en parametro: TESSERACTPATH (" + RtaBD[1] + ")")
-
                 RtaBD = Herramientas.parametro_get(conexionBD, 'PROCESOSPARALELOS')
                 if RtaBD[0] == "OK":
                     procesos_paralelos = RtaBD[1][0]["valorNumero"]
@@ -102,7 +95,6 @@ def proceso_Principal(periciaid, periciaNombre, tipoProceso, DirPrincipal, lista
             loggerPericia.info("---- Parámetros generales ----")
             loggerPericia.info("-- Directorio Base: {0}".format(DirBase))
             loggerPericia.info("-- Lista de Extensiones válidas: {0}".format(ListadoExtensiones))
-            loggerPericia.info("-- Ruta Tesseract: {0}".format(tesseract_cmd))
             loggerPericia.info("-- Cantidad Procesos paralelos: {0}".format(procesos_paralelos))
             if tipoProceso == "A":
                 loggerPericia.info("-- Directorio Temporal: {0}".format(DirTemp))
@@ -173,7 +165,7 @@ def proceso_Principal(periciaid, periciaNombre, tipoProceso, DirPrincipal, lista
             while len(procesos_ejecucion) < procesos_paralelos:
                 p = Process(name="Proceso {0}".format(indiceProceso),
                             target=ImagenAcciones.procesar_imagen,
-                            args=(ImagenesCola, ImagenesGuardar_Cola, imagenesNoTexto_Cola,listaHash, tesseract_cmd,
+                            args=(ImagenesCola, ImagenesGuardar_Cola, imagenesNoTexto_Cola,listaHash,
                                   RNTexto_procesa, mensajes_Cola, DirAppMiniatura,)
                             )
                 p.start()
