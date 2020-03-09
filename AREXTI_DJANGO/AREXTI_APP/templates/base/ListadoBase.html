@@ -72,22 +72,39 @@
                         <div class="text-center">
                             <ul class="pagination text-center">
                                 {% if is_paginated %}
+                                    {% if page_obj.number == 1 %}
+                                        <li class="disabled"><span>⇤</span></li>
+                                    {% else %}
+                                        <li><a class="page-link" href="?{% param_replace page=1 %}">⇤</a></li>
+                                    {% endif %}
                                     {% if page_obj.has_previous %}
                                         <li><a href="?{% param_replace page=page_obj.previous_page_number %}">&laquo;</a></li>
                                     {% else %}
                                         <li class="disabled"><span>&laquo;</span></li>
                                     {% endif %}
-                                    {% for i in paginator.page_range %}
+                                    {% for i in paginator|proper_paginate:page_obj.number %}
                                         {% if page_obj.number == i %}
                                             <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
                                         {% else %}
-                                            <li><a href="?{% param_replace page=i  %}">{{ i }}</a></li>
+                                            <li><a class="page-link" href="?{% param_replace page=i %}">{{ i }}</a></li>
                                         {% endif %}
                                     {% endfor %}
+{#                                    {% for i in paginator.page_range %}#}
+{#                                        {% if page_obj.number == i %}#}
+{#                                            <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>#}
+{#                                        {% else %}#}
+{#                                            <li><a href="?{% param_replace page=i  %}">{{ i }}</a></li>#}
+{#                                        {% endif %}#}
+{#                                    {% endfor %}#}
                                     {% if page_obj.has_next %}
                                         <li><a href="?{% param_replace page=page_obj.next_page_number %}">&raquo;</a></li>
                                     {% else %}
                                         <li class="disabled"><span>&raquo;</span></li>
+                                    {% endif %}
+                                    {% if page_obj.number == paginator.num_pages %}
+                                        <li class="disabled"><span>⇥</span></li>
+                                    {% else %}
+                                        <li><a class="page-link" href="?{% param_replace page=paginator.num_pages %}">⇥</a></li>
                                     {% endif %}
                                 {% endif %}
                             </ul>

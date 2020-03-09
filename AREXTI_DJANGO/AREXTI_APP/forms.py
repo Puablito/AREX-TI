@@ -72,6 +72,13 @@ class PericiaForm(forms.ModelForm):
             'tipoPericia': forms.Select(attrs={'class': 'form-control'}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super(PericiaForm, self).__init__(*args, **kwargs)
+        self.fields['proyecto'].widget.attrs['readonly'] = True
+        self.fields['proyecto'].widget.attrs['disabled'] = True
+        self.fields['descripcion'].widget.attrs['readonly'] = True
+
+
 
 class ImagenForm(forms.ModelForm):
     error_css_class = 'error'

@@ -25,4 +25,5 @@ urlpatterns = [
     path('export/xls/', views.export_imagenes_xls, name='export_imagenes_xls'),
     path('export/pdf/', views.write_pdf_view, name='write_pdf_view'),
     path('ajax/load-pericias/', views.load_pericias, name='ajax_load_pericias'),
+    # path('export/html/', views.download, name='download'),
 ]

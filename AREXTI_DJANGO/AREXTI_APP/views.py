@@ -22,6 +22,12 @@ from reportlab.lib.pagesizes import letter
 from datetime import datetime
 import locale
 import itertools
+from io import StringIO, BytesIO
+from zipfile import ZipFile
+from django.template.loader import render_to_string, get_template
+# from xhtml2pdf import pisa
+# import pdfkit
+# from weasyprint import HTML, default_url_fetcher
 
 
 # enumerables
@@ -517,7 +523,7 @@ def ImagenEliminar(request, Imagenid):
 
 class ReporteOcurrencia(FilteredListView):
     filterset_class = ReporteFilter
-
+    contexto = None
     def get(self, request, *args, **kwargs):
         if 'reporte' in self.request.GET:
             if self.request.GET['reporte'] == 'xls':
@@ -526,6 +532,10 @@ class ReporteOcurrencia(FilteredListView):
             if self.request.GET['reporte'] == 'pdf':
                 # self.request.path = 'export/pdf/'
                 return write_pdf_view(self.request)
+            # if self.request.GET['reporte'] == 'html':
+            #     context = self.request.GET
+            #     stringrender = 1#render_to_string(self.template_name, context) #, context_instance=RequestContext(self.request))
+            #     return download(self.request, stringrender)
         else:
             return super().get(request, *args, **kwargs)
 
@@ -551,6 +561,7 @@ class ReporteOcurrencia(FilteredListView):
         context['cant_imagenes'] = self.object_list.__len__()
         if len(self.request.GET) > 0:
             context['mensaje'] = 'ok'
+        self.contexto = context
         return context
 
     template_name = 'AREXTI_APP/ReporteOcurrencia.html'
@@ -859,3 +870,72 @@ def load_pericias(request):
             pericias = Pericia.objects.filter(proyecto=proyectoId, activo=1).order_by('descripcion')
 
         return render(request, 'base/shared/pericia_dropdown_list_options.html', {'pericias': pericias})
+
+
+# def download(request, renderreq):
+#     mem_file = BytesIO()
+#     with ZipFile(mem_file, "w") as zip_file:
+#         # for i, planner in enumerate(planner_list):
+#         # template = get_template('AREXTI_APP/ReporteOcurrencia.html')
+#         # html = template.render
+#         file_name = 'index.html'
+#         content = render_to_string('home/index.html', {'numero_paginacion':5, 'cant_imagenes':5})
+#         zip_file.writestr(file_name, content)
+#         zip_file.close()
+#         mem_file.flush()
+#         # the import detail--we return the content of the buffer
+#         ret_zip = mem_file.getvalue()
+
+    # response = HttpResponse(content, content_type='application/html')
+    # response['Content-Disposition'] = 'attachment; filename="Reporte HTML.html"'
+
+    #
+    # zip.close()
+    #
+    # response = HttpResponse(ret_zip, content_type="application/zip")
+    # response["Content-Disposition"] = "filename=two_files.zip"
+
+
+    # data = {
+    #     "proyecto": 1,
+    #     "pericia": 34,
+    #     "metadato": "",
+    #     "valormeta": "",
+    #     "limite": 100,
+    # }
+
+    # PISA
+    # pdf = render_to_pdf('AREXTI_APP/ReporteNube.html', data)
+
+    # PDFKIT  WKHTMLTOPDF
+    # pdf = pdfkit.from_url(['http://127.0.0.1:8000/ReporteOcurrencia/?texto=kambo&paginate_by=50&page=1',
+    # 'http://127.0.0.1:8000/ReporteOcurrencia/?texto=kambo&paginate_by=5&page=2'], False)
+
+    # projectUrl = request.get_host() + '/templates/'
+    # pdf = pdfkit.from_url(projectUrl, False)
+
+
+    #fecher = default_url_fetcher('http://127.0.0.1:8000/ReporteOcurrencia/?texto=kambo&paginate_by=50&page=1')
+
+    # WEASY PRINT
+    # html = render_to_string('AREXTI_APP/ReporteNube.html', None)
+    # base_url = request.build_absolute_uri("/")
+    # pdf = HTML('http://127.0.0.1:8000/ReporteOcurrencia/?texto=kambo&paginate_by=50&page=1').write_pdf()
+    #
+    #
+    # response = HttpResponse(pdf, content_type='application/pdf')
+    # filename = "Reporte HTML.pdf"
+    # content = "attachment; filename=Reporte HTML.pdf"
+    # response['Content-Disposition'] = content
+    # return response
+
+
+# def render_to_pdf(template_src, context_dict={}):
+#
+#     template = get_template(template_src)
+#     html = template.render(context_dict)
+#     result = BytesIO()
+#     pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+#     if not pdf.err:
+#         return HttpResponse(result.getvalue(), content_type='application/pdf')
+#     return None

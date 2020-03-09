@@ -120,7 +120,7 @@
                                         <a class="btn btn-default" href="{% url 'ReporteNube'  %}" title="Limpiar filtros">Limpiar</a>
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <button class="btn btn-success" type="submit" name="reporte" value="xls"/>
+                                        <button title="Exportar a Excel" class="btn btn-success" type="submit" name="reporte" value="xls"/>
                                             <i class="fa fa-file-excel-o" style="font-size: larger"></i>
                                         </button>
                                     </div>
@@ -180,6 +180,9 @@
                                             {#backgroundColor: '#919191'#}
                                             backgroundColor: '#222d32'
                                             {#,margin: [10, 0, 0, 0]#}
+                                        },
+                                        credits: {
+                                                    enabled: false
                                         },
                                         exporting: {
                                             chartOptions: { // specific options for the exported image
