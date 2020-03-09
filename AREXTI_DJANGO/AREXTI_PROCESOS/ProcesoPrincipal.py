@@ -202,6 +202,16 @@ def proceso_Principal(periciaid, periciaNombre, tipoProceso, DirPrincipal, lista
                 # Guarda las Imagenes ya procesadas en la BD
                 while not ImagenesGuardar_Cola.empty():
                     img_guardar = ImagenesGuardar_Cola.get()
+                    # Le quito el "directorio base" al path y miniatura antes de guardarlos
+                    # (guarda la ruta relativa de la imagen)
+                    path_reemplazar = img_guardar.get_path()
+                    path_reemplazar = path_reemplazar.replace(DirBase, "")
+                    img_guardar.set_path(path_reemplazar)
+
+                    miniatura_reemplazar = img_guardar.get_miniatura()
+                    miniatura_reemplazar = miniatura_reemplazar.replace(DirBase, "")
+                    img_guardar.set_miniatura(miniatura_reemplazar)
+
                     # Guarda de a una imagen
                     RtaBD = Herramientas.imagenInsertar(conexionBD, periciaid, img_guardar)
                     if RtaBD[0] == "ERROR":

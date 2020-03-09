@@ -23,9 +23,9 @@ def imagenInsertar(conexion, periciaid,  imagen):
 
     nombre = imagen.get_nombre()
     extension = imagen.get_extension()
-    path = imagen.get_path()
-
     tipoImagen = imagen.get_imagentipo()
+
+    path = imagen.get_path()
     miniatura = imagen.get_miniatura()
 
     data = (nombre, miniatura, path, extension, 1, periciaid, tipoImagen)

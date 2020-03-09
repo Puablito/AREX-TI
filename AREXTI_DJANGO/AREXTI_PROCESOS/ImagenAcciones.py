@@ -162,7 +162,6 @@ def procesar_imagen(imagenes_cola, imagenes_guardar, imagenes_notexto, listado_h
             img_procesar = imagenes_cola.get()
             img_path = img_procesar[0] + os.sep
             img_nombre = img_procesar[1]
-            img_extension = img_procesar[2]
             imagen_with_path = img_path + img_nombre
 
             imagen_procesada = ImagenProcesar.Imagen()
