@@ -637,14 +637,13 @@ def export_imagenes_xls(request, reporte):
                                                           params['detallesfinal'], params['metadato'],
                                                           params['valormetadato']], False)
         mensaje = ' coincidencias'
-        response['Content-Disposition'] = 'attachment; filename="Reporte_Ocurrencias "' + params['fechaHora'] + '".xlsx"'
+        response['Content-Disposition'] = 'attachment; filename="Reporte_Ocurrencias_' + params['fechaHora'] + '.xlsx"'
     if reporte == 'nube':
         resultados = funcionesdb.consulta('nube', [params['pericia'], params['proyecto'], params['tiposfinal'],
                                                   params['detallesfinal'], params['metadato'],
                                                   params['valormetadato'], params['limite']], False)
         mensaje = ' palabras'
-        nombreCompleto = 'attachment; filename="Reporte_Nube_de_palabras' + params['fechaHora'] + '.xlsx"'
-        response['Content-Disposition'] = nombreCompleto
+        response['Content-Disposition'] = 'attachment; filename="Reporte_Nube_de_palabras_' + params['fechaHora'] + '.xlsx"'
 
     wb = xlwt.Workbook(encoding='utf-8')
     ws = wb.add_sheet(reporte)
