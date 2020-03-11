@@ -631,19 +631,19 @@ class BasicUploadView(View):
 
 def export_imagenes_xls(request, reporte):
     params = obtenerParametros(request)
-    response = HttpResponse(content_type='application/ms-excel')
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     if reporte == 'ocurrencias':
         resultados = funcionesdb.consulta('ocurrencias', [params['palabra'], params['pericia'], params['proyecto'], params['tiposfinal'],
                                                           params['detallesfinal'], params['metadato'],
                                                           params['valormetadato']], False)
         mensaje = ' coincidencias'
-        response['Content-Disposition'] = 'attachment; filename="Reporte Ocurrencias "' + params['fechaHora'] + '".xls"'
+        response['Content-Disposition'] = 'attachment; filename="Reporte Ocurrencias "' + params['fechaHora'] + '".xlsx"'
     if reporte == 'nube':
         resultados = funcionesdb.consulta('nube', [params['pericia'], params['proyecto'], params['tiposfinal'],
                                                   params['detallesfinal'], params['metadato'],
                                                   params['valormetadato'], params['limite']], False)
         mensaje = ' palabras'
-        response['Content-Disposition'] = 'attachment; filename="Reporte Nube de palabras "' + params['fechaHora'] + '".xls"'
+        response['Content-Disposition'] = 'attachment; filename="Reporte Nube de palabras "' + params['fechaHora'] + '".xlsx"'
 
     wb = xlwt.Workbook(encoding='utf-8')
     ws = wb.add_sheet(reporte)
