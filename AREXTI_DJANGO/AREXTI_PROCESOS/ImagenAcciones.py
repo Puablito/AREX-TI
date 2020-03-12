@@ -385,7 +385,7 @@ def cambiar_tipoimagen(imagenid, imagennombre, imagentipo, periciaDir):
             nombreImagen = resultado[0]["nombre"]
             imagen_procesar.set_nombre(nombreImagen)
             imagen_procesar.set_extension(resultado[0]["extension"])
-            imagen_procesar.set_path(resultado[0]["path"])
+            imagen_procesar.set_path(DirBase + resultado[0]["path"])
 
             # Instancia el segmentador
             try:
