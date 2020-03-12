@@ -389,7 +389,7 @@ def cambiar_tipoimagen(imagenid, imagennombre, imagentipo, periciaDir):
 
             # Instancia el segmentador
             try:
-                segmentador = Segmentacion.Segmentador(tesseract_cmd)
+                segmentador = Segmentacion.Segmentador()
             except:
                 Is_OK = False
                 loggerImagen.error('Error al instanciar el segmentador - ({0} - {1})'.format(sys.exc_info()[0],
