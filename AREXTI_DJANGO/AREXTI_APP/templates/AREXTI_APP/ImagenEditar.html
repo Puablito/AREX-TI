@@ -22,11 +22,11 @@
 
       <div class="row">
         <div class="col-md-4 col-sm-6 col-xs-12">
-          <div class="info-box">
+          <div class="info-box" id="imagen">
             <img src="../../../../imagenes{{ imagen.path }}/{{ imagen.nombre }}" class="img-responsive center-block">
           </div>
         </div>
-        <div class="col-md-8 col-sm-6 col-xs-12">
+        <div class="col-md-8 col-sm-6 col-xs-12" style="height:100%">
           {% list_detail_text imagenDetalles=detalles tipoImagen=imagen.tipoImagen.id color=color %}
         </div>
 
