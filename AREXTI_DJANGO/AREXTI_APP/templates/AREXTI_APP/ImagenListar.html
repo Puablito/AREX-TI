@@ -154,7 +154,7 @@
         </td>
         <td>
             <div class="cl-effect-1">
-                <a class="link" href="{% url 'ImagenConsultar' imagen.id 0 %}">
+                <a class="link" href="{% url 'ImagenConsultar' imagen.id 1 %}" target="_blank">
                     {{imagen.nombre}}
                 </a>
             </div>
@@ -182,7 +182,7 @@
     </tr>
     <div id="Eliminar{{ imagen.id }}" class="modal fade">
         <div class="modal-dialog modal-confirm">
-            <div class="modal-content">
+            <div class="modal-content" style="width: max-content;">
                 <div class="modal-header">
                     <div class="icon-box">
                         <i class="material-icons">&#xE5CD;</i>
@@ -191,7 +191,8 @@
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <p>Seguro que desea eliminar la imagen {{ imagen.nombre }}?</p>
+                    <div >Seguro que desea eliminar la imagen </div>
+                    <div >{{ imagen.nombre }}?</div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-info" data-dismiss="modal">Cancelar</button>
