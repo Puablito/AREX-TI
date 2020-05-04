@@ -76,7 +76,7 @@ def leer_imagenes(DirBaseDestino, DirTemp, ListadoExtensiones, ImagenesCola, tip
                     now = datetime.datetime.now()
                     dia = now.strftime("%Y")+now.strftime("%m")+now.strftime("%d")
                     hora= now.strftime("%H")+now.strftime("%M")+now.strftime("%S")
-                    DirDestino = "Upload-"+dia+"-"+hora
+                    DirDestino = "upload_"+dia+"_"+hora
                     pathDestino = DirBaseDestino + os.path.sep + DirPrincipal + os.path.sep + DirDestino
 
                     try:

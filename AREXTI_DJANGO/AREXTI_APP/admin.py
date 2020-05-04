@@ -9,25 +9,12 @@ admin.site.site_title = ''
 # admin.site.index_title = 'AREXTI'
 
 
-@admin.register(TipoImagen)
-class TipoImagenAdmin(admin.ModelAdmin):
-    list_display = ('id', 'descripcion')
-    ordering = ('id',)
-    search_fields = ('id', 'descripcion')
-
 
 @admin.register(TipoHash)
 class TipoImagenAdmin(admin.ModelAdmin):
     list_display = ('id', 'color')
     ordering = ('id',)
     search_fields = ('id',)
-
-
-@admin.register(TipoDetalle)
-class TipoImagenAdmin(admin.ModelAdmin):
-    list_display = ('id', 'descripcion')
-    ordering = ('id',)
-    search_fields = ('id', 'descripcion')
 
 
 @admin.register(Parametros)
