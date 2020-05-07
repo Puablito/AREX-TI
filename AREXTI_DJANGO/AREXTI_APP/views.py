@@ -15,7 +15,7 @@ from reportlab.pdfgen import canvas
 from django.views.generic import ListView, CreateView, UpdateView, View, TemplateView
 from .models import Proyecto, Pericia, Imagen, TipoHash, ImagenDetalle, ImagenFile, UploadFile, Parametros
 from .forms import ProyectoForm, PericiaForm, ImagenEditForm, ProyectoConsultaForm, PericiaConsultaForm, \
-    ImagenConsultarForm, UploadFileForm, PericiaCrearForm
+    ImagenConsultarForm, UploadFileForm, PericiaCrearForm, ProyectoCrearForm
 from .filters import ProyectoFilter, PericiaFilter, ImagenFilter, ReporteFilter
 from . import funcionesdb
 from reportlab.lib.pagesizes import letter
@@ -95,7 +95,7 @@ class ProyectoListar(FilteredListView):
 
 class ProyectoCrear(CreateView):
     model = Proyecto
-    form_class = ProyectoForm
+    form_class = ProyectoCrearForm
     template_name = 'AREXTI_APP/ProyectoCrear.html'
     success_url = reverse_lazy('ProyectoListar')
 

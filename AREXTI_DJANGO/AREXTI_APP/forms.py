@@ -40,6 +40,45 @@ class ProyectoForm(forms.ModelForm):
             'juzgado': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super(ProyectoForm, self).__init__(*args, **kwargs)
+        self.fields['IPP'].widget.attrs['readonly'] = True
+
+
+class ProyectoCrearForm(forms.ModelForm):
+    error_css_class = 'error'
+    required_css_class = 'required'
+
+    class Meta:
+        model = Proyecto
+
+        fields = [
+            'IPP',
+            'descripcion',
+            'fiscalia',
+            'responsable',
+            'defensoria',
+            'juzgado',
+        ]
+
+        labels = {
+            'IPP': 'IPP',
+            'descripcion': 'Descripción',
+            'fiscalia': 'Fiscalía',
+            'responsable': 'Responsable',
+            'defensoria': 'Defensoría',
+            'juzgado': 'Juzgado',
+        }
+
+        widgets = {
+            'IPP': forms.TextInput(attrs={'class': 'form-control', 'id': 'IPP'}),
+            'descripcion': forms.TextInput(attrs={'class': 'form-control'}),
+            'fiscalia': forms.TextInput(attrs={'class': 'form-control', 'id': 'fiscalia'}),
+            'responsable': forms.TextInput(attrs={'class': 'form-control'}),
+            'defensoria': forms.TextInput(attrs={'class': 'form-control'}),
+            'juzgado': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
 
 class PericiaForm(forms.ModelForm):
     error_css_class = 'error'

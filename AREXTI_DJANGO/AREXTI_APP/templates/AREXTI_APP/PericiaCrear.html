@@ -34,5 +34,7 @@
     {% endif %}
 {% endblock %}
 {% block btnListar %}
-    <a type="" href="{% url 'ImagenListar' pericia.id %}" class="btn btn-success pull-right" title="VEr imagenes de la pericia">Ver Imágenes</a>
+    {% if not modo %}
+        <a type="" href="{% url 'ImagenListar' pericia.id %}" class="btn btn-success pull-right" title="VEr imagenes de la pericia">Ver Imágenes</a>
+    {% endif %}
 {% endblock %}

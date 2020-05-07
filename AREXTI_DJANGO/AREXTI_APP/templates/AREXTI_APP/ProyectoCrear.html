@@ -37,5 +37,7 @@
 {% endblock %}
 
 {% block btnListar %}
-  <a href="{% url 'PericiaListar' proyecto.id %}" class="btn btn-success pull-right">Ver Pericias</a>
+    {% if not modo %}
+        <a href="{% url 'PericiaListar' proyecto.id %}" class="btn btn-success pull-right">Ver Pericias</a>
+    {% endif %}
 {% endblock %}
