@@ -23,6 +23,15 @@ def img_hash_tags2(tipo_hash, id):
         return None
 
 @register.simple_tag
+def get_style_by_medatato_count(cantObjects):
+    if cantObjects == 0:
+        metadatoStyle = ''
+    else:
+        metadatoStyle = 'height:400px;overflow-x: auto;'
+
+    return metadatoStyle
+
+@register.simple_tag
 def get_color_by_tipoImgen(tipoImagen):
     if tipoImagen == 'CHAT':
         color = 'primary'

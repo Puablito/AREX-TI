@@ -33,9 +33,9 @@
                 {% if object %}
                  -
                     {% if object.descripcion%}
-                        {{object.descripcion}}
+                        {{object.descripcion|truncatechars:100}}
                     {% else %}
-                        {{ object.nombre }}
+                        {{ object.nombre|truncatechars:100 }}
                     {% endif %}
                 {% endif %}
             </h1>

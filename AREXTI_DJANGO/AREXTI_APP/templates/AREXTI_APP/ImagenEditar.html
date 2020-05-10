@@ -19,6 +19,7 @@
 {% block body%}
 
 {% get_color_by_tipoImgen tipoImagen=imagen.tipoImagen.id as color %}
+{% get_style_by_medatato_count cantObjects=imagen.imagenmetadatos_set.all.count as metadatoStyle %}
 
       <div class="row">
         <div class="col-md-4 col-sm-6 col-xs-12">
@@ -46,11 +47,13 @@
             <div class="collapse in" id="collapseInformacionBasica">
                 <div class="box-body">
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <b>Nombre</b>
                   <br/>
                   {{imagen.nombre}}
                 </div>
+              </div>
+              <div class="row">
                 <div class="col-md-2">
                   <b>Extensión</b>
                   <br/>
@@ -113,7 +116,7 @@
               </div>
             </div>
             <div class="collapse in" id="collapseMetadato">
-                <div class="box-body table-responsive">
+                <div class="box-body table-responsive" style={{metadatoStyle}}>
               <table class="table table-hover">
                 <tbody>
                   <tr>

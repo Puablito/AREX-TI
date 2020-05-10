@@ -154,7 +154,7 @@
         <td>
             <div class="cl-effect-1">
                 <a class="link" href="{% url 'ImagenConsultar' imagen.id 1 %}" target="_blank">
-                    {{imagen.nombre}}
+                    {{imagen.nombre|truncatechars:100}}
                 </a>
             </div>
         </td>
