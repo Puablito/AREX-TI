@@ -50,20 +50,31 @@ class PericiaFilter(django_filters.FilterSet):
     tipoPericia = django_filters.ChoiceFilter(choices=Pericia.tiposPericia, label='Tipo Pericia')
 
     def __init__(self, data, *args, **kwargs):
-        data = data.copy()
+        # super(PericiaFilter, self).__init__(*args, **kwargs)
+
+        if data is not None:
+            # get a mutable copy of the QueryDict
+            data = data.copy()
+
+            for name, f in self.base_filters.items():
+                initial = f.extra.get('initial')
+
+                # filter param is either missing or empty, use initial as default
+                if not data.get(name) and initial:
+                    data[name] = initial
+
         super().__init__(data, *args, **kwargs)
+        self.filters['tipoPericia'].extra.update(
+            {'empty_label': 'Todas'})
+        # self.form.initial['descripcion'] = 'aaaa'
+        self.filters['proyecto'].extra.update(
+            {'empty_label': 'Todos'})
+        self.filters['proyecto'].label = 'IPP'
 
     class Meta:
         model = Pericia
         fields = ['tipoPericia', 'descripcion', 'proyecto', 'fecha', ]
 
-    def __init__(self, *args, **kwargs):
-        super(PericiaFilter, self).__init__(*args, **kwargs)
-        self.filters['tipoPericia'].extra.update(
-            {'empty_label': 'Todas'})
-        self.filters['proyecto'].extra.update(
-            {'empty_label': 'Todos'})
-        self.filters['proyecto'].label = 'IPP'
 
 
 class ImagenFilter(django_filters.FilterSet):

@@ -23,6 +23,11 @@ from datetime import datetime
 import locale
 import itertools
 from io import StringIO, BytesIO
+
+from celery.result import AsyncResult
+# from .tasks import increment
+from django.http import HttpResponseRedirect, JsonResponse
+# from django.core.urlresolvers import reverse
 from zipfile import ZipFile
 from django.template.loader import render_to_string, get_template
 # from xhtml2pdf import pisa
@@ -172,9 +177,14 @@ class PericiaListar(FilteredListView):
         if proid != 0:
             queryset = Pericia.objects.filter(activo=1, proyecto=proid).annotate(num_imagenes=Count('imagen',filter=Q(imagen__activo=1))).order_by(
                 '-proyecto', '-id')
+            self.filterset_class.base_filters['proyecto'].field.initial = proid
+            self.filterset_class.base_filters['proyecto'].field.disabled = True
         else:
             queryset = Pericia.objects.filter(activo=1).annotate(num_imagenes=Count('imagen',filter=Q(imagen__activo=1))).order_by('-proyecto',
                                                                                                         '-id')
+            self.filterset_class.base_filters['proyecto'].field.initial = None
+            self.filterset_class.base_filters['proyecto'].field.disabled = False
+
         self.filterset = self.filterset_class(self.request.GET, queryset=queryset)
 
         return self.filterset.qs.distinct()
@@ -206,6 +216,19 @@ class PericiaCrear(CreateView):
     form_class = PericiaCrearForm
     template_name = 'AREXTI_APP/PericiaCrear.html'
     pericia = None
+
+    def get_initial(self):
+        # call super if needed
+
+        proyectoid = self.kwargs.get("Proyectoid")
+        if proyectoid > 0:
+            self.form_class.base_fields.get('proyecto').widget.attrs['readonly'] = True
+            # self.form_class.base_fields.get('proyecto').widget.attrs['disabled'] = True
+            return {'proyecto': proyectoid}
+        else:
+            self.form_class.base_fields.get('proyecto').widget.attrs['readonly'] = False
+            self.form_class.base_fields.get('proyecto').widget.attrs['disabled'] = False
+        return {}
 
     def form_valid(self, form):
         try:
@@ -939,3 +962,20 @@ def load_pericias(request):
 #     if not pdf.err:
 #         return HttpResponse(result.getvalue(), content_type='application/pdf')
 #     return None
+# def start_test(request):
+#     if 'job' in request.GET:
+#         job_id = request.GET['job']
+#         job = AsyncResult(job_id)
+#         data = job.result
+#         context = {
+#                 'check_status': 1,
+#                 'data': "",
+#                 'state': 'STARTING...',
+#                 'task_id': job_id
+# 		}
+#         return render(request, 'home/index.html', context)
+#     else:
+#         job = increment.delay(120)
+#         print ("Celery job ID:  {}.".format(job))
+#         return HttpResponseRedirect(reverse_lazy('start_test') + '?job=' + job.id)
+
