@@ -120,6 +120,16 @@ class PericiaForm(forms.ModelForm):
 class PericiaCrearForm(forms.ModelForm):
     error_css_class = 'error'
     required_css_class = 'required'
+    id = "periciaCrear"
+
+    def __init__(self, *args, **kwargs):
+        if 'data' in kwargs:
+            data = kwargs['data'].copy()
+            self.prefix = kwargs.get('prefix')
+            data[self.add_prefix('proyecto')] = kwargs['initial']['proyecto']
+            kwargs['data'] = data
+
+        super(PericiaCrearForm, self).__init__(*args, **kwargs)
 
     class Meta:
         model = Pericia

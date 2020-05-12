@@ -66,7 +66,6 @@ class PericiaFilter(django_filters.FilterSet):
         super().__init__(data, *args, **kwargs)
         self.filters['tipoPericia'].extra.update(
             {'empty_label': 'Todas'})
-        # self.form.initial['descripcion'] = 'aaaa'
         self.filters['proyecto'].extra.update(
             {'empty_label': 'Todos'})
         self.filters['proyecto'].label = 'IPP'

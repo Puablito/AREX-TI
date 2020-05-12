@@ -154,7 +154,7 @@
         <td>
             <div class="cl-effect-1">
                 <a class="link" href="{% url 'ImagenConsultar' imagen.id 1 %}" target="_blank">
-                    {{imagen.nombre|truncatechars:100}}
+                    {{imagen.nombre|truncatechars:35}}
                 </a>
             </div>
         </td>
@@ -191,7 +191,7 @@
                 </div>
                 <div class="modal-body">
                     <div >Seguro que desea eliminar la imagen </div>
-                    <div >{{ imagen.nombre }}?</div>
+                    <div >{{ imagen.nombre|truncatechars:20 }}?</div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-info" data-dismiss="modal">Cancelar</button>
