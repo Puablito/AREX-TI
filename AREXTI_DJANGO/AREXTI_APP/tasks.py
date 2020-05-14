@@ -9,7 +9,7 @@ def call_ProcessImage(periciaid, periciaNombre, tipoProceso, DirPrincipal, lista
                                               periciaDir)
 
 
-@shared_task
+@shared_task(track_started=True)
 def call_ChangeImageType(imagenId, imagenNombre, imagenTipoId, periciaDir):
     return ImagenAcciones.cambiar_tipoimagen(imagenId, imagenNombre, imagenTipoId, periciaDir)
 
