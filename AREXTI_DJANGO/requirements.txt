@@ -1,4 +1,4 @@
-django==2.2.3
+django==2.2.13
 psycopg2==2.8.3
 celery==4.4.1
 numpy==1.16.4
