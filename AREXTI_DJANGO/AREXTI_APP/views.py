@@ -223,7 +223,7 @@ class PericiaCrear(CreateView):
         proyectoid = self.kwargs.get("Proyectoid")
         if proyectoid > 0:
             self.form_class.base_fields.get('proyecto').widget.attrs['readonly'] = True
-            # self.form_class.base_fields.get('proyecto').widget.attrs['disabled'] = True
+            self.form_class.base_fields.get('proyecto').widget.attrs['disabled'] = True
             return {'proyecto': proyectoid}
         else:
             self.form_class.base_fields.get('proyecto').widget.attrs['readonly'] = False

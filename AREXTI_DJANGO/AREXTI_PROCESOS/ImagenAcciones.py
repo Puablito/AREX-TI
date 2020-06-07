@@ -341,13 +341,13 @@ def cambiar_tipoimagen(imagenid, imagennombre, imagentipo, periciaDir):
                 Is_OK = False
                 loggerGeneral.error("Error en parametro: DIRECTORIOIMAGEN (" + RtaBD[1] + ")")
 
-            RtaBD = Herramientas.parametro_get(conexionBD, 'TESSERACTPATH')
-            if RtaBD[0] == "OK":
-                tesseract_cmd = RtaBD[1][0]["valorTexto"]
-                logging.info("-- Ruta Tesseract: {0}".format(tesseract_cmd))
-            else:
-                Is_OK = False
-                loggerGeneral.error("Error en parametro: TESSERACTPATH (" + RtaBD[1] + ")")
+            # RtaBD = Herramientas.parametro_get(conexionBD, 'TESSERACTPATH')
+            # if RtaBD[0] == "OK":
+            #     tesseract_cmd = RtaBD[1][0]["valorTexto"]
+            #     logging.info("-- Ruta Tesseract: {0}".format(tesseract_cmd))
+            # else:
+            #     Is_OK = False
+            #     loggerGeneral.error("Error en parametro: TESSERACTPATH (" + RtaBD[1] + ")")
 
     if Is_OK:
         # Se inicia el proceso de Cambio de Tipo de Imagen
@@ -366,7 +366,7 @@ def cambiar_tipoimagen(imagenid, imagennombre, imagentipo, periciaDir):
         loggerImagen.info("----- Inicio del cambio de tipo de imagen ({0}) -----".format(imagennombre))
         loggerImagen.info("---- Parámetros generales ----")
         loggerImagen.info("-- Directorio Base: {0}".format(DirBase))
-        loggerImagen.info("-- Ruta Tesseract: {0}".format(tesseract_cmd))
+        # loggerImagen.info("-- Ruta Tesseract: {0}".format(tesseract_cmd))
         loggerImagen.info("---- Parámetros del proceso ----")
         loggerImagen.info("-- Imagen: {0}-{1}".format(imagenid, imagennombre))
         loggerImagen.info("-- Nuevo tipo de imagen : {0}".format(imagentipo))

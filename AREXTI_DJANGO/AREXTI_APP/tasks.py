@@ -3,13 +3,13 @@ import os
 from AREXTI_PROCESOS import ImagenAcciones, ProcesoPrincipal
 
 
-@shared_task
+@shared_task(track_started=True)
 def call_ProcessImage(periciaid, periciaNombre, tipoProceso, DirPrincipal, listaHash, periciaDir):
     return ProcesoPrincipal.proceso_Principal(periciaid, periciaNombre, tipoProceso, DirPrincipal, listaHash,
                                               periciaDir)
 
 
-@shared_task
+@shared_task(track_started=True)
 def call_ChangeImageType(imagenId, imagenNombre, imagenTipoId, periciaDir):
     return ImagenAcciones.cambiar_tipoimagen(imagenId, imagenNombre, imagenTipoId, periciaDir)
 
